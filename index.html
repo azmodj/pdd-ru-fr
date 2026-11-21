@@ -278,11 +278,11 @@ if(window.claude&&claude.use){
 {const N=48;
 async function offStat(){const el=document.getElementById('offst');if(!el)return;
   if(!('serviceWorker' in navigator)||!window.caches){el.textContent='Hors ligne : non pris en charge par ce navigateur.';return}
-  try{const c=await caches.open('pdd-v2'),n=(await c.keys()).length;
+  try{const c=await caches.open('pdd-v3'),n=(await c.keys()).length;
     if(n>=N){el.textContent='Hors ligne : prêt. Tu peux passer en mode avion.';el.style.color='var(--grn)'}
     else{el.textContent='Hors ligne : téléchargement '+n+'/'+N+'… garde l\'application ouverte avec Internet.';el.style.color='#e07b00';setTimeout(offStat,1500)}}catch(e){el.textContent=''}}
 window.offStat=offStat;
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(()=>setTimeout(offStat,800)).catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(()=>setTimeout(offStat,800)).catch(()=>{});
 }
 </script>
 </body>
