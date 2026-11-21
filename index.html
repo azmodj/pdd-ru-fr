@@ -98,7 +98,7 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .card0{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0 16px}
 .bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:4px 0 2px}.bar i{display:block;height:100%;border-radius:6px;background:#3b82f6}
 .brow{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:17px}.brow span:last-child{font-variant-numeric:tabular-nums}
-.bars2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.bars2{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 14px}
 .tile{position:relative;overflow:hidden;border:0;border-radius:22px;aspect-ratio:1/1;max-height:240px;width:100%;padding:14px 16px;text-align:left;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.12);display:flex;flex-direction:column}
 .tile b{font:700 clamp(22px,6vw,30px)/1.05 "PT Sans Narrow",sans-serif;position:relative;z-index:1}
@@ -109,7 +109,7 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .row{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px;text-align:left;min-height:62px}
 .row:last-child{border-bottom:0}.row svg{width:40px;height:40px;flex:none}
 .row b{display:block;font-size:17px}.row span{flex:1}.row small{color:var(--mut);font-size:13px;display:block}
-.row::after{content:"›";font-size:26px;color:var(--mut)}
+.ru{display:block;font-style:normal;font-size:13px;line-height:1.2;opacity:.85}.brow .ru{font-weight:400;color:var(--mut)}.tile .ru{font-size:15px;font-weight:700;opacity:.9;position:relative;z-index:1}.row .ru{color:var(--fr);font-weight:700}.row::after{content:"›";font-size:26px;color:var(--mut)}
 @media(prefers-reduced-motion:no-preference){.tile svg{animation:bob 3.2s ease-in-out infinite}.tile:nth-child(2) svg{animation-delay:-.8s}.tile:nth-child(3) svg{animation-delay:-1.6s}.tile:nth-child(4) svg{animation-delay:-2.4s}
  @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
  .lamp{animation:blink 2.4s steps(1) infinite}@keyframes blink{50%{opacity:.35}}.tile{transition:transform .1s}}
@@ -170,27 +170,27 @@ let flashMsg='';
 const render={
 home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
   const err=Object.values(st.r).filter(x=>x===0).length,pct=(a,b)=>Math.round(a/b*100);
-  const tile=(go,c,t,s,ill)=>`<button class="tile" data-go="${go}" style="--c:${c}"><b>${t}</b><small>${s}</small>${ILL[ill]}</button>`;
-  const row=(go,ill,t,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><small>${s}</small></span></button>`;
+  const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c:${c}"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small>${ILL[ill]}</button>`;
+  const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
   app.innerHTML=`<div class="card0">
-   <div class="brow"><span>Questions vues</span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
-   <div class="bars2"><div><div class="brow"><span>Billets réussis</span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
-   <div><div class="brow"><span>Réussite</span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
+   <div class="brow"><span>Questions vues<em class="ru">Пройдено вопросов</em></span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
+   <div class="bars2"><div><div class="brow"><span>Billets réussis<em class="ru">Билеты без ошибок</em></span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
+   <div><div class="brow"><span>Réussite<em class="ru">Верных ответов</em></span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
    <p class="note" id="offst" style="margin:10px 0 0"></p></div>
   ${Object.keys(st.p).length?`<h2>Billets à terminer</h2><div class="pend">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
   <div class="tiles">
-   ${tile('exam','#7c83e6','Examen','Comme au ГИБДД','exam')}
-   ${tile('tickets','#4f9f72','Billets','40 billets de 20 questions','tickets')}
-   ${tile('topics','#4b9be8','Thèmes',Object.keys(TOP).length+' thèmes à réviser','topics')}
-   ${tile('errors','#e07a74','Erreurs ('+err+')',err?'À revoir':'Aucune pour l\'instant','errors')}
+   ${tile('exam','#7c83e6','Examen','Экзамен','Comme au ГИБДД','exam')}
+   ${tile('tickets','#4f9f72','Billets','Билеты','40 billets de 20 questions','tickets')}
+   ${tile('topics','#4b9be8','Thèmes','Темы',Object.keys(TOP).length+' thèmes à réviser','topics')}
+   ${tile('errors','#e07a74','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
   <div class="rows">
-   ${row('texam','texam','Examen par thème','Panneaux, premiers secours, légal…')}
-   ${row('vocab','vocab','Quiz de vocabulaire',G.length+' mots · '+vk+' déjà travaillés')}
-   ${row('marathon','marathon','Marathon','Les 800 questions mélangées')}
-   ${row('lexique','lexique','Lexique RU → FR','Tous les mots-clés')}
-   ${row('reset','reset','Remettre à zéro','Efface la progression')}
+   ${row('texam','texam','Examen par thème','Экзамен по темам','Panneaux, premiers secours, légal…')}
+   ${row('vocab','vocab','Quiz de vocabulaire','Словарный тест',G.length+' mots · '+vk+' déjà travaillés')}
+   ${row('marathon','marathon','Marathon','Марафон','Les 800 questions mélangées')}
+   ${row('lexique','lexique','Lexique RU → FR','Словарь','Tous les mots-clés')}
+   ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression')}
   </div>`;
   if(window.offStat)offStat();
   app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
