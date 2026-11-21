@@ -242,6 +242,7 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 <header class="top">
   <button class="plate" id="home">ПДД 2026</button>
   <span class="sp"></span>
+  <button class="tbtn" id="langbtn" aria-label="Langue / Language"></button>
   <button class="tbtn" id="lexbtn">Lexique</button>
 </header>
 <main id="app"><p class="note">Chargement des 800 questions…</p></main>
@@ -251,6 +252,30 @@ const $=s=>document.querySelector(s), app=$('#app');
 const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
 let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0()}, db=null, sample=null, uid=null, S=null, tick=null;
 window.pddView=()=>S&&S.view;
+/* langue de traduction : français (par défaut) ou anglais. En anglais, les traductions des questions et du lexique sont remplacées,
+   et les textes de l'interface sont traduits à l'affichage. */
+const LANG=localStorage.getItem('pdd-lang')==='en'?'en':'fr';
+{const lb=$('#langbtn');lb.textContent=LANG==='en'?'FR':'EN';lb.onclick=()=>{localStorage.setItem('pdd-lang',LANG==='en'?'fr':'en');location.reload()}}
+function useEnglish(E){
+  Q.forEach((q,i)=>{const x=E.q&&E.q[i];if(x){q.fq=x[0];q.fa=x[1];if(x[2])q.fh=x[2]}});
+  G.forEach((g,i)=>{const x=E.g&&E.g[i];if(x)g[1]=x});
+  document.documentElement.lang='en';
+  const ex=E.ex,sub=E.sub,rx=E.rx.map(([a,b])=>[new RegExp(a),b]);
+  const tr=(t,at)=>{const core=t.trim();if(!core||!/[A-Za-zÀ-ÿ]/.test(core))return t;
+    const nums=core.match(/\d+/g)||[],key=(at?'@':'')+core.replace(/\d+/g,'#');let r=ex[key];
+    if(r!==undefined){let i=0;r=r.replace(/^@/,'').replace(/#/g,()=>nums[i]!==undefined?nums[i++]:'#')}
+    else{r=core;for(const[a,b]of rx)if(a.test(r)){r=r.replace(a,b);break}
+      for(const[a,b]of sub)if(r.includes(a))r=r.split(a).join(b)}
+    return r===core?t:t.replace(core,r)};
+  const ATT=['aria-label','alt','placeholder','title'];
+  const walk=n=>{if(n.nodeType===3){const v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v;return}
+    if(n.nodeType!==1||n.closest('script,style'))return;
+    const w=document.createTreeWalker(n,NodeFilter.SHOW_TEXT);let t;const ts=[];while(t=w.nextNode())ts.push(t);
+    ts.forEach(t=>{if(!t.parentElement.closest('script,style')){const v=tr(t.nodeValue);if(v!==t.nodeValue)t.nodeValue=v}});
+    [n,...n.querySelectorAll('[aria-label],[alt],[placeholder],[title]')].forEach(e=>ATT.forEach(a=>{const v=e.getAttribute(a);if(v){const r=tr(v,1);if(r!==v)e.setAttribute(a,r)}}))};
+  new MutationObserver(ms=>ms.forEach(m=>m.type==='childList'?m.addedNodes.forEach(walk):walk(m.target)))
+    .observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATT});
+  walk(document.body)}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function D0(){return{xp:0,streak:0,best:0,last:'',freeze:0,days:{},badges:{},total:0,perfect:0,maxc:0}}
@@ -784,7 +809,7 @@ $('#home').onclick=()=>{clearInterval(tick);if(TTS)speechSynthesis.cancel();rend
 $('#lexbtn').onclick=()=>{clearInterval(tick);render.lexique()};
 
 /* ---------- démarrage ---------- */
-Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json())]).then(([d,g])=>{Q=d;G=g;checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
+Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json()),LANG==='en'?fetch('e.json').then(r=>r.json()).catch(()=>null):null]).then(([d,g,e])=>{Q=d;G=g;if(e)useEnglish(e);checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
 if(window.claude&&claude.use){
   claude.use('sample').then(s=>{sample=s;if(S&&S.view==='quiz')renderQuiz()}).catch(()=>{});
   Promise.all([claude.use('db'),claude.use('user')]).then(async([d,u])=>{
