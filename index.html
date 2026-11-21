@@ -113,6 +113,26 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 @media(prefers-reduced-motion:no-preference){.tile svg{animation:bob 3.2s ease-in-out infinite}.tile:nth-child(2) svg{animation-delay:-.8s}.tile:nth-child(3) svg{animation-delay:-1.6s}.tile:nth-child(4) svg{animation-delay:-2.4s}
  @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
  .lamp{animation:blink 2.4s steps(1) infinite}@keyframes blink{50%{opacity:.35}}.tile{transition:transform .1s}}
+
+.fx{position:fixed;left:50%;top:42%;width:150px;height:150px;margin:-75px 0 0 -75px;z-index:50;pointer-events:none;perspective:600px}
+.fx>div{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;transform-style:preserve-3d;animation:fxin .9s cubic-bezier(.2,1.6,.4,1) both}
+.fx.ok>div{background:radial-gradient(circle at 35% 30%,#6fe08d,#1f8a3b 70%);box-shadow:0 14px 0 #146329,0 24px 40px rgba(0,0,0,.35)}
+.fx.ko>div{background:radial-gradient(circle at 35% 30%,#ff7a70,#d7261e 70%);box-shadow:0 14px 0 #8f1712,0 24px 40px rgba(0,0,0,.35);animation:fxin .9s cubic-bezier(.2,1.6,.4,1) both,shake .45s .35s both}
+.fx svg{width:62%;height:62%;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25))}
+.fx path{fill:none;stroke:#fff;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:120;stroke-dashoffset:120;animation:draw .35s .2s ease-out forwards}
+.fx.ko path+path{animation-delay:.38s}
+.fx.out{animation:fxout .3s ease-in forwards}
+@keyframes fxin{0%{transform:scale(.2) rotateY(-90deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotateY(0)}}
+@keyframes fxout{to{opacity:0;transform:scale(.6) translateY(-30px)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes shake{0%,100%{translate:0}20%{translate:-12px}40%{translate:10px}60%{translate:-7px}80%{translate:4px}}
+.party{position:fixed;inset:0;z-index:60;pointer-events:none;background:rgba(8,16,36,.72);animation:dim 4.4s ease both}@keyframes dim{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
+.bravo{position:fixed;left:0;right:0;top:30%;z-index:61;text-align:center;pointer-events:none;perspective:700px}
+.bravo b{display:block;font:700 clamp(54px,16vw,96px)/1 "PT Sans Narrow",sans-serif;color:#ffd54a;text-shadow:0 2px 0 #e0a800,0 4px 0 #c78f00,0 6px 0 #a87800,0 8px 0 #8a6200,0 14px 24px rgba(0,0,0,.4);animation:pop 1s cubic-bezier(.2,1.6,.4,1) both}
+.bravo i{display:block;font:700 clamp(28px,8vw,44px)/1.2 "PT Sans",sans-serif;font-style:normal;color:#fff;text-shadow:0 3px 0 #1b4f9c,0 6px 0 #133a73,0 10px 18px rgba(0,0,0,.4);animation:pop 1s .25s cubic-bezier(.2,1.6,.4,1) both}
+.bravo.out{animation:fxout .6s ease-in forwards}
+@keyframes pop{0%{transform:scale(.1) rotateX(80deg);opacity:0}100%{transform:scale(1) rotateX(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.fx>div,.fx path,.bravo b,.bravo i{animation:none!important;stroke-dashoffset:0}}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
 @media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
 </style>
@@ -269,7 +289,7 @@ function examAnswer(k){const E=S.ex,wrong=x=>S.ans[x]!==undefined&&S.ans[x]!==Q[
 /* mini-quiz de vocabulaire */
 function makeVq(gi){const others=shuffle(G.map((_,i)=>i).filter(i=>i!==gi&&G[i][1]!==G[gi][1])).slice(0,2);return{gi,opts:shuffle([gi,...others]),pick:null}}
 function vqHtml(v){return`<div class="vq"><p>Que veut dire <b>« ${esc(G[v.gi][0])} »</b> ?</p><div class="opts">${v.opts.map(o=>`<button data-o="${o}" class="${v.pick===null?'':o===v.gi?'ok':o===v.pick?'ko':''}" ${v.pick!==null?'disabled':''}>${esc(G[o][1])}</button>`).join('')}</div></div>`}
-function pickVq(v,o){if(v.pick!==null)return;v.pick=o;st.v[v.gi]=o===v.gi?1:0;save()}
+function pickVq(v,o){if(v.pick!==null)return;v.pick=o;fx(o===v.gi);st.v[v.gi]=o===v.gi?1:0;save()}
 
 function renderQuiz(){
   clearInterval(tick);
@@ -308,7 +328,8 @@ function renderQuiz(){
 }
 function go(i){S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
-  if(S.ex){examAnswer(k);if(S.ex.fail)return finish()}
+  fx(j===Q[k].c);
+  if(S.ex){examAnswer(k);if(S.ex.fail)return setTimeout(finish,900)}
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
   if(S.t&&S.mode!=='free'){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tk[S.t];st.tk[S.t]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};if(S.mode==='ticket')delete st.p[S.t];save()}
@@ -321,7 +342,34 @@ function renderResult(){
   <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip&&!E?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
+  if(pass)setTimeout(celebrate,250);
 }
+
+
+/* ---------- animations : coche, croix, feu d'artifice ---------- */
+let fxT;
+function fx(ok){document.querySelectorAll('.fx').forEach(e=>e.remove());clearTimeout(fxT);
+  const d=document.createElement('div');d.className='fx '+(ok?'ok':'ko');
+  d.innerHTML='<div><svg viewBox="0 0 100 100">'+(ok?'<path d="M24 52 L43 70 L77 32"/>':'<path d="M30 30 L70 70"/><path d="M70 30 L30 70"/>')+'</svg></div>';
+  document.body.appendChild(d);fxT=setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),320)},ok?850:1100)}
+function celebrate(){if(document.querySelector('.party'))return;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),650)},3200);
+  if(reduce)return;
+  const c=document.createElement('canvas');c.className='party';document.body.appendChild(c);
+  const x=c.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);let W,H;
+  const size=()=>{W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)};size();
+  const cols=['#ffd54a','#ff5a4f','#4fc3ff','#7cf08e','#c58bff','#ffffff','#ff9f43'],P=[];
+  const burst=()=>{const cx=W*(.15+Math.random()*.7),cy=H*(.12+Math.random()*.35),col=cols[Math.random()*cols.length|0],n=60;
+    for(let i=0;i<n;i++){const a=Math.PI*2*i/n,s=2+Math.random()*4;P.push({x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1,c:Math.random()<.25?'#fff':col,r:2+Math.random()*2})}};
+  let k=0;const iv=setInterval(()=>{burst();if(++k>=7)clearInterval(iv)},380);burst();
+  const t0=performance.now();
+  (function loop(now){x.clearRect(0,0,W,H);
+    for(let i=P.length-1;i>=0;i--){const p=P[i];p.vx*=.985;p.vy=p.vy*.985+.06;p.x+=p.vx;p.y+=p.vy;p.l-=.012;
+      if(p.l<=0){P.splice(i,1);continue}
+      x.globalAlpha=p.l;x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}
+    if(now-t0<4200||P.length)requestAnimationFrame(loop);else c.remove()})(t0)}
 
 /* quiz de vocabulaire seul : 10 mots, priorité aux mots ratés ou jamais vus */
 function startVocab(){
@@ -329,8 +377,8 @@ function startVocab(){
   S={view:'vocab',list:shuffle(w.slice(0,25)).slice(0,10).map(makeVq),i:0};renderVocab()}
 function renderVocab(){
   if(S.i>=S.list.length){const ok=S.list.filter(v=>v.pick===v.gi).length;
-    app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire</p><b class="${ok>=8?'pass':'fail'}">${ok}/10</b></div><div class="kw"><ul>${S.list.map(v=>`<li><b>${esc(G[v.gi][0])}</b><span>${esc(G[v.gi][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore 10 mots</button><button class="btn ghost" id="back">Accueil</button></div>`;
-    $('#again').onclick=startVocab;$('#back').onclick=render.home;return}
+    app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire</p><b class="${ok>=8?'pass':'fail'}">${ok}/10</b></div>${ok>=8?'<i hidden id="cel"></i>':''}<div class="kw"><ul>${S.list.map(v=>`<li><b>${esc(G[v.gi][0])}</b><span>${esc(G[v.gi][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore 10 mots</button><button class="btn ghost" id="back">Accueil</button></div>`;
+    $('#again').onclick=startVocab;$('#back').onclick=render.home;if($('#cel'))setTimeout(celebrate,250);return}
   const v=S.list[S.i];
   app.innerHTML=`<div class="qhead"><span class="t">Quiz de vocabulaire · ${S.i+1}/10</span></div><div class="kw" style="margin-top:0">${vqHtml(v)}</div><div class="nav"><button class="btn" id="next" ${v.pick===null?'disabled':''}>${S.i===9?'Voir le résultat':'Mot suivant'}</button></div>`;
   app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(v,+b.dataset.o);renderVocab()});
