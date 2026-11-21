@@ -52,6 +52,8 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .btn.ghost{background:none;color:var(--fr);border:2px solid var(--fr)}
 .btn:disabled{opacity:.45;cursor:default}
 .qhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+#app.swl{animation:swl .25s ease-out}#app.swr{animation:swr .25s ease-out}
+@keyframes swl{from{transform:translateX(40px);opacity:.3}}@keyframes swr{from{transform:translateX(-40px);opacity:.3}}
 .favb{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:var(--card);padding:0;flex:none}
 .favb svg{width:24px;height:24px}.favb path{fill:none;stroke:var(--mut);stroke-width:2;stroke-linejoin:round}
 .favb[aria-pressed=true]{border-color:#f5b400;background:light-dark(#fff6d6,#2e2814)}.favb[aria-pressed=true] path{fill:#ffc61a;stroke:#d99a00}
@@ -490,12 +492,20 @@ function renderQuiz(){
   {const sp=app.querySelector('.strip'),cb=sp&&sp.querySelector('.cur');if(cb)sp.scrollLeft=cb.offsetLeft-sp.offsetLeft-(sp.clientWidth-cb.offsetWidth)/2}
   app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
   const tb=$('#tipb');if(tb)tb.onclick=()=>trTip(k);
-  $('#prev').onclick=()=>go(S.i-1);
-  $('#next').onclick=()=>{if(S.i<S.list.length-1)go(S.i+1);else finish()};
+  $('#prev').onclick=()=>go(S.i-1,-1);
+  $('#next').onclick=()=>{if(S.i<S.list.length-1)go(S.i+1,1);else finish()};
   if(exam){const tm=$('#tm'),up=()=>{const r=Math.max(0,S.end-Date.now());tm.textContent=Math.floor(r/60e3)+':'+String(Math.floor(r/1e3)%60).padStart(2,'0');if(!r)finish()};up();tick=setInterval(up,1000)}
   if(db&&!(k in HF)&&a!==undefined&&!exam){HF[k]=undefined;db.doc('fh/q'+k).get().then(s=>{if(s.exists&&s.data().t){HF[k]=String(s.data().t);if(S.view==='quiz'&&S.list[S.i]===k)renderQuiz()}}).catch(()=>{})}
 }
-function go(i){if(TTS)speechSynthesis.cancel();S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
+function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0);
+  if(dir&&!matchMedia('(prefers-reduced-motion: reduce)').matches){app.classList.remove('swl','swr');void app.offsetWidth;app.classList.add(dir>0?'swl':'swr')}}
+/* glisser le doigt à gauche = question suivante, à droite = question précédente */
+(()=>{let x0=0,y0=0,t0=0,ok=false;
+  app.addEventListener('touchstart',e=>{const t=e.touches[0];ok=e.touches.length===1&&S&&S.view==='quiz'&&!S.done&&!e.target.closest('.strip,.vmg,input,textarea');x0=t.clientX;y0=t.clientY;t0=Date.now()},{passive:true});
+  app.addEventListener('touchend',e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+    if(Date.now()-t0>700||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.6)return;
+    document.querySelectorAll('.wtip').forEach(e=>e.remove());
+    if(dx<0&&S.i<S.list.length-1)go(S.i+1,1);else if(dx>0&&S.i>0)go(S.i-1,-1)},{passive:true})})();
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
   fx(j===Q[k].c);
   if(S.ex){examAnswer(k);if(S.ex.fail)return setTimeout(finish,900)}
