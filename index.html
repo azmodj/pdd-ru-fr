@@ -138,6 +138,10 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 .wtip{position:absolute;z-index:70;background:#1b4f9c;color:#fff;border-radius:10px;padding:7px 11px;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:80vw;animation:wt .2s ease-out}
 @keyframes wt{from{opacity:0;transform:translateY(6px)}}
 @media(prefers-reduced-motion:no-preference){mark.kwm{animation:hl .6s ease-out both}@keyframes hl{from{background-size:0 100%}}}
+
+.say{display:inline-grid;place-items:center;width:34px;height:34px;margin:0 0 0 8px;vertical-align:-7px;border-radius:50%;border:0;background:var(--blue2);color:var(--fr);padding:0;cursor:pointer;flex:none}
+.tip .say,.say{border-radius:50%;border:0;min-height:0;padding:0;width:34px;height:34px;background:var(--blue2);color:var(--fr)}.tip .say.on,.say.on{background:var(--blue);color:#fff}.say svg{width:20px;height:20px}.say.on{background:var(--blue);color:#fff}
+@media(prefers-reduced-motion:no-preference){.say.on{animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(27,79,156,.25)}}}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
 @media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
 </style>
@@ -309,16 +313,17 @@ function renderQuiz(){
   ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
   ${strip}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
-  <p class="q">${hlq(q.q)}</p>
+  <p class="q">${hlq(q.q)}${TTS?`<button class="say" data-say="q" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
-  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
-  ${a!==undefined&&!exam?`<div class="tip"><p>${hlq(q.h)}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
+  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
+  ${a!==undefined&&!exam?`<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Une faute ajoute 5 questions du même bloc ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec. Les mots-clés et explications s'affichent à la fin, dans « Revoir mes fautes ».</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
+  app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
   app.querySelectorAll('mark.kwm').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
@@ -332,7 +337,7 @@ function renderQuiz(){
   if(exam){const tm=$('#tm'),up=()=>{const r=Math.max(0,S.end-Date.now());tm.textContent=Math.floor(r/60e3)+':'+String(Math.floor(r/1e3)%60).padStart(2,'0');if(!r)finish()};up();tick=setInterval(up,1000)}
   if(db&&!(k in HF)&&a!==undefined&&!exam){HF[k]=undefined;db.doc('fh/q'+k).get().then(s=>{if(s.exists&&s.data().t){HF[k]=String(s.data().t);if(S.view==='quiz'&&S.list[S.i]===k)renderQuiz()}}).catch(()=>{})}
 }
-function go(i){S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
+function go(i){if(TTS)speechSynthesis.cancel();S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
   fx(j===Q[k].c);
   if(S.ex){examAnswer(k);if(S.ex.fail)return setTimeout(finish,900)}
@@ -353,6 +358,15 @@ function renderResult(){
 
 
 
+
+/* lecture à voix haute en russe (voix du téléphone, marche hors ligne) */
+const TTS='speechSynthesis' in window;let ruVoice=null;
+function pickVoice(){const v=speechSynthesis.getVoices().filter(x=>/^ru/i.test(x.lang));ruVoice=v.find(x=>/milena|katya|yuri|premium|enhanced/i.test(x.name))||v[0]||null}
+if(TTS){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function say(t,btn){if(!TTS)return;const was=btn&&btn.classList.contains('on');speechSynthesis.cancel();document.querySelectorAll('.say.on').forEach(x=>x.classList.remove('on'));if(was)return;
+  const u=new SpeechSynthesisUtterance(t.replace(/\(.*?ПДД.*?\)|«|»/g,' '));u.lang='ru-RU';if(ruVoice)u.voice=ruVoice;u.rate=.95;
+  if(btn){btn.classList.add('on');u.onend=u.onerror=()=>btn.classList.remove('on')}
+  speechSynthesis.speak(u)}
 /* bulle de traduction sur un mot surligné */
 let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remove());clearTimeout(twT);
   const g=G[+m.dataset.g],t=document.createElement('div');t.className='wtip';t.innerHTML=`<b>${esc(g[0])}</b> = ${esc(g[1])}`;document.body.appendChild(t);
