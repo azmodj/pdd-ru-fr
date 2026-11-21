@@ -55,6 +55,10 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 #app.swl{animation:swl .25s ease-out}#app.swr{animation:swr .25s ease-out}
 @keyframes swl{from{transform:translateX(40px);opacity:.3}}@keyframes swr{from{transform:translateX(-40px);opacity:.3}}
 .updbar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:90;border:0;border-radius:14px;min-height:52px;background:#1f8a3b;color:#fff;font-weight:700;font-size:16px;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.langmenu{position:fixed;z-index:95;display:grid;gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.langmenu button{min-width:96px;min-height:42px;border:0;border-radius:8px;background:none;color:var(--ink);font-size:17px;font-weight:700;text-align:center}
+.langmenu button.on{background:var(--blue2);color:var(--blue)}
+body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body.rtl .expl,body.rtl p,body.rtl li{unicode-bidi:plaintext}
 .favb{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:var(--card);padding:0;flex:none}
 .favb svg{width:24px;height:24px}.favb path{fill:none;stroke:var(--mut);stroke-width:2;stroke-linejoin:round}
 .favb[aria-pressed=true]{border-color:#f5b400;background:light-dark(#fff6d6,#2e2814)}.favb[aria-pressed=true] path{fill:#ffc61a;stroke:#d99a00}
@@ -254,12 +258,18 @@ let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0()}, db=null, s
 window.pddView=()=>S&&S.view;
 /* langue de traduction : français (par défaut) ou anglais. En anglais, les traductions des questions et du lexique sont remplacées,
    et les textes de l'interface sont traduits à l'affichage. */
-const LANG=localStorage.getItem('pdd-lang')==='en'?'en':'fr';
-{const lb=$('#langbtn');lb.textContent=LANG==='en'?'FR':'EN';lb.onclick=()=>{localStorage.setItem('pdd-lang',LANG==='en'?'fr':'en');location.reload()}}
+const LANGS={fr:'FR',en:'EN',zh:'中文',ar:'عربي'},LFILE={en:'e.json',zh:'zh.json',ar:'ar.json'};
+const LANG=LANGS[localStorage.getItem('pdd-lang')]?localStorage.getItem('pdd-lang'):'fr';
+{const lb=$('#langbtn');lb.textContent=LANGS[LANG];lb.onclick=e=>{e.stopPropagation();let m=$('.langmenu');if(m){m.remove();return}
+  m=document.createElement('div');m.className='langmenu';
+  m.innerHTML=Object.entries(LANGS).map(([k,v])=>`<button data-l="${k}" class="${k===LANG?'on':''}">${v}</button>`).join('');
+  m.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;if(b.dataset.l!==LANG){localStorage.setItem('pdd-lang',b.dataset.l);location.reload()}else m.remove()};
+  document.body.appendChild(m);const r=lb.getBoundingClientRect();m.style.top=(r.bottom+6)+'px';m.style.right=(innerWidth-r.right)+'px';
+  setTimeout(()=>document.addEventListener('click',()=>m.remove(),{once:true}),0)}}
 function useEnglish(E){
   Q.forEach((q,i)=>{const x=E.q&&E.q[i];if(x){q.fq=x[0];q.fa=x[1];if(x[2])q.fh=x[2]}});
   G.forEach((g,i)=>{const x=E.g&&E.g[i];if(x)g[1]=x});
-  document.documentElement.lang='en';
+  document.documentElement.lang=LANG;if(LANG==='ar')document.body.classList.add('rtl');
   const ex=E.ex,sub=E.sub,rx=E.rx.map(([a,b])=>[new RegExp(a),b]);
   const tr=(t,at)=>{const core=t.trim();if(!core||!/[A-Za-zÀ-ÿ]/.test(core))return t;
     const nums=core.match(/\d+/g)||[],key=(at?'@':'')+core.replace(/\d+/g,'#');let r=ex[key];
@@ -809,7 +819,7 @@ $('#home').onclick=()=>{clearInterval(tick);if(TTS)speechSynthesis.cancel();rend
 $('#lexbtn').onclick=()=>{clearInterval(tick);render.lexique()};
 
 /* ---------- démarrage ---------- */
-Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json()),LANG==='en'?fetch('e.json').then(r=>r.json()).catch(()=>null):null]).then(([d,g,e])=>{Q=d;G=g;if(e)useEnglish(e);checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
+Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json()),LFILE[LANG]?fetch(LFILE[LANG]).then(r=>r.json()).catch(()=>null):null]).then(([d,g,e])=>{Q=d;G=g;if(e)useEnglish(e);checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
 if(window.claude&&claude.use){
   claude.use('sample').then(s=>{sample=s;if(S&&S.view==='quiz')renderQuiz()}).catch(()=>{});
   Promise.all([claude.use('db'),claude.use('user')]).then(async([d,u])=>{
