@@ -149,6 +149,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
   <div class="stat"><b>${s.pass}<small>/40</small></b><span>billets sans faute</span></div></div>
   ${Object.keys(st.p).length?`<h2>Billets à terminer</h2><div class="pend">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
+  <p class="note" id="offst"></p>
   <div class="modes">
    <button class="mode main" data-go="exam"><b>Examen blanc</b><span>Billet au hasard, 20 min, 2 fautes max</span></button>
    <button class="mode" data-go="tickets"><b>Billets 1 à 40</b><span>20 questions par billet</span></button>
@@ -159,6 +160,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
    <button class="mode" data-go="lexique"><b>Lexique RU → FR</b><span>Tous les mots-clés</span></button>
    <button class="mode" data-go="reset"><b>Remettre à zéro</b><span>Efface la progression</span></button>
   </div>`;
+  if(window.offStat)offStat();
   app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;flashMsg='';
     if(g==='exam')startTicket(1+Math.random()*40|0,'exam');
@@ -272,6 +274,16 @@ if(window.claude&&claude.use){
 }
 }
 </script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})</script>
+<script>
+{const N=48;
+async function offStat(){const el=document.getElementById('offst');if(!el)return;
+  if(!('serviceWorker' in navigator)||!window.caches){el.textContent='Hors ligne : non pris en charge par ce navigateur.';return}
+  try{const c=await caches.open('pdd-v2'),n=(await c.keys()).length;
+    if(n>=N){el.textContent='Hors ligne : prêt. Tu peux passer en mode avion.';el.style.color='var(--grn)'}
+    else{el.textContent='Hors ligne : téléchargement '+n+'/'+N+'… garde l\'application ouverte avec Internet.';el.style.color='#e07b00';setTimeout(offStat,1500)}}catch(e){el.textContent=''}}
+window.offStat=offStat;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(()=>setTimeout(offStat,800)).catch(()=>{});
+}
+</script>
 </body>
 </html>
