@@ -16,7 +16,9 @@ self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new
   const refresh=c=>fetch(e.request,{cache:'no-cache'}).then(n=>{if(n.ok)return c.put(key,n.clone()).then(()=>n);return n});
   e.respondWith(caches.open(C).then(async c=>{
     const hit=await c.match(key,{ignoreSearch:true})||(nav?await c.match('index.html'):undefined);
-    if(hit){if(nav||SHELL.test(u.pathname))e.waitUntil(refresh(c).catch(()=>{}));return hit}
+    if(hit){if(nav){const old=hit.clone();e.waitUntil(refresh(c).then(async n=>{if(!n.ok)return;const [a,b]=await Promise.all([old.text(),n.clone().text()]);
+        if(a!==b){await new Promise(r=>setTimeout(r,1500));for(const cl of await self.clients.matchAll({type:'window'}))cl.postMessage('pdd-update')}}).catch(()=>{}))}
+      else if(SHELL.test(u.pathname))e.waitUntil(refresh(c).catch(()=>{}));return hit}
     return refresh(c);
   }));
 });

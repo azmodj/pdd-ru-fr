@@ -54,6 +54,7 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .qhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 #app.swl{animation:swl .25s ease-out}#app.swr{animation:swr .25s ease-out}
 @keyframes swl{from{transform:translateX(40px);opacity:.3}}@keyframes swr{from{transform:translateX(-40px);opacity:.3}}
+.updbar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:90;border:0;border-radius:14px;min-height:52px;background:#1f8a3b;color:#fff;font-weight:700;font-size:16px;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .favb{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:var(--card);padding:0;flex:none}
 .favb svg{width:24px;height:24px}.favb path{fill:none;stroke:var(--mut);stroke-width:2;stroke-linejoin:round}
 .favb[aria-pressed=true]{border-color:#f5b400;background:light-dark(#fff6d6,#2e2814)}.favb[aria-pressed=true] path{fill:#ffc61a;stroke:#d99a00}
@@ -802,6 +803,10 @@ async function offStat(){const el=document.getElementById('offst');if(!el)return
     else{el.textContent='Hors ligne : téléchargement '+n+'/'+N+'… garde l\'application ouverte avec Internet.';el.style.color='#e07b00';setTimeout(offStat,1500)}}catch(e){el.textContent=''}}
 window.offStat=offStat;
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+/* nouvelle version en ligne : recharger tout de suite à l'accueil, sinon proposer un bandeau */
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data!=='pdd-update')return;
+  if(!S||S.view==='home')return location.reload();
+  if(document.querySelector('.updbar'))return;const b=document.createElement('button');b.className='updbar';b.textContent='Nouvelle version disponible — toucher pour mettre à jour';b.onclick=()=>location.reload();document.body.appendChild(b)});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(()=>setTimeout(offStat,800)).catch(()=>{});
 }
 </script>
