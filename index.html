@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ПДД 2026 · RU/FR</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ПДД">
+<meta name="theme-color" content="#1b4f9c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: sobre, pratique, comme un terminal d'examen du ГИБДД
+   IDEA: la plaque de panneau routier russe — bleu de signalisation, bord blanc, chiffres nets
+   PICTURE: la carte-question elle-même (image, question, réponses) en haut de l'écran
+   COLOUR and TYPE: blanc, bleu panneau #1b4f9c, rouge #d7261e pour les fautes, vert pour les bonnes; PT Sans (cyrillique) + PT Sans Narrow
+   LAYOUT: barre bleue, une colonne de 780px, grille de 40 billets, réponses empilées */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0f1622);--ink:light-dark(#141a22,#e8edf4);--mut:light-dark(#5b6675,#9aa6b6);--blue:#1b4f9c;--blue2:light-dark(#e8eef8,#17263d);--line:light-dark(#d9dfe7,#2a3647);--red:#d7261e;--redbg:light-dark(#fde9e8,#3a1715);--grn:#1f8a3b;--grnbg:light-dark(#e5f4e8,#13301c);--card:light-dark(#fff,#151e2c);--fr:light-dark(#1b4f9c,#8fb4ec);--yel:light-dark(#fff6d6,#2e2814)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "PT Sans",system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+.top{background:var(--blue);color:#fff;padding:10px max(4vw,14px);display:flex;gap:10px;align-items:center;position:sticky;top:0;z-index:5}
+.plate{border:2px solid #fff;border-radius:6px;padding:2px 8px;font:700 20px/1.2 "PT Sans Narrow",sans-serif;background:none;color:#fff}
+.top .sp{flex:1}
+.tbtn{background:none;border:1.5px solid #fff;color:#fff;border-radius:8px;min-height:38px;padding:0 12px;font-size:14px}
+main{max-width:780px;margin:0 auto;padding:18px max(4vw,14px) 60px}
+h1{font:700 clamp(30px,6vw,44px)/1.05 "PT Sans Narrow",sans-serif;margin:8px 0 4px;text-wrap:balance}
+h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
+.sub{color:var(--mut);margin:0 0 16px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.stat{border-top:3px solid var(--blue);padding:8px 2px}
+.stat b{display:block;font:700 28px/1 "PT Sans Narrow",sans-serif}
+.stat b small{font-size:16px}
+.stat span{color:var(--mut);font-size:13px}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mode{background:var(--blue2);border:0;border-radius:12px;padding:14px;text-align:left;min-height:76px}
+.mode b{display:block;font-size:17px}.mode span{color:var(--mut);font-size:14px}
+.mode.main{background:var(--blue);color:#fff}.mode.main span{color:#d6e2f5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.tk{aspect-ratio:1;border:2px solid var(--line);background:var(--card);border-radius:10px;font:700 20px "PT Sans Narrow",sans-serif;position:relative}
+.tk small{position:absolute;bottom:4px;left:0;right:0;font:400 11px "PT Sans",sans-serif;color:var(--mut)}
+.tk.ok{border-color:var(--grn);background:var(--grnbg)}.tk.ko{border-color:var(--red);background:var(--redbg)}.tk.go{border-color:#e07b00;background:light-dark(#fff1de,#3a2810)}
+.tk i{position:absolute;top:3px;right:5px;font:700 11px "PT Sans",sans-serif;font-style:normal;color:var(--mut)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--mut);margin:0 0 14px}.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.pend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.pend button{border:2px solid #e07b00;background:light-dark(#fff1de,#3a2810);border-radius:10px;min-height:44px;padding:0 14px;font-weight:700}
+.list button{display:flex;width:100%;justify-content:space-between;gap:10px;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 2px;min-height:52px}
+.list small{color:var(--mut);white-space:nowrap}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:0 18px;min-height:46px;font-weight:700}
+.btn.ghost{background:none;color:var(--fr);border:2px solid var(--fr)}
+.btn:disabled{opacity:.45;cursor:default}
+.qhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.qhead .t{font:700 18px "PT Sans Narrow",sans-serif;flex:1}
+.timer{font:700 18px "PT Sans Narrow",sans-serif;font-variant-numeric:tabular-nums;color:var(--fr)}
+.strip{display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+.strip button{flex:none;width:34px;height:34px;border-radius:6px;border:1.5px solid var(--line);background:var(--card);font-size:13px;padding:0}
+.strip .cur{border-color:var(--blue);border-width:3px}
+.strip .ok{background:var(--grn);color:#fff;border-color:var(--grn)}.strip .ko{background:var(--red);color:#fff;border-color:var(--red)}
+.pic{border-radius:10px;overflow:hidden;background:#000;margin-bottom:14px;aspect-ratio:604/225}
+.pic img{display:block;width:100%;height:auto}
+.q{font-size:19px;font-weight:700;line-height:1.35;margin:0}
+.fr{color:var(--fr);font-style:italic}
+.qfr{font-size:17px;margin:6px 0 0}
+.frbtn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:var(--blue2);border:0;border-radius:999px;padding:0 16px;min-height:40px;font-size:15px;font-weight:700;color:var(--fr)}
+.frbtn[aria-pressed=true]{background:var(--fr);color:var(--bg)}
+.ans{display:grid;gap:8px;margin:16px 0}
+.ans button{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:10px 12px;min-height:52px;align-items:start}
+.ans .n{width:28px;height:28px;border-radius:50%;background:var(--blue2);display:grid;place-items:center;font-weight:700;font-size:14px}
+.ans .fr{display:block;font-size:15px;margin-top:3px}
+.ans button.ok{border-color:var(--grn);background:var(--grnbg)}.ans button.ok .n{background:var(--grn);color:#fff}
+.ans button.ko{border-color:var(--red);background:var(--redbg)}.ans button.ko .n{background:var(--red);color:#fff}
+.ans button:disabled{cursor:default}
+.tip{border-left:4px solid var(--blue);background:var(--blue2);padding:12px 14px;border-radius:0 10px 10px 0;font-size:15px}
+.tip p{margin:0 0 8px}.tip p:last-child{margin:0}
+.tip button{background:none;border:1.5px solid var(--fr);color:var(--fr);border-radius:8px;min-height:36px;padding:0 10px;font-size:14px}
+.kw{margin-top:18px;border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.kw h3{margin:0;padding:10px 14px;background:var(--yel);font:700 17px "PT Sans Narrow",sans-serif}
+.kw ul{list-style:none;margin:0;padding:4px 14px}
+.kw li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.kw li:last-child{border:0}
+.kw li b{font-weight:700}.kw li span{color:var(--fr)}
+.vq{padding:12px 14px;border-top:2px solid var(--line)}
+.vq p{margin:0 0 8px}
+.vq .opts{display:grid;gap:6px}
+.vq .opts button{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px}
+.vq .opts button.ok{border-color:var(--grn);background:var(--grnbg)}.vq .opts button.ko{border-color:var(--red);background:var(--redbg)}
+.nav{display:flex;gap:10px;margin-top:16px}.nav .btn{flex:1}
+.note{font-size:14px;color:var(--mut);margin:10px 0}
+.res{text-align:center;padding:20px 0}
+.res b{font:700 64px/1 "PT Sans Narrow",sans-serif;display:block}
+.res .pass{color:var(--grn)}.res .fail{color:var(--red)}
+.search{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);min-height:46px;margin-bottom:10px}
+.lex li{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+.lex li small{color:var(--mut)}
+@media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
+@media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="plate" id="home">ПДД 2026</button>
+  <span class="sp"></span>
+  <button class="tbtn" id="lexbtn">Lexique</button>
+</header>
+<main id="app"><p class="note">Chargement des 800 questions…</p></main>
+<script>
+{
+const $=s=>document.querySelector(s), app=$('#app');
+const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
+let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{}}, db=null, sample=null, uid=null, S=null, tick=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})}}};
+try{const s=JSON.parse(localStorage.getItem('pdd-st')||'null');if(s&&s.r)st=norm(s)}catch(e){}
+
+/* ---------- sauvegarde ---------- */
+let saveT=null,saving=false;
+function save(){try{localStorage.setItem('pdd-st',JSON.stringify(st))}catch(e){}
+  clearTimeout(saveT);saveT=setTimeout(async()=>{if(!db||!uid||saving)return;saving=true;try{await db.doc('data/users/'+uid+'/state').set(st)}catch(e){}saving=false},1500)}
+
+/* ---------- images ---------- */
+const imgP={};
+function loadImg(t){if(!imgP[t])imgP[t]=fetch('shards/t'+t+'.json').then(r=>r.json()).then(d=>{IMG[t]=d;if(S&&S.view==='quiz'&&!S.done&&Q[S.list[S.i]].t===t)renderQuiz()}).catch(()=>{delete imgP[t]});return imgP[t]}
+
+/* ---------- explication en français (Claude, à la demande) ---------- */
+async function trTip(k){
+  const q=Q[k];S.tipBusy=true;S.tipErr='';renderQuiz();
+  try{
+    const r=await sample(`Traduis en français cette explication du code de la route russe (ПДД РФ). Traduction fidèle et complète, vocabulaire du code de la route français (обгон = dépassement, опережение = devancement, уступить дорогу = céder le passage, проезжая часть = chaussée). Garde les numéros de panneaux, de marquage et de points tels quels. Réponds uniquement par la traduction.\n\n${q.h}`,{modelTier:'default'});
+    const t=(r.text||'').trim();if(!t)throw{code:'empty'};
+    HF[k]=t;try{await db.doc('fh/q'+k).set({t})}catch(e){}
+  }catch(e){S.tipErr=e.code==='not_granted'?'Traduction refusée dans cette vue.':e.code==='rate_limited'?'Limite atteinte, réessaie plus tard.':'La traduction a échoué.'}
+  S.tipBusy=false;renderQuiz();
+}
+
+/* ---------- vues ---------- */
+const stats=()=>{const v=Object.values(st.r);return{seen:v.length,ok:v.filter(x=>x===1).length,pass:Object.values(st.tk).filter(x=>x.last===0).length}};
+let flashMsg='';
+const render={
+home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
+  app.innerHTML=`<h1>Code de la route russe, catégories A et B</h1>
+  <p class="sub">Les 800 questions officielles des 40 billets, en russe. Un bouton affiche la traduction française de la question et des réponses.</p>
+  <div class="stats"><div class="stat"><b>${s.seen}<small>/800</small></b><span>questions vues</span></div>
+  <div class="stat"><b>${s.seen?Math.round(s.ok/s.seen*100):0}%</b><span>de bonnes réponses</span></div>
+  <div class="stat"><b>${s.pass}<small>/40</small></b><span>billets sans faute</span></div></div>
+  ${Object.keys(st.p).length?`<h2>Billets à terminer</h2><div class="pend">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
+  ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
+  <div class="modes">
+   <button class="mode main" data-go="exam"><b>Examen blanc</b><span>Billet au hasard, 20 min, 2 fautes max</span></button>
+   <button class="mode" data-go="tickets"><b>Billets 1 à 40</b><span>20 questions par billet</span></button>
+   <button class="mode" data-go="topics"><b>Par thème</b><span>${Object.keys(TOP).length} thèmes du ПДД</span></button>
+   <button class="mode" data-go="errors"><b>Mes erreurs</b><span>${Object.values(st.r).filter(x=>x===0).length} question(s) à revoir</span></button>
+   <button class="mode" data-go="vocab"><b>Quiz de vocabulaire</b><span>${G.length} mots de la route · ${vk} déjà travaillés</span></button>
+   <button class="mode" data-go="marathon"><b>Marathon</b><span>Les 800 questions mélangées</span></button>
+   <button class="mode" data-go="lexique"><b>Lexique RU → FR</b><span>Tous les mots-clés</span></button>
+   <button class="mode" data-go="reset"><b>Remettre à zéro</b><span>Efface la progression</span></button>
+  </div>`;
+  app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;flashMsg='';
+    if(g==='exam')startTicket(1+Math.random()*40|0,'exam');
+    else if(g==='marathon')startList(shuffle(Q.map((_,k)=>k)),'Marathon','free');
+    else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
+    else if(g==='vocab')startVocab();
+    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('span').textContent='Touche encore pour confirmer'}}
+    else render[g]()})},
+tickets(){S={view:'tickets'};
+  app.innerHTML=`<h1>Billets</h1>
+  <p class="legend"><span style="--c:#e07b00">Commencé, à terminer</span><span style="--c:var(--grn)">Dernier passage sans faute</span><span style="--c:var(--red)">Dernier passage avec fautes</span></p>
+  <p class="sub">En haut à droite : nombre de fois terminé. En bas : dernier résultat, ou nombre de questions faites si le billet est en cours.</p>
+  <div class="grid">${Array.from({length:40},(_,i)=>{const t=i+1,r=st.tk[t],p=st.p[t];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/20`:r?`${20-r.last}/20`:'';return`<button class="tk ${cls}" data-t="${t}" aria-label="Billet ${t}">${r?`<i>×${r.n}</i>`:''}${t}${low?`<small>${low}</small>`:''}</button>`}).join('')}</div>`;
+  app.querySelectorAll('.tk').forEach(b=>b.onclick=()=>startTicket(+b.dataset.t,'ticket'))},
+topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
+  app.innerHTML=`<h1>Par thème</h1><div class="list">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button data-p="${esc(p)}"><span>${esc(p)}<br><span class="fr" style="font-size:14px">${esc(TOP[p])}</span></span><small>${c[p].length} q.</small></button>`).join('')}</div>`;
+  app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'))},
+lexique(){S={view:'lexique'};
+  app.innerHTML=`<h1>Lexique de la route</h1><p class="sub">${G.length} mots-clés tirés des questions. Le chiffre indique dans combien de questions le mot apparaît.</p>
+  <input class="search" id="lq" type="search" placeholder="Chercher en russe ou en français" autocomplete="off">
+  <div class="kw lex"><ul id="ll"></ul></div>`;
+  const n=G.map(()=>0);Q.forEach(q=>q.k.forEach(i=>n[i]++));
+  const order=G.map((_,i)=>i).sort((a,b)=>G[a][0].localeCompare(G[b][0],'ru'));
+  const draw=()=>{const f=$('#lq').value.trim().toLowerCase();$('#ll').innerHTML=order.filter(i=>!f||G[i][0].toLowerCase().includes(f)||G[i][1].toLowerCase().includes(f)).map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span><small>${n[i]}</small></li>`).join('')||'<li>Aucun mot trouvé.</li>'};
+  $('#lq').oninput=draw;draw()}
+};
+function startTicket(t,mode){startList(Q.map((q,k)=>q.t===t?k:-1).filter(k=>k>=0),(mode==='exam'?'Examen · ':'')+'Billet '+t,mode,t);
+  const p=mode==='ticket'&&st.p[t];
+  if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=n<0?S.list.length-1:n;S.resumed=true;renderQuiz()}}
+function startList(list,title,mode,t){S={view:'quiz',list,title,mode,t,i:0,ans:{},fr:false,vq:null,end:mode==='exam'?Date.now()+20*60e3:0,done:false};renderQuiz();scrollTo(0,0)}
+
+/* mini-quiz de vocabulaire */
+function makeVq(gi){const others=shuffle(G.map((_,i)=>i).filter(i=>i!==gi&&G[i][1]!==G[gi][1])).slice(0,2);return{gi,opts:shuffle([gi,...others]),pick:null}}
+function vqHtml(v){return`<div class="vq"><p>Que veut dire <b>« ${esc(G[v.gi][0])} »</b> ?</p><div class="opts">${v.opts.map(o=>`<button data-o="${o}" class="${v.pick===null?'':o===v.gi?'ok':o===v.pick?'ko':''}" ${v.pick!==null?'disabled':''}>${esc(G[o][1])}</button>`).join('')}</div></div>`}
+function pickVq(v,o){if(v.pick!==null)return;v.pick=o;st.v[v.gi]=o===v.gi?1:0;save()}
+
+function renderQuiz(){
+  clearInterval(tick);
+  if(S.done)return renderResult();
+  const k=S.list[S.i],q=Q[k],a=S.ans[k],exam=S.mode==='exam',fr=S.fr;
+  const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
+  const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
+  if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=makeVq(q.k[Math.random()*Math.min(q.k.length,3)|0]);
+  const hf=HF[k];
+  app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
+  ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
+  ${strip}
+  ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
+  <p class="q">${esc(q.q)}</p>
+  ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
+  <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
+  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${esc(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
+  ${a!==undefined&&!exam?`<div class="tip"><p>${esc(q.h)}</p>${hf?`<p class="fr">${esc(hf)}</p>`:S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
+  ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
+  <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
+  ${exam?'<p class="note">Simulation simplifiée : 20 questions, 20 minutes, échec à partir de 3 fautes. Les mots-clés et explications s\'affichent dans les billets, pas pendant l\'examen.</p>':''}`;
+  if(q.i&&!IMG[q.t])loadImg(q.t);
+  const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
+  $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
+  app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
+  app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(S.vq,+b.dataset.o);renderQuiz()});
+  app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  const tb=$('#tipb');if(tb)tb.onclick=()=>trTip(k);
+  $('#prev').onclick=()=>go(S.i-1);
+  $('#next').onclick=()=>{if(S.i<S.list.length-1)go(S.i+1);else finish()};
+  if(exam){const tm=$('#tm'),up=()=>{const r=Math.max(0,S.end-Date.now());tm.textContent=Math.floor(r/60e3)+':'+String(Math.floor(r/1e3)%60).padStart(2,'0');if(!r)finish()};up();tick=setInterval(up,1000)}
+  if(db&&!(k in HF)&&a!==undefined&&!exam){HF[k]=undefined;db.doc('fh/q'+k).get().then(s=>{if(s.exists&&s.data().t){HF[k]=String(s.data().t);if(S.view==='quiz'&&S.list[S.i]===k)renderQuiz()}}).catch(()=>{})}
+}
+function go(i){S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
+function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
+  if(S.mode==='exam'&&S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length>2)return finish();
+  renderQuiz()}
+function finish(){if(S.done)return;S.done=true;clearInterval(tick);
+  if(S.t&&S.mode!=='free'){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tk[S.t];st.tk[S.t]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};if(S.mode==='ticket')delete st.p[S.t];save()}
+  renderResult()}
+function renderResult(){
+  const ok=S.list.filter(x=>S.ans[x]===Q[x].c).length,bad=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c),skip=S.list.filter(x=>S.ans[x]===undefined).length;
+  const pass=S.t?bad.length+skip<=2:null;
+  app.innerHTML=`<div class="res"><p class="sub">${esc(S.title)}</p><b class="${pass===null?'':pass?'pass':'fail'}">${ok}/${S.list.length}</b>
+  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?'Réussi, avec '+(S.list.length-ok)+' faute(s)':'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}</div>
+  <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
+  $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
+}
+
+/* quiz de vocabulaire seul : 10 mots, priorité aux mots ratés ou jamais vus */
+function startVocab(){
+  const w=G.map((_,i)=>i).sort((a,b)=>((st.v[a]??0.5)-(st.v[b]??0.5))||Math.random()-.5);
+  S={view:'vocab',list:shuffle(w.slice(0,25)).slice(0,10).map(makeVq),i:0};renderVocab()}
+function renderVocab(){
+  if(S.i>=S.list.length){const ok=S.list.filter(v=>v.pick===v.gi).length;
+    app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire</p><b class="${ok>=8?'pass':'fail'}">${ok}/10</b></div><div class="kw"><ul>${S.list.map(v=>`<li><b>${esc(G[v.gi][0])}</b><span>${esc(G[v.gi][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore 10 mots</button><button class="btn ghost" id="back">Accueil</button></div>`;
+    $('#again').onclick=startVocab;$('#back').onclick=render.home;return}
+  const v=S.list[S.i];
+  app.innerHTML=`<div class="qhead"><span class="t">Quiz de vocabulaire · ${S.i+1}/10</span></div><div class="kw" style="margin-top:0">${vqHtml(v)}</div><div class="nav"><button class="btn" id="next" ${v.pick===null?'disabled':''}>${S.i===9?'Voir le résultat':'Mot suivant'}</button></div>`;
+  app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(v,+b.dataset.o);renderVocab()});
+  $('#next').onclick=()=>{S.i++;renderVocab()};
+}
+
+$('#home').onclick=()=>{clearInterval(tick);render.home()};
+$('#lexbtn').onclick=()=>{clearInterval(tick);render.lexique()};
+
+/* ---------- démarrage ---------- */
+Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json())]).then(([d,g])=>{Q=d;G=g;render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
+if(window.claude&&claude.use){
+  claude.use('sample').then(s=>{sample=s;if(S&&S.view==='quiz')renderQuiz()}).catch(()=>{});
+  Promise.all([claude.use('db'),claude.use('user')]).then(async([d,u])=>{
+    if(!d)return;db=d;
+    try{uid=u&&await u.id()}catch(e){}
+    if(uid){try{const s=await db.doc('data/users/'+uid+'/state').get();if(s.exists){const v=s.data();if(v&&v.r&&Object.keys(v.r).length>=Object.keys(st.r).length){st=norm(v);if(S&&S.view==='home')render.home()}}}catch(e){}}
+  }).catch(()=>{});
+}
+}
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})</script>
+</body>
+</html>
