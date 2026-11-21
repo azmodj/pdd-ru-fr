@@ -86,6 +86,18 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .vq .opts{display:grid;gap:6px}
 .vq .opts button{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 12px;min-height:44px}
 .vq .opts button.ok{border-color:var(--grn);background:var(--grnbg)}.vq .opts button.ko{border-color:var(--red);background:var(--redbg)}
+.vm .vmg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.vm .col{display:grid;gap:8px;align-content:start}
+.vm .vmg button{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:8px 10px;min-height:52px;text-align:center;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.vm .col.r button{font-weight:700}.vm .col.f button{color:var(--fr)}
+.vm .vmg button.sel{border-color:var(--blue);background:var(--blue2);box-shadow:0 0 0 2px var(--blue)}
+.vm .vmg button.ok{border-color:var(--grn);background:var(--grnbg);color:var(--grn);opacity:.75}
+.vm .vmg button.ko{border-color:var(--red);background:var(--redbg);animation:vmshake .35s}
+.vm .vmg button.drag{opacity:.35}
+.vm .cnt{color:var(--mut);font-size:14px;margin-left:6px}
+.vm .vmd{margin:10px 0 0;font-weight:700}
+.vmghost{position:fixed;z-index:50;pointer-events:none;background:var(--card);border:2px solid var(--blue);border-radius:10px;padding:8px 10px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);transform:translate(-50%,-60%) scale(1.05)}
+@keyframes vmshake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .nav{display:flex;gap:10px;margin-top:16px}.nav .btn{flex:1}
 .note{font-size:14px;color:var(--mut);margin:10px 0}
 .res{text-align:center;padding:20px 0}
@@ -137,6 +149,11 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;background:linear-gradient(light-dark(#ffe17a,#6b5410),light-dark(#ffe17a,#6b5410)) no-repeat 0 100%/100% 100%;box-decoration-break:clone;-webkit-box-decoration-break:clone;cursor:help}
 .wtip{position:absolute;z-index:70;background:#1b4f9c;color:#fff;border-radius:10px;padding:7px 11px;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:80vw;animation:wt .2s ease-out}
 @keyframes wt{from{opacity:0;transform:translateY(6px)}}
+.kph{font-weight:700;cursor:help;border-radius:4px;padding:0 2px;background:light-dark(#ffe17a,#6b5410);box-shadow:inset 0 -3px 0 light-dark(#e08a00,#d9a530);box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.kph mark.kwm{background:none;padding:0;animation:none}
+.wtip .ph{display:block;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.35)}
+.wtip .phx{display:block;margin-top:4px;font-size:14px;opacity:.9}
+.wtip small{display:block;font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.04em}
 @media(prefers-reduced-motion:no-preference){mark.kwm{animation:hl .6s ease-out both}@keyframes hl{from{background-size:0 100%}}}
 
 .say{display:inline-grid;place-items:center;width:34px;height:34px;margin:0 0 0 8px;vertical-align:-7px;border-radius:50%;border:0;background:var(--blue2);color:var(--fr);padding:0;cursor:pointer;flex:none}
@@ -369,10 +386,44 @@ function examAnswer(k){const E=S.ex,wrong=x=>S.ans[x]!==undefined&&S.ans[x]!==Q[
   add.forEach(x=>{S.list.push(x);E.extra[x]=b;E.bk[x]=b});S.end+=add.length*60e3;
   E.msg='Faute dans le bloc « '+E.names[b]+' » : '+add.length+' questions supplémentaires (n° '+(S.list.length-add.length+1)+' à '+S.list.length+') et '+add.length+' minutes ajoutées. Aucune faute permise sur ces questions.'}
 
-/* mini-quiz de vocabulaire */
-function makeVq(gi){const others=shuffle(G.map((_,i)=>i).filter(i=>i!==gi&&G[i][1]!==G[gi][1])).slice(0,2);return{gi,opts:shuffle([gi,...others]),pick:null}}
-function vqHtml(v){return`<div class="vq"><p>Que veut dire <b>« ${esc(G[v.gi][0])} »</b> ?</p><div class="opts">${v.opts.map(o=>`<button data-o="${o}" class="${v.pick===null?'':o===v.gi?'ok':o===v.pick?'ko':''}" ${v.pick!==null?'disabled':''}>${esc(G[o][1])}</button>`).join('')}</div></div>`}
-function pickVq(v,o){if(v.pick!==null)return;v.pick=o;fx(o===v.gi);st.v[v.gi]=o===v.gi?1:0;save()}
+/* exercice d'association : 3 mots russes à relier à leur traduction (toucher-toucher ou glisser-déposer) */
+function pickWords(pool,n,used){const fr=new Set((used||[]).map(i=>G[i][1])),out=[];
+  for(const i of pool){if(out.length>=n)break;if(out.includes(i)||fr.has(G[i][1]))continue;fr.add(G[i][1]);out.push(i)}return out}
+function weakWords(){return G.map((_,i)=>i).sort((a,b)=>((st.v[a]??0.5)-(st.v[b]??0.5))||Math.random()-.5)}
+function makeVm(gis){return{gis,fr:shuffle(gis),sel:null,ok:{},err:{},bad:null}}
+function vmForQuestion(k,q){const ph=q&&q.m?[...hlText(q.q,q.m).matchAll(/data-p="(\d+)"/g)].map(x=>+x[1]):[];let w=pickWords([...ph.slice(0,1),...shuffle(k)],3);
+  if(w.length<3)w=w.concat(pickWords(shuffle(weakWords().slice(0,60)),3-w.length,w));return makeVm(w)}
+const vmDone=v=>v.gis.every(g=>v.ok[g]);
+function vmHtml(v){const n=v.gis.filter(g=>v.ok[g]).length,e=v.gis.filter(g=>v.err[g]).length;
+  const b=(sd,g,t)=>`<button data-s="${sd}" data-g="${g}" class="${v.ok[g]?'ok':v.bad&&v.bad.includes(sd+g)?'ko':v.sel&&v.sel.s===sd&&v.sel.g===g?'sel':''}" ${v.ok[g]?'disabled':''}>${esc(t)}</button>`;
+  return`<div class="vq vm"><p>Relie chaque mot russe à sa traduction<span class="cnt">${n}/${v.gis.length}</span></p>
+  <div class="vmg"><div class="col r">${v.gis.map(g=>b('r',g,G[g][0])).join('')}</div><div class="col f">${v.fr.map(g=>b('f',g,G[g][1])).join('')}</div></div>
+  ${vmDone(v)?`<p class="vmd" style="color:${e?'var(--red)':'var(--grn)'}">${e?e+(e>1?' erreurs':' erreur')+' — les mots ratés reviendront dans le quiz de vocabulaire.':'Les trois du premier coup !'}</p>`:'<p class="note" style="margin:8px 0 0">Touche un mot puis sa traduction, ou fais-le glisser dessus.</p>'}</div>`}
+function vmPair(v,a,b){/* a,b = {s,g} de colonnes opposées */
+  const r=a.s==='r'?a.g:b.g,f=a.s==='r'?b.g:a.g;v.sel=null;
+  if(r===f){v.ok[r]=1;st.v[r]=v.err[r]?0:1;save();
+    if(vmDone(v))fx(!v.gis.some(g=>v.err[g]));else SND.play('ok');return}
+  v.err[r]=1;st.v[r]=0;save();v.bad=['r'+r,'f'+f];SND.play('ko')}
+function vmMount(wrap,v,onDone){
+  const draw=()=>{wrap.innerHTML=vmHtml(v);bind()};
+  const act=(sd,g)=>{if(v.ok[g])return;const was=vmDone(v);
+    if(!v.sel||v.sel.s===sd)v.sel=v.sel&&v.sel.s===sd&&v.sel.g===g?null:{s:sd,g};
+    else{vmPair(v,v.sel,{s:sd,g});if(v.bad)setTimeout(()=>{v.bad=null;if(wrap.isConnected)draw()},600)}
+    draw();if(!was&&vmDone(v)&&onDone)onDone()};
+  function bind(){wrap.querySelectorAll('.vmg button').forEach(btn=>{
+    const sd=btn.dataset.s,g=+btn.dataset.g;let st0=null,gh=null,moved=false;
+    btn.onclick=()=>{if(moved){moved=false;return}act(sd,g)};
+    btn.onpointerdown=ev=>{if(v.ok[g])return;st0={x:ev.clientX,y:ev.clientY};moved=false;try{btn.setPointerCapture(ev.pointerId)}catch(_){}};
+    btn.onpointermove=ev=>{if(!st0)return;
+      if(!gh){if(Math.hypot(ev.clientX-st0.x,ev.clientY-st0.y)<8)return;
+        moved=true;gh=document.createElement('div');gh.className='vmghost';gh.textContent=btn.textContent;document.body.appendChild(gh);btn.classList.add('drag')}
+      gh.style.left=ev.clientX+'px';gh.style.top=ev.clientY+'px';ev.preventDefault()};
+    const end=ev=>{if(!st0)return;st0=null;if(!gh)return;gh.remove();gh=null;btn.classList.remove('drag');
+      const el=document.elementFromPoint(ev.clientX,ev.clientY),t=el&&el.closest('.vmg button');
+      if(t&&wrap.contains(t)&&t.dataset.s!==sd&&!t.disabled){v.sel={s:sd,g};act(t.dataset.s,+t.dataset.g)}else draw();
+      setTimeout(()=>{moved=false},50)};
+    btn.onpointerup=end;btn.onpointercancel=ev=>{if(gh){gh.remove();gh=null;btn.classList.remove('drag')}st0=null;moved=false}})}
+  draw()}
 
 function renderQuiz(){
   clearInterval(tick);
@@ -380,8 +431,8 @@ function renderQuiz(){
   const k=S.list[S.i],q=Q[k],a=S.ans[k],exam=S.mode==='exam',fr=S.fr;
   const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
   const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
-  if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=makeVq(q.k[Math.random()*Math.min(q.k.length,3)|0]);
-  const hf=q.fh||HF[k],showM=(a!==undefined&&!exam)||fr,hlq=t=>showM&&q.m?esc(t).replace(/[А-Яа-яЁё]+/g,w=>{const g=q.m[w.toLowerCase().replace(/ё/g,'е')];return g===undefined?w:`<mark class="kwm" data-g="${g}">${w}</mark>`}):esc(t);
+  if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=vmForQuestion(q.k,q);
+  const hf=q.fh||HF[k],showM=(a!==undefined&&!exam)||fr,hlq=t=>showM&&q.m?hlText(t,q.m):esc(t);
   app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
   ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
@@ -392,17 +443,17 @@ function renderQuiz(){
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
   <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
-  ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
+  ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><div id="vmw"></div>${vmDone(S.vq)?`<ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>`:''}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Une faute ajoute 5 questions du même bloc ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec. Les mots-clés et explications s'affichent à la fin, dans « Revoir mes fautes ».</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
-  app.querySelectorAll('mark.kwm').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
+  app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
-  app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(S.vq,+b.dataset.o);renderQuiz()});
+  {const w=$('#vmw');if(w){const y=scrollY;vmMount(w,S.vq,()=>{renderQuiz();scrollTo(0,y)})}}
   {const sp=app.querySelector('.strip'),cb=sp&&sp.querySelector('.cur');if(cb)sp.scrollLeft=cb.offsetLeft-sp.offsetLeft-(sp.clientWidth-cb.offsetWidth)/2}
   app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
   const tb=$('#tipb');if(tb)tb.onclick=()=>trTip(k);
@@ -444,10 +495,33 @@ function say(t,btn){if(!TTS)return;const was=btn&&btn.classList.contains('on');s
   if(btn){btn.classList.add('on');u.onend=u.onerror=()=>btn.classList.remove('on')}
   speechSynthesis.speak(u)}
 /* bulle de traduction sur un mot surligné */
+/* expressions de plusieurs mots (нарушить правила, в данной ситуации…) : repérées par le début de chaque mot, pour couvrir les formes conjuguées ou déclinées */
+let PH=null;
+const nrm=w=>w.toLowerCase().replace(/ё/g,'е'),stm=w=>w.length<=3?w:w.slice(0,Math.max(3,Math.min(w.length-2,5)));
+function phrases(){if(!PH)PH=G.map((g,i)=>{if(!/^[А-Яа-яЁё]+( [А-Яа-яЁё]+)+$/.test(g[0]))return null;const ws=g[0].split(' ');
+  return{i,st:g[2]?g[2].split(' '):ws.map(w=>stm(nrm(w))),ex:ws.map(w=>!g[2]&&w.length<=3)}}).filter(Boolean).sort((a,b)=>b.st.length-a.st.length);return PH}
+function hlText(t,m){const T=[...t.matchAll(/[А-Яа-яЁё]+/g)].map(x=>({w:x[0],s:x.index,e:x.index+x[0].length,n:nrm(x[0])})),P=phrases();
+  const word=tk=>{const g=m[tk.n];return g===undefined?esc(tk.w):`<mark class="kwm" data-g="${g}">${esc(tk.w)}</mark>`};
+  let out='',pos=0;
+  for(let i=0;i<T.length;i++){let hit=null;
+    for(const p of P){const L=p.st.length;if(i+L>T.length)continue;let ok=true;
+      for(let j=0;j<L&&ok;j++){const tk=T[i+j];ok=p.ex[j]?tk.n===p.st[j]:tk.n.startsWith(p.st[j]);if(ok&&j)ok=!t.slice(T[i+j-1].e,tk.s).trim()}
+      if(ok){hit=p;break}}
+    out+=esc(t.slice(pos,T[i].s));
+    if(hit){const L=hit.st.length;let inner='';
+      for(let j=0;j<L;j++){if(j)inner+=esc(t.slice(T[i+j-1].e,T[i+j].s));inner+=word(T[i+j])}
+      out+=`<span class="kph" data-p="${hit.i}">${inner}</span>`;pos=T[i+L-1].e;i+=L-1}
+    else{out+=word(T[i]);pos=T[i].e}}
+  return out+esc(t.slice(pos))}
 let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remove());clearTimeout(twT);
-  const g=G[+m.dataset.g],t=document.createElement('div');t.className='wtip';t.innerHTML=`<b>${esc(g[0])}</b> = ${esc(g[1])}`;document.body.appendChild(t);
-  const r=m.getBoundingClientRect(),w=t.offsetWidth;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';t.style.top=(r.top+scrollY-t.offsetHeight-8)+'px';
-  twT=setTimeout(()=>t.remove(),2600)}
+  const ph=m.closest('.kph'),t=document.createElement('div');t.className='wtip';let h='';
+  if(m.matches('mark.kwm')){const g=G[+m.dataset.g];h=`<b>${esc(m.textContent)}</b> = ${esc(g[1])}${nrm(m.textContent)!==nrm(g[0])?` <span style="opacity:.75">(${esc(g[0])})</span>`:''}`}
+  if(ph){const g=G[+ph.dataset.p],parts=[...ph.querySelectorAll('mark.kwm')].map(x=>`${esc(x.textContent)} (${esc(G[+x.dataset.g][1])})`);
+    h+=`<span class="${h?'ph':''}" style="${h?'':'display:block'}"><small>Expression — les mots vont ensemble</small><b>${esc(g[0])}</b> = ${esc(g[1])}</span>`+
+       `<span class="phx">Ici : « ${esc(ph.textContent)} »${parts.length>1?` · mot à mot : ${parts.join(' + ')}`:''}</span>`}
+  t.innerHTML=h;t.onclick=()=>t.remove();document.body.appendChild(t);
+  const r=m.getBoundingClientRect(),w=t.offsetWidth;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';t.style.top=(r.top-t.offsetHeight-8<70?r.bottom+8:r.top-t.offsetHeight-8)+scrollY+'px';
+  twT=setTimeout(()=>t.remove(),ph?7000:2600)}
 /* ---------- animations : coche, croix, feu d'artifice ---------- */
 let fxT;
 function fx(ok){SND.play(ok?'ok':'ko');document.querySelectorAll('.fx').forEach(e=>e.remove());clearTimeout(fxT);
@@ -473,18 +547,18 @@ function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
       x.globalAlpha=p.l;x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()}
     if(now-t0<4200||P.length)requestAnimationFrame(loop);else c.remove()})(t0)}
 
-/* quiz de vocabulaire seul : 10 mots, priorité aux mots ratés ou jamais vus */
+/* quiz de vocabulaire seul : 4 séries de 3 mots à relier, priorité aux mots ratés ou jamais vus */
 function startVocab(){
-  const w=G.map((_,i)=>i).sort((a,b)=>((st.v[a]??0.5)-(st.v[b]??0.5))||Math.random()-.5);
-  S={view:'vocab',list:shuffle(w.slice(0,25)).slice(0,10).map(makeVq),i:0};renderVocab()}
-function renderVocab(){
-  if(S.i>=S.list.length){const ok=S.list.filter(v=>v.pick===v.gi).length;
-    app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire</p><b class="${ok>=8?'pass':'fail'}">${ok}/10</b></div>${ok>=8?'<i hidden id="cel"></i>':''}<div class="kw"><ul>${S.list.map(v=>`<li><b>${esc(G[v.gi][0])}</b><span>${esc(G[v.gi][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore 10 mots</button><button class="btn ghost" id="back">Accueil</button></div>`;
+  const w=pickWords(shuffle(weakWords().slice(0,30)),12),R=[];for(let i=0;i<w.length;i+=3)R.push(makeVm(w.slice(i,i+3)));
+  S={view:'vocab',list:R,i:0};renderVocab()}
+function renderVocab(){const N=S.list.length,all=S.list.flatMap(v=>v.gis);
+  if(S.i>=N){const ok=all.filter(g=>!S.list.some(v=>v.err[g])).length,pass=ok>=all.length-2;
+    app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire · trouvés du premier coup</p><b class="${pass?'pass':'fail'}">${ok}/${all.length}</b></div>${pass?'<i hidden id="cel"></i>':''}<div class="kw"><ul>${all.map(g=>`<li><b>${S.list.some(v=>v.err[g])?'<span style="color:var(--red)">✕</span> ':''}${esc(G[g][0])}</b><span>${esc(G[g][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore une série</button><button class="btn ghost" id="back">Accueil</button></div>`;
     $('#again').onclick=startVocab;$('#back').onclick=render.home;if($('#cel'))setTimeout(celebrate,250);return}
   const v=S.list[S.i];
-  app.innerHTML=`<div class="qhead"><span class="t">Quiz de vocabulaire · ${S.i+1}/10</span></div><div class="kw" style="margin-top:0">${vqHtml(v)}</div><div class="nav"><button class="btn" id="next" ${v.pick===null?'disabled':''}>${S.i===9?'Voir le résultat':'Mot suivant'}</button></div>`;
-  app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(v,+b.dataset.o);renderVocab()});
-  $('#next').onclick=()=>{S.i++;renderVocab()};
+  app.innerHTML=`<div class="qhead"><span class="t">Quiz de vocabulaire · ${S.i+1}/${N}</span></div><div class="kw" style="margin-top:0" id="vmw"></div><div class="nav"><button class="btn" id="next" ${vmDone(v)?'':'disabled'}>${S.i===N-1?'Voir le résultat':'Série suivante'}</button></div>`;
+  vmMount($('#vmw'),v,()=>{$('#next').disabled=false});
+  $('#next').onclick=()=>{S.i++;renderVocab();scrollTo(0,0)};
 }
 
 /* ---------- sons (synthétisés, marchent hors ligne) ---------- */
