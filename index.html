@@ -197,6 +197,17 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 .week i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;background:rgba(255,255,255,.2);font-style:normal;font-size:14px}
 .week .on i{background:#ffd54a;color:#8a4b00}.week .frz i{background:#9fd8ff;color:#0b4f7c}.week .now i{box-shadow:0 0 0 2px #fff}
 .dq .lvl .bar{background:rgba(255,255,255,.3)}.dq .brow{font-size:15px}
+.dqcop{display:flex;align-items:flex-end;gap:6px;margin:10px 0 -4px;min-height:132px}
+.dqcop img{height:132px;width:auto;flex:none;transform-origin:50% 100%;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3));cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dqcop .cb{position:relative;flex:1;align-self:center;background:#fff;color:#1d2530;border-radius:16px;padding:9px 12px;font-weight:700;font-size:15px;line-height:1.25;box-shadow:0 3px 0 rgba(0,0,0,.15);margin:0 0 0 8px}
+.dqcop .cb:before{content:"";position:absolute;left:-9px;top:50%;margin-top:-8px;border:8px solid transparent;border-left:0;border-right:10px solid #fff}
+.dqcop .cb em{display:block;font-style:normal;font-size:13px;color:#1b4f9c;margin-top:2px}
+@media(prefers-reduced-motion:no-preference){
+.dqcop.hi img{animation:copHi .55s ease-in-out 4 alternate}@keyframes copHi{from{transform:rotate(-7deg)}to{transform:rotate(7deg) translateY(-4px)}}
+.dqcop.ok img{animation:copOk 1.8s ease-in-out infinite}@keyframes copOk{50%{transform:translateY(-5px) scale(1.02,.98)}}
+.dqcop.ko img{animation:copKo 3.2s ease-in-out infinite}@keyframes copKo{0%,78%,100%{transform:none}82%{transform:translateX(-4px) rotate(-3deg)}86%{transform:translateX(4px) rotate(3deg)}90%{transform:translateX(-3px)}94%{transform:translateX(2px)}}
+.dqcop.jump img{animation:copJ .9s cubic-bezier(.3,1.4,.5,1)}@keyframes copJ{30%{transform:translateY(-34px) rotate(-5deg)}60%{transform:translateY(0) scale(1.06,.94)}}
+.dqcop .cb{animation:cbIn .35s cubic-bezier(.3,1.6,.5,1) both}@keyframes cbIn{from{transform:scale(.6);opacity:0}}}
 .dqbtn{display:block;width:100%;margin:12px 0 6px;border:0;border-radius:14px;min-height:56px;background:#fff;color:#c2410c;font-weight:700;font-size:18px;box-shadow:0 4px 0 rgba(0,0,0,.18)}
 .dq.done .dqbtn{color:#146329}.dqbtn .ru{color:inherit;opacity:.7}.dqbtn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
 .dqm{margin:4px 0;font-size:14px}.dqn{margin:0 0 6px;font-weight:700}
@@ -583,7 +594,7 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
   document.body.appendChild(d);
   const close=()=>{if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>d.remove(),350)};
   d.onclick=close;setTimeout(close,9000);setTimeout(()=>{if(d.isConnected)SND.play('combo')},2330)}
-['pouce','saut'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
@@ -677,6 +688,16 @@ function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)retu
   const miss=gap-1;if(miss<=d.freeze){d.freeze-=miss;for(let i=1;i<=miss;i++)d.days[shiftDay(d.last,i)]={frz:1};d.last=shiftDay(t,-1);d.froze=miss}
   else{d.lost=d.streak;d.streak=0}save()}
 
+/* petit policier de l'accueil : coucou au lancement, puis content (défi fait) ou fâché (défi pas fait) */
+let copHi=true;
+const COPS={hi:['accueil','Coucou ! Content de te revoir.','Привет!'],ok:['pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:['stop','Hé ! Ton défi du jour n\'est pas fait.','Задание дня ждёт!']};
+const copInner=m=>{const c=COPS[m];return`<img src="cop/${c[0]}.webp" alt="Policier"><p class="cb">${c[1]}<em>${c[2]}</em></p>`};
+function copRow(done){const m=copHi?'hi':done?'ok':'ko';
+  if(copHi){copHi=false;setTimeout(()=>{const r=document.querySelector('.dqcop');if(r){const m2=r.dataset.m;r.className='dqcop '+m2;r.innerHTML=copInner(m2);bindCop()}},2400)}
+  setTimeout(bindCop,0);
+  return`<div class="dqcop ${m}" data-m="${done?'ok':'ko'}">${copInner(m)}</div>`}
+function bindCop(){const r=document.querySelector('.dqcop'),i=r&&r.querySelector('img');if(!i)return;
+  i.onclick=()=>{if(r.dataset.m==='ko'){startDaily();return}r.classList.remove('jump','ok');void r.offsetWidth;r.classList.add('jump');SND.play('combo');setTimeout(()=>{r.classList.remove('jump');r.classList.add('ok')},900)}}
 function dailyCard(){const d=D(),t=dkey(),today=d.days[t]||{},done=!!today.done,lv=level(d.xp),nx=LVX[lv+1];
   const h=24-new Date().getHours();
   const msg=done?`Défi fait aujourd'hui (+${today.xp} XP). Reviens demain pour garder ta série.`
@@ -689,6 +710,7 @@ function dailyCard(){const d=D(),t=dkey(),today=d.days[t]||{},done=!!today.done,
    <div class="dqtop"><span class="flame ${d.streak?'':'off'}">${FLAME}<b>${d.streak}</b></span><span class="dqs">jour${d.streak>1?'s':''} de suite<em class="ru">дней подряд</em></span><span class="sp"></span><span class="xpc"><b>${d.xp}</b> XP</span></div>
    <div class="week">${week}</div>
    <div class="lvl"><div class="brow"><span>Niveau ${lv+1} · ${LV[lv][0]}<em class="ru">${LV[lv][1]}</em></span><span>${nx?`${d.xp-LVX[lv]}/${nx-LVX[lv]}`:'max'}</span></div><div class="bar"><i style="width:${nx?Math.round((d.xp-LVX[lv])/(nx-LVX[lv])*100):100}%;background:#f2b705"></i></div></div>
+   ${copRow(done)}
    <button class="dqbtn" id="dqgo">${done?'Encore un tour (XP en plus)':'Commencer le défi du jour'}<em class="ru">${done?'Ещё раз':'Задание дня'}</em></button>
    <p class="dqm">${msg}</p>
    <button class="dqr" data-go="recomp">Récompenses · ${BADGES.filter(b=>d.badges[b[0]]).length}/${BADGES.length} badges</button></div>`}
