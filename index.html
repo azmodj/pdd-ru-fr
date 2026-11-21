@@ -56,7 +56,7 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .timer{font:700 18px "PT Sans Narrow",sans-serif;font-variant-numeric:tabular-nums;color:var(--fr)}
 .strip{display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
 .strip button{flex:none;width:34px;height:34px;border-radius:6px;border:1.5px solid var(--line);background:var(--card);font-size:13px;padding:0}
-.strip .cur{border-color:var(--blue);border-width:3px}
+.strip .cur{border-color:var(--blue);border-width:3px;box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--blue);font-weight:700}.strip{padding:5px 4px 8px;scroll-padding:0 40%}
 .strip .ok{background:var(--grn);color:#fff;border-color:var(--grn)}.strip .ko{background:var(--red);color:#fff;border-color:var(--red)}
 .pic{border-radius:10px;overflow:hidden;background:#000;margin-bottom:14px;aspect-ratio:604/225}
 .pic img{display:block;width:100%;height:auto}
@@ -298,6 +298,7 @@ function renderQuiz(){
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
   app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(S.vq,+b.dataset.o);renderQuiz()});
+  {const sp=app.querySelector('.strip'),cb=sp&&sp.querySelector('.cur');if(cb)sp.scrollLeft=cb.offsetLeft-sp.offsetLeft-(sp.clientWidth-cb.offsetWidth)/2}
   app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
   const tb=$('#tipb');if(tb)tb.onclick=()=>trTip(k);
   $('#prev').onclick=()=>go(S.i-1);
