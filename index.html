@@ -133,6 +133,11 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .bravo.out{animation:fxout .6s ease-in forwards}
 @keyframes pop{0%{transform:scale(.1) rotateX(80deg);opacity:0}100%{transform:scale(1) rotateX(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){.fx>div,.fx path,.bravo b,.bravo i{animation:none!important;stroke-dashoffset:0}}
+
+mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;background:linear-gradient(light-dark(#ffe17a,#6b5410),light-dark(#ffe17a,#6b5410)) no-repeat 0 100%/100% 100%;box-decoration-break:clone;-webkit-box-decoration-break:clone;cursor:help}
+.wtip{position:absolute;z-index:70;background:#1b4f9c;color:#fff;border-radius:10px;padding:7px 11px;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:80vw;animation:wt .2s ease-out}
+@keyframes wt{from{opacity:0;transform:translateY(6px)}}
+@media(prefers-reduced-motion:no-preference){mark.kwm{animation:hl .6s ease-out both}@keyframes hl{from{background-size:0 100%}}}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
 @media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
 </style>
@@ -298,22 +303,23 @@ function renderQuiz(){
   const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
   const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
   if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=makeVq(q.k[Math.random()*Math.min(q.k.length,3)|0]);
-  const hf=q.fh||HF[k];
+  const hf=q.fh||HF[k],showM=(a!==undefined&&!exam)||fr,hlq=t=>showM&&q.m?esc(t).replace(/[А-Яа-яЁё]+/g,w=>{const g=q.m[w.toLowerCase().replace(/ё/g,'е')];return g===undefined?w:`<mark class="kwm" data-g="${g}">${w}</mark>`}):esc(t);
   app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
   ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
   ${strip}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
-  <p class="q">${esc(q.q)}</p>
+  <p class="q">${hlq(q.q)}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
-  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${esc(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
+  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`<div class="tip"><p>${esc(q.h)}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Une faute ajoute 5 questions du même bloc ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec. Les mots-clés et explications s'affichent à la fin, dans « Revoir mes fautes ».</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
+  app.querySelectorAll('mark.kwm').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
@@ -346,6 +352,12 @@ function renderResult(){
 }
 
 
+
+/* bulle de traduction sur un mot surligné */
+let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remove());clearTimeout(twT);
+  const g=G[+m.dataset.g],t=document.createElement('div');t.className='wtip';t.innerHTML=`<b>${esc(g[0])}</b> = ${esc(g[1])}`;document.body.appendChild(t);
+  const r=m.getBoundingClientRect(),w=t.offsetWidth;t.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';t.style.top=(r.top+scrollY-t.offsetHeight-8)+'px';
+  twT=setTimeout(()=>t.remove(),2600)}
 /* ---------- animations : coche, croix, feu d'artifice ---------- */
 let fxT;
 function fx(ok){document.querySelectorAll('.fx').forEach(e=>e.remove());clearTimeout(fxT);
