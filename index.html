@@ -458,26 +458,33 @@ function renderVocab(){
 }
 
 /* ---------- sons (synthétisés, marchent hors ligne) ---------- */
-const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd')!=='0';
+const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd')!=='0',cache={};
+  /* chaîne : cordes pincées (harpe) → filtre doux → réverbération de salle */
   function ctx(){if(!on())return null;if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();
-      const g=ac.createGain();g.gain.value=.5;const dl=ac.createDelay(1);dl.delayTime.value=.14;const fb=ac.createGain();fb.gain.value=.25;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600;
-      g.connect(ac.destination);g.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(ac.destination);out=g}
+      const sr=ac.sampleRate,g=ac.createGain();g.gain.value=.9;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2400;lp.Q.value=.3;
+      const cv=ac.createConvolver(),L=Math.floor(sr*2.2),ir=ac.createBuffer(2,L,sr);
+      for(let c=0;c<2;c++){const d=ir.getChannelData(c);let s=0;for(let i=0;i<L;i++){s=s*.6+(Math.random()*2-1)*.4;d[i]=s*Math.pow(1-i/L,3.2)}}
+      cv.buffer=ir;const wet=ac.createGain();wet.gain.value=.28;
+      g.connect(lp);lp.connect(ac.destination);lp.connect(cv);cv.connect(wet);wet.connect(ac.destination);out=g}
     if(ac.state==='suspended')ac.resume();return ac}
-  const N=m=>440*Math.pow(2,(m-69)/12);
-  /* note « cloche » : fondamentale + octave douce, attaque rapide, extinction lente */
-  function note(m,t,d=.5,v=.25,type='triangle'){const a=ac,s=a.currentTime+.01+t,g=a.createGain(),o=a.createOscillator(),o2=a.createOscillator(),g2=a.createGain();
-    o.type=type;o.frequency.value=N(m);o2.type='sine';o2.frequency.value=N(m)*2.01;g2.gain.value=.16;
-    g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.01);g.gain.exponentialRampToValueAtTime(.0006,s+d);
-    o.connect(g);o2.connect(g2);g2.connect(g);g.connect(out);o.start(s);o2.start(s);o.stop(s+d+.05);o2.stop(s+d+.05)}
+  /* corde pincée (Karplus-Strong), bruit adouci pour une attaque ronde */
+  function str(m){if(cache[m])return cache[m];const sr=ac.sampleRate,f=440*Math.pow(2,(m-69)/12),N=Math.round(sr/f),len=Math.floor(sr*2.6),b=ac.createBuffer(1,len,sr),d=b.getChannelData(0);
+    let w=new Float32Array(N);for(let i=0;i<N;i++)w[i]=Math.random()*2-1;for(let k=0;k<3;k++){const v=w.slice();for(let i=0;i<N;i++)w[i]=(v[i]+v[(i+1)%N]+v[(i+N-1)%N])/3}
+    let mx=0;for(let i=0;i<N;i++)mx=Math.max(mx,Math.abs(w[i]));for(let i=0;i<N;i++)w[i]/=mx||1;
+    const loss=.9985;let p=0;
+    for(let i=0;i<len;i++){const a=w[p],b2=w[(p+1)%N];d[i]=a;w[p]=loss*.5*(a+b2);p=(p+1)%N}
+    for(let i=0;i<256;i++)d[i]*=i/256;for(let i=len-2000;i<len;i++)d[i]*=(len-i)/2000;
+    return cache[m]=b}
+  function pl(m,t=0,v=.35){const s=ac.createBufferSource(),g=ac.createGain();s.buffer=str(m);g.gain.value=v;s.connect(g);g.connect(out);s.start(ac.currentTime+.02+t)}
   const P={
-    ok(){note(76,0,.3,.22);note(83,.085,.7,.26)},
-    ko(){note(64,0,.35,.16,'sine');note(60,.14,.6,.16,'sine')},
-    combo(){[79,83,86,91].forEach((m,i)=>note(m,i*.06,.45,.14))},
-    tap(){note(93,0,.07,.05,'sine')},
-    win(){[72,76,79,84].forEach((m,i)=>note(m,i*.11,.5,.2));[84,88,91].forEach(m=>note(m,.5,1.8,.13));[96,100,103,108,103].forEach((m,i)=>note(m,.62+i*.07,.35,.05,'sine'))},
-    streak(){[67,71,74,79,83,86,91].forEach((m,i)=>note(m,i*.055,.6,.12));note(91,.45,1.6,.14);note(95,.45,1.6,.08,'sine')},
-    badge(){note(91,0,.9,.16);note(98,.12,1.4,.14);note(103,.24,1.6,.06,'sine')}};
-  return{play(n){try{if(ctx())P[n]()}catch(e){}},on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('tap')},unlock:()=>{try{ctx()}catch(e){}}}})();
+    ok(){pl(67,0,.3);pl(71,.07,.3);pl(74,.14,.38)},                 /* sol si ré : accord majeur arpégé */
+    ko(){pl(64,0,.24);pl(60,.16,.26)},                               /* mi → do, doux et grave */
+    combo(){[67,71,74,79].forEach((m,i)=>pl(m,i*.07,.26))},
+    tap(){pl(67,0,.1)},
+    win(){[60,62,64,67,69,72,74,76,79].forEach((m,i)=>pl(m,i*.06,.22));[60,64,67,72].forEach(m=>pl(m,.7,.24))},
+    streak(){[55,59,62,67,71,74].forEach((m,i)=>pl(m,i*.09,.26));pl(79,.6,.22)},
+    badge(){pl(72,0,.28);pl(76,.12,.26);pl(79,.24,.3)}};
+  return{play(n){try{if(ctx())P[n]()}catch(e){}},on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok')},unlock:()=>{try{ctx()}catch(e){}}}})();
 document.addEventListener('touchend',SND.unlock,{once:true});document.addEventListener('click',SND.unlock,{once:true});
 
 /* ---------- Défi du jour : série, XP, niveaux, récompenses ---------- */
