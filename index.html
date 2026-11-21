@@ -10,8 +10,6 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ПДД">
 <meta name="theme-color" content="#1b4f9c">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Sans+Narrow:wght@700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: sobre, pratique, comme un terminal d'examen du ГИБДД
    IDEA: la plaque de panneau routier russe — bleu de signalisation, bord blanc, chiffres nets
@@ -96,6 +94,25 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .search{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);min-height:46px;margin-bottom:10px}
 .lex li{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
 .lex li small{color:var(--mut)}
+
+.card0{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0 16px}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:4px 0 2px}.bar i{display:block;height:100%;border-radius:6px;background:#3b82f6}
+.brow{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:17px}.brow span:last-child{font-variant-numeric:tabular-nums}
+.bars2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 14px}
+.tile{position:relative;overflow:hidden;border:0;border-radius:22px;aspect-ratio:1/1;max-height:240px;width:100%;padding:14px 16px;text-align:left;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.12);display:flex;flex-direction:column}
+.tile b{font:700 clamp(22px,6vw,30px)/1.05 "PT Sans Narrow",sans-serif;position:relative;z-index:1}
+.tile small{font-size:13px;line-height:1.25;margin-top:3px;opacity:.92;position:relative;z-index:1;max-width:80%}
+.tile svg{position:absolute;right:-3%;bottom:-3%;width:56%;height:auto}
+.tile:active{transform:scale(.97)}
+.rows{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px;text-align:left;min-height:62px}
+.row:last-child{border-bottom:0}.row svg{width:40px;height:40px;flex:none}
+.row b{display:block;font-size:17px}.row span{flex:1}.row small{color:var(--mut);font-size:13px;display:block}
+.row::after{content:"›";font-size:26px;color:var(--mut)}
+@media(prefers-reduced-motion:no-preference){.tile svg{animation:bob 3.2s ease-in-out infinite}.tile:nth-child(2) svg{animation-delay:-.8s}.tile:nth-child(3) svg{animation-delay:-1.6s}.tile:nth-child(4) svg{animation-delay:-2.4s}
+ @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
+ .lamp{animation:blink 2.4s steps(1) infinite}@keyframes blink{50%{opacity:.35}}.tile{transition:transform .1s}}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
 @media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
 </style>
@@ -138,28 +155,42 @@ async function trTip(k){
 }
 
 /* ---------- vues ---------- */
+const ILL={
+exam:`<svg viewBox="0 0 120 130" aria-hidden="true"><rect x="55" y="80" width="10" height="50" fill="#9aa3ad"/><circle cx="60" cy="56" r="50" fill="#fff"/><circle cx="60" cy="56" r="46" fill="#e23b32"/><circle cx="60" cy="56" r="33" fill="#fff"/><text x="60" y="71" text-anchor="middle" font-family="PT Sans Narrow,Arial Narrow,sans-serif" font-weight="700" font-size="42" fill="#1a1a1a">60</text></svg>`,
+tickets:`<svg viewBox="0 0 120 120" aria-hidden="true"><g stroke="rgba(0,0,0,.15)"><rect x="18" y="92" width="88" height="18" rx="3" fill="#2f6f7e"/><rect x="24" y="96" width="80" height="10" fill="#f3e9cf"/><rect x="12" y="74" width="92" height="18" rx="3" fill="#8a3b3b"/><rect x="18" y="78" width="84" height="10" fill="#f3e9cf"/><rect x="22" y="56" width="84" height="18" rx="3" fill="#3d5f8a"/><rect x="28" y="60" width="76" height="10" fill="#f3e9cf"/><rect x="14" y="38" width="88" height="18" rx="3" fill="#b07a3a"/><rect x="20" y="42" width="80" height="10" fill="#f3e9cf"/><rect x="26" y="20" width="76" height="18" rx="3" fill="#4f8a5b" transform="rotate(-6 64 29)"/></g><text x="62" y="34" font-family="PT Sans Narrow,sans-serif" font-weight="700" font-size="11" fill="#fff" transform="rotate(-6 64 29)" text-anchor="middle">ПДД</text></svg>`,
+topics:`<svg viewBox="0 0 120 140" aria-hidden="true"><rect x="54" y="96" width="12" height="44" fill="#5b636b"/><rect x="36" y="6" width="48" height="96" rx="12" fill="#2b2f33"/><circle cx="60" cy="28" r="12" fill="#5a1c1c"/><circle cx="60" cy="54" r="12" fill="#5a4a14"/><circle class="lamp" cx="60" cy="80" r="12" fill="#3ee06b"/><circle cx="56" cy="76" r="3" fill="#c9ffd6"/></svg>`,
+errors:`<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="22" y="16" width="72" height="92" rx="6" fill="#fff" transform="rotate(6 58 62)"/><g transform="rotate(6 58 62)" stroke="#c7d3e6" stroke-width="3"><line x1="32" y1="38" x2="84" y2="38"/><line x1="32" y1="52" x2="84" y2="52"/><line x1="32" y1="66" x2="84" y2="66"/><line x1="32" y1="80" x2="70" y2="80"/></g><g stroke="#d7261e" stroke-width="8" stroke-linecap="round" transform="rotate(6 58 62)"><line x1="44" y1="46" x2="72" y2="74"/><line x1="72" y1="46" x2="44" y2="74"/></g><g transform="rotate(40 92 70)"><rect x="86" y="30" width="12" height="62" rx="2" fill="#f2b705"/><polygon points="86,92 98,92 92,106" fill="#f1d3a1"/><rect x="86" y="26" width="12" height="7" fill="#e88"/></g></svg>`,
+texam:`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="16" r="12" fill="#f2b705"/><circle cx="20" cy="16" r="8" fill="#ffd54a"/><path d="M14 26 10 38l10-5 10 5-4-12" fill="#3b82f6"/><text x="20" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="#8a5a00">★</text></svg>`,
+vocab:`<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="4" width="24" height="18" rx="5" fill="#1b4f9c"/><path d="M8 22v6l6-6" fill="#1b4f9c"/><text x="14" y="17" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Аа</text><rect x="16" y="16" width="22" height="16" rx="5" fill="#e23b32"/><path d="M32 32v5l-5-5" fill="#e23b32"/><text x="27" y="28" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Fr</text></svg>`,
+marathon:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M14 38 18 4h4l4 34z" fill="#5b636b"/><g stroke="#fff" stroke-width="1.6"><line x1="20" y1="8" x2="20" y2="12"/><line x1="20" y1="17" x2="20" y2="22"/><line x1="20" y1="27" x2="20" y2="33"/></g><line x1="31" y1="6" x2="31" y2="24" stroke="#444" stroke-width="2"/><path d="M31 6h8v6h-8z" fill="#1f8a3b"/></svg>`,
+lexique:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 9c6-3 11-3 17 1v24c-6-4-11-4-17-1z" fill="#3b82f6"/><path d="M37 9c-6-3-11-3-17 1v24c6-4 11-4 17-1z" fill="#60a5fa"/><path d="M20 10v24" stroke="#fff" stroke-width="1.5"/></svg>`,
+reset:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M30 13a12 12 0 1 0 2 12" fill="none" stroke="#9aa3ad" stroke-width="4" stroke-linecap="round"/><path d="M24 6l9 5-9 5z" fill="#9aa3ad"/></svg>`};
 const stats=()=>{const v=Object.values(st.r);return{seen:v.length,ok:v.filter(x=>x===1).length,pass:Object.values(st.tk).filter(x=>x.last===0).length}};
 let flashMsg='';
 const render={
 home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
-  app.innerHTML=`<h1>Code de la route russe, catégories A et B</h1>
-  <p class="sub">Les 800 questions officielles des 40 billets, en russe. Un bouton affiche la traduction française de la question et des réponses.</p>
-  <div class="stats"><div class="stat"><b>${s.seen}<small>/800</small></b><span>questions vues</span></div>
-  <div class="stat"><b>${s.seen?Math.round(s.ok/s.seen*100):0}%</b><span>de bonnes réponses</span></div>
-  <div class="stat"><b>${s.pass}<small>/40</small></b><span>billets sans faute</span></div></div>
+  const err=Object.values(st.r).filter(x=>x===0).length,pct=(a,b)=>Math.round(a/b*100);
+  const tile=(go,c,t,s,ill)=>`<button class="tile" data-go="${go}" style="--c:${c}"><b>${t}</b><small>${s}</small>${ILL[ill]}</button>`;
+  const row=(go,ill,t,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><small>${s}</small></span></button>`;
+  app.innerHTML=`<div class="card0">
+   <div class="brow"><span>Questions vues</span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
+   <div class="bars2"><div><div class="brow"><span>Billets réussis</span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
+   <div><div class="brow"><span>Réussite</span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
+   <p class="note" id="offst" style="margin:10px 0 0"></p></div>
   ${Object.keys(st.p).length?`<h2>Billets à terminer</h2><div class="pend">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
-  <p class="note" id="offst"></p>
-  <div class="modes">
-   <button class="mode main" data-go="exam"><b>Examen blanc</b><span>Comme au ГИБДД : 4 blocs de 5 questions, 20 min, 5 questions de plus par faute</span></button>
-   <button class="mode" data-go="texam"><b>Examen par thème</b><span>Panneaux, premiers secours, légal… avec les mêmes règles</span></button>
-   <button class="mode" data-go="tickets"><b>Billets 1 à 40</b><span>20 questions par billet</span></button>
-   <button class="mode" data-go="topics"><b>Par thème</b><span>${Object.keys(TOP).length} thèmes du ПДД</span></button>
-   <button class="mode" data-go="errors"><b>Mes erreurs</b><span>${Object.values(st.r).filter(x=>x===0).length} question(s) à revoir</span></button>
-   <button class="mode" data-go="vocab"><b>Quiz de vocabulaire</b><span>${G.length} mots de la route · ${vk} déjà travaillés</span></button>
-   <button class="mode" data-go="marathon"><b>Marathon</b><span>Les 800 questions mélangées</span></button>
-   <button class="mode" data-go="lexique"><b>Lexique RU → FR</b><span>Tous les mots-clés</span></button>
-   <button class="mode" data-go="reset"><b>Remettre à zéro</b><span>Efface la progression</span></button>
+  <div class="tiles">
+   ${tile('exam','#7c83e6','Examen','Comme au ГИБДД','exam')}
+   ${tile('tickets','#4f9f72','Billets','40 billets de 20 questions','tickets')}
+   ${tile('topics','#4b9be8','Thèmes',Object.keys(TOP).length+' thèmes à réviser','topics')}
+   ${tile('errors','#e07a74','Erreurs ('+err+')',err?'À revoir':'Aucune pour l\'instant','errors')}
+  </div>
+  <div class="rows">
+   ${row('texam','texam','Examen par thème','Panneaux, premiers secours, légal…')}
+   ${row('vocab','vocab','Quiz de vocabulaire',G.length+' mots · '+vk+' déjà travaillés')}
+   ${row('marathon','marathon','Marathon','Les 800 questions mélangées')}
+   ${row('lexique','lexique','Lexique RU → FR','Tous les mots-clés')}
+   ${row('reset','reset','Remettre à zéro','Efface la progression')}
   </div>`;
   if(window.offStat)offStat();
   app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
@@ -168,7 +199,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
     else if(g==='marathon')startList(shuffle(Q.map((_,k)=>k)),'Marathon','free');
     else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
     else if(g==='vocab')startVocab();
-    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('span').textContent='Touche encore pour confirmer'}}
+    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
     else render[g]()})},
 tickets(){S={view:'tickets'};
   app.innerHTML=`<h1>Billets</h1>
