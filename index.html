@@ -801,11 +801,11 @@ async function offStat(){const el=document.getElementById('offst');if(!el)return
   try{const c=await caches.open('pdd-offline'),n=(await c.keys()).length;
     if(n>=N){el.textContent='Hors ligne : prêt. Tu peux passer en mode avion.';el.style.color='var(--grn)'}
     else{el.textContent='Hors ligne : téléchargement '+n+'/'+N+'… garde l\'application ouverte avec Internet.';el.style.color='#e07b00';setTimeout(offStat,1500)}}catch(e){el.textContent=''}}
-window.offStat=offStat;
+window.offStat=offStat;window.pddView=()=>S&&S.view;
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 /* nouvelle version en ligne : recharger tout de suite à l'accueil, sinon proposer un bandeau */
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data!=='pdd-update')return;
-  if(!S||S.view==='home')return location.reload();
+  const v=window.pddView&&pddView();if(!v||v==='home')return location.reload();
   if(document.querySelector('.updbar'))return;const b=document.createElement('button');b.className='updbar';b.textContent='Nouvelle version disponible — toucher pour mettre à jour';b.onclick=()=>location.reload();document.body.appendChild(b)});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(()=>setTimeout(offStat,800)).catch(()=>{});
 }
