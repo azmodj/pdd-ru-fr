@@ -142,6 +142,40 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 .say{display:inline-grid;place-items:center;width:34px;height:34px;margin:0 0 0 8px;vertical-align:-7px;border-radius:50%;border:0;background:var(--blue2);color:var(--fr);padding:0;cursor:pointer;flex:none}
 .tip .say,.say{border-radius:50%;border:0;min-height:0;padding:0;width:34px;height:34px;background:var(--blue2);color:var(--fr)}.tip .say.on,.say.on{background:var(--blue);color:#fff}.say svg{width:20px;height:20px}.say.on{background:var(--blue);color:#fff}
 @media(prefers-reduced-motion:no-preference){.say.on{animation:pulse 1s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(27,79,156,.25)}}}
+.dq{border-radius:22px;padding:14px 16px;margin:4px 0 16px;color:#fff;background:linear-gradient(160deg,#ff9f43,#e8590c);box-shadow:0 5px 0 #b8460a}
+.dq.done{background:linear-gradient(160deg,#4fbf6f,#1f8a3b);box-shadow:0 5px 0 #146329}
+.dq .ru{color:rgba(255,255,255,.85)}.dq .brow .ru{color:rgba(255,255,255,.8)}
+.dqtop{display:flex;align-items:center;gap:10px}.dqtop .sp{flex:1}
+.flame{display:inline-flex;align-items:center;gap:4px;color:#ffd54a}.flame svg{width:34px;height:42px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.2))}.flame b{font:700 40px/1 "PT Sans Narrow",sans-serif;color:#fff}.flame.off{color:rgba(255,255,255,.45)}
+.dqs{font-weight:700;line-height:1.15}.xpc{font-size:15px}.xpc b{font:700 26px "PT Sans Narrow",sans-serif}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0;text-align:center;font-size:12px;font-weight:700}
+.week i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;background:rgba(255,255,255,.2);font-style:normal;font-size:14px}
+.week .on i{background:#ffd54a;color:#8a4b00}.week .frz i{background:#9fd8ff;color:#0b4f7c}.week .now i{box-shadow:0 0 0 2px #fff}
+.dq .lvl .bar{background:rgba(255,255,255,.3)}.dq .brow{font-size:15px}
+.dqbtn{display:block;width:100%;margin:12px 0 6px;border:0;border-radius:14px;min-height:56px;background:#fff;color:#c2410c;font-weight:700;font-size:18px;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.dq.done .dqbtn{color:#146329}.dqbtn .ru{color:inherit;opacity:.7}.dqbtn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.dqm{margin:4px 0;font-size:14px}.dqn{margin:0 0 6px;font-weight:700}
+.dqr{background:rgba(255,255,255,.18);border:0;border-radius:10px;min-height:40px;padding:0 12px;color:#fff;font-weight:700;font-size:14px;margin-top:4px}
+@media(prefers-reduced-motion:no-preference){.dq.todo .dqbtn{animation:nudge 2.2s ease-in-out infinite}@keyframes nudge{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+ .dq.todo .flame svg{animation:flick 1.4s ease-in-out infinite}@keyframes flick{50%{transform:scale(1.08) rotate(-3deg)}}}
+.dtop{display:flex;align-items:center;gap:12px;margin:0 0 4px}.dx{border:0;background:none;font-size:22px;color:var(--mut);padding:4px 6px}
+.dbar{flex:1;height:16px;border-radius:8px}.dbar i{background:linear-gradient(#7ee08f,#1f8a3b);border-radius:8px;transition:width .4s}
+.dcombo{display:inline-flex;align-items:center;gap:2px;font:700 20px "PT Sans Narrow",sans-serif;color:var(--mut)}.dcombo svg{width:18px;height:22px}.dcombo.hot{color:#f97316}
+.dmeta{color:var(--mut);font-size:14px;margin:2px 0 12px}
+.sheet{position:sticky;bottom:0;margin:14px calc(-1*max(4vw,14px)) -60px;padding:14px max(4vw,14px) calc(18px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;animation:up .25s ease-out}
+.sheet.g{background:var(--grnbg);color:var(--grn)}.sheet.b{background:var(--redbg);color:var(--red)}
+.sheet .sh{display:block;font:700 24px "PT Sans Narrow",sans-serif}.sheet .sh span{float:right}.sheet small{display:block;font-size:15px;font-weight:700}
+.shh{color:var(--ink);font-size:15px;margin:8px 0}.shfr{color:var(--fr);border-color:var(--fr);min-height:34px;margin-bottom:4px}
+.shbtn{width:100%;margin-top:10px;min-height:52px;font-size:18px}.sheet.g .shbtn{background:var(--grn)}.sheet.b .shbtn{background:var(--red)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.fxp{position:fixed;left:50%;top:30%;z-index:55;pointer-events:none;font:700 34px "PT Sans Narrow",sans-serif;color:#f2b705;text-shadow:0 2px 0 #a87800;transform:translateX(-50%);animation:rise 1.3s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}20%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-70px)}}
+.bigflame{display:flex;flex-direction:column;align-items:center;color:#f97316;margin:14px 0}.bigflame svg{width:70px;height:88px;animation:pop 1s .3s cubic-bezier(.2,1.6,.4,1) both}.bigflame b{font:700 48px/1 "PT Sans Narrow",sans-serif}.bigflame span{color:var(--mut);font-weight:700}
+.lvup{font:700 24px "PT Sans Narrow",sans-serif;color:#7c3aed}.lvup .ru{font-size:16px;color:var(--mut)}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;text-align:center}
+.dres .kw li b{font:700 17px/1.3 "PT Sans",sans-serif;display:inline}.dres .kw li span{text-align:right;font-weight:700}
+.bdg svg{width:64px;height:70px}.bdg small{display:block;font-size:12px;line-height:1.2;color:var(--mut)}.bdg.lock{opacity:.55}
+.bdg.new svg{animation:pop 1s .5s cubic-bezier(.2,1.6,.4,1) both}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
 @media(prefers-reduced-motion:no-preference){.ans button,.vq button{transition:background .15s,border-color .15s}}
 </style>
@@ -157,10 +191,11 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 {
 const $=s=>document.querySelector(s), app=$('#app');
 const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
-let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{}}, db=null, sample=null, uid=null, S=null, tick=null;
+let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},d:D0()}, db=null, sample=null, uid=null, S=null, tick=null;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})}}};
+function D0(){return{xp:0,streak:0,best:0,last:'',freeze:0,days:{},badges:{},total:0,perfect:0,maxc:0}}
+const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})},d:{...D0(),...(s.d||{})}}};
 try{const s=JSON.parse(localStorage.getItem('pdd-st')||'null');if(s&&s.r)st=norm(s)}catch(e){}
 
 /* ---------- sauvegarde ---------- */
@@ -201,7 +236,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
   const err=Object.values(st.r).filter(x=>x===0).length,pct=(a,b)=>Math.round(a/b*100);
   const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c:${c}"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small>${ILL[ill]}</button>`;
   const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
-  app.innerHTML=`<div class="card0">
+  app.innerHTML=dailyCard()+`<div class="card0">
    <div class="brow"><span>Questions vues<em class="ru">Пройдено вопросов</em></span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
    <div class="bars2"><div><div class="brow"><span>Billets réussis<em class="ru">Билеты без ошибок</em></span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
    <div><div class="brow"><span>Réussite<em class="ru">Верных ответов</em></span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
@@ -220,16 +255,17 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
    ${row('marathon','marathon','Marathon','Марафон','Les 800 questions mélangées')}
    ${row('lexique','lexique','Lexique RU → FR','Словарь','Tous les mots-clés')}
    ${TTS?row('voix','vocab','Voix de lecture','Голос','Choisir la voix russe et la vitesse'):''}
-   ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression')}
+   ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression (garde la série et les XP)')}
   </div>`;
   if(window.offStat)offStat();
+  $('#dqgo').onclick=startDaily;
   app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;flashMsg='';
     if(g==='exam')startExam();
     else if(g==='marathon')startList(shuffle(Q.map((_,k)=>k)),'Marathon','free');
     else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
     else if(g==='vocab')startVocab();
-    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
+    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{},d:st.d};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
     else render[g]()})},
 tickets(){S={view:'tickets'};
   app.innerHTML=`<h1>Billets</h1>
@@ -253,7 +289,7 @@ voix(){S={view:'voix'};const v=TTS?ruVoices().sort((a,b)=>vScore(b)-vScore(a)):[
   app.innerHTML=`<h1>Voix russe</h1><p class="sub">Голос для чтения вопросов. Choisis la voix qui te plaît : touche-la pour l'écouter.</p>
   ${v.length?`<div class="list">${v.map((x,i)=>`<button data-v="${i}"><span>${esc(x.name)}${ruVoice&&x.voiceURI===ruVoice.voiceURI?' <b style="color:var(--grn)">✓ choisie</b>':''}<br><span class="fr" style="font-size:14px">${/yuri|юрий|male/i.test(x.name)?'Voix masculine':'Voix'}${/premium|enhanced|улучш|améliorée/i.test(x.name+x.voiceURI)?' · haute qualité':''}</span></span></button>`).join('')}</div>`:'<p class="note">Aucune voix russe trouvée sur ce téléphone.</p>'}
   <h2>Vitesse · Скорость</h2><input id="rate" type="range" min="0.6" max="1.3" step="0.05" value="${r}" style="width:100%">
-  <p class="note">Pour une voix d'homme plus naturelle sur iPhone : Réglages › Accessibilité › Contenu énoncé › Voix › Русский › <b>Юрий (Yuri)</b>, version « améliorée » ou « premium » (téléchargement d'environ 100 à 400 Mo). Ensuite, ferme et rouvre l'appli : Yuri sera choisi automatiquement.</p>`;
+  <p class="note">Pour une voix d'homme plus naturelle sur iPhone : Réglages › Accessibilité › <b>Lire et énoncer</b> › Voix › Russe › <b>Yuri (Юрий)</b> › « Améliorée » ou « Premium » (100 à 400 Mo, en Wi-Fi). Sur les anciennes versions d'iOS, le menu s'appelle « Contenu énoncé ». Ensuite, ferme complètement l'appli et rouvre-la : Yuri sera choisi tout seul. Apple ne permet pas d'ouvrir cet écran depuis l'appli.</p>`;
   app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const x=v[+b.dataset.v];localStorage.setItem('pdd-voice',x.voiceURI);ruVoice=x;say('Здравствуйте! Я буду читать вам вопросы по правилам дорожного движения.');render.voix()});
   $('#rate').onchange=e=>{localStorage.setItem('pdd-rate',e.target.value);say('Скорость чтения изменена.')}},
 lexique(){S={view:'lexique'};
@@ -384,11 +420,11 @@ let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remo
   twT=setTimeout(()=>t.remove(),2600)}
 /* ---------- animations : coche, croix, feu d'artifice ---------- */
 let fxT;
-function fx(ok){document.querySelectorAll('.fx').forEach(e=>e.remove());clearTimeout(fxT);
+function fx(ok){SND.play(ok?'ok':'ko');document.querySelectorAll('.fx').forEach(e=>e.remove());clearTimeout(fxT);
   const d=document.createElement('div');d.className='fx '+(ok?'ok':'ko');
   d.innerHTML='<div><svg viewBox="0 0 100 100">'+(ok?'<path d="M24 52 L43 70 L77 32"/>':'<path d="M30 30 L70 70"/><path d="M70 30 L30 70"/>')+'</svg></div>';
   document.body.appendChild(d);fxT=setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),320)},ok?850:1100)}
-function celebrate(){if(document.querySelector('.party'))return;
+function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
   setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),650)},3200);
@@ -421,17 +457,145 @@ function renderVocab(){
   $('#next').onclick=()=>{S.i++;renderVocab()};
 }
 
-$('#home').onclick=()=>{clearInterval(tick);render.home()};
+/* ---------- sons (synthétisés, marchent hors ligne) ---------- */
+const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd')!=='0';
+  function ctx(){if(!on())return null;if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A();
+      const g=ac.createGain();g.gain.value=.5;const dl=ac.createDelay(1);dl.delayTime.value=.14;const fb=ac.createGain();fb.gain.value=.25;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600;
+      g.connect(ac.destination);g.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(ac.destination);out=g}
+    if(ac.state==='suspended')ac.resume();return ac}
+  const N=m=>440*Math.pow(2,(m-69)/12);
+  /* note « cloche » : fondamentale + octave douce, attaque rapide, extinction lente */
+  function note(m,t,d=.5,v=.25,type='triangle'){const a=ac,s=a.currentTime+.01+t,g=a.createGain(),o=a.createOscillator(),o2=a.createOscillator(),g2=a.createGain();
+    o.type=type;o.frequency.value=N(m);o2.type='sine';o2.frequency.value=N(m)*2.01;g2.gain.value=.16;
+    g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.01);g.gain.exponentialRampToValueAtTime(.0006,s+d);
+    o.connect(g);o2.connect(g2);g2.connect(g);g.connect(out);o.start(s);o2.start(s);o.stop(s+d+.05);o2.stop(s+d+.05)}
+  const P={
+    ok(){note(76,0,.3,.22);note(83,.085,.7,.26)},
+    ko(){note(64,0,.35,.16,'sine');note(60,.14,.6,.16,'sine')},
+    combo(){[79,83,86,91].forEach((m,i)=>note(m,i*.06,.45,.14))},
+    tap(){note(93,0,.07,.05,'sine')},
+    win(){[72,76,79,84].forEach((m,i)=>note(m,i*.11,.5,.2));[84,88,91].forEach(m=>note(m,.5,1.8,.13));[96,100,103,108,103].forEach((m,i)=>note(m,.62+i*.07,.35,.05,'sine'))},
+    streak(){[67,71,74,79,83,86,91].forEach((m,i)=>note(m,i*.055,.6,.12));note(91,.45,1.6,.14);note(95,.45,1.6,.08,'sine')},
+    badge(){note(91,0,.9,.16);note(98,.12,1.4,.14);note(103,.24,1.6,.06,'sine')}};
+  return{play(n){try{if(ctx())P[n]()}catch(e){}},on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('tap')},unlock:()=>{try{ctx()}catch(e){}}}})();
+document.addEventListener('touchend',SND.unlock,{once:true});document.addEventListener('click',SND.unlock,{once:true});
+
+/* ---------- Défi du jour : série, XP, niveaux, récompenses ---------- */
+const dkey=(t=new Date())=>t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+const shiftDay=(k,n)=>{const x=new Date(k+'T12:00');x.setDate(x.getDate()+n);return dkey(x)};
+const dayDiff=(a,b)=>Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5);
+function D(){if(!st.d)st.d=D0();return st.d}
+const LV=[['Пешеход','Piéton'],['Пассажир','Passager'],['Велосипедист','Cycliste'],['Ученик','Élève'],['Курсант','Élève conducteur'],['Новичок за рулём','Jeune conducteur'],['Водитель','Conducteur'],['Уверенный водитель','Conducteur sûr'],['Опытный водитель','Conducteur expérimenté'],['Профи','Pro'],['Ас дорог','As de la route'],['Инструктор','Moniteur'],['Экзаменатор','Examinateur'],['Мастер ПДД','Maître du ПДД'],['Легенда дорог','Légende de la route']];
+const LVX=LV.map((_,i)=>i?50*i*(i+1):0);
+const level=x=>{let i=0;while(i<LV.length-1&&x>=LVX[i+1])i++;return i};
+const BADGES=[
+ ['s3','3 j','3 jours de suite','#f59e0b',d=>d.best>=3],['s7','7 j','Une semaine sans rater','#f97316',d=>d.best>=7],
+ ['s14','14 j','Deux semaines','#ef4444',d=>d.best>=14],['s30','30 j','Un mois entier','#db2777',d=>d.best>=30],
+ ['s60','60 j','Deux mois','#9333ea',d=>d.best>=60],['s100','100 j','Cent jours','#1b4f9c',d=>d.best>=100],
+ ['p1','100 %','Premier défi sans faute','#1f8a3b',d=>d.perfect>=1],['p10','10 × 100 %','Dix défis sans faute','#15803d',d=>d.perfect>=10],
+ ['c10','Combo 10','10 bonnes réponses d\'affilée','#0ea5e9',d=>d.maxc>=10],
+ ['q100','100','100 réponses en défi','#64748b',d=>d.total>=100],['q500','500','500 réponses en défi','#475569',d=>d.total>=500],
+ ['all','800/800','Toutes les questions vues','#b45309',()=>Object.keys(st.r).length>=800],
+ ['lv5','Niv. 5','Atteindre « Курсант »','#7c83e6',d=>level(d.xp)>=4],['lv10','Niv. 10','Atteindre « Профи »','#4f46e5',d=>level(d.xp)>=9],
+ ['am','Matin','Défi fait avant 9 h','#eab308',d=>d.am],['pm','Nuit','Défi fait après 22 h','#334155',d=>d.pm]];
+const FLAME=`<svg viewBox="0 0 32 40" aria-hidden="true"><path d="M16 2c2 7 10 11 10 22a10 10 0 0 1-20 0c0-5 2-8 5-11 0 4 1 6 3 7-1-7 0-12 2-18z" fill="currentColor"/><path d="M16 22c1 3 5 5 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9z" fill="#ffe08a"/></svg>`;
+const medal=(b,got)=>`<svg viewBox="0 0 60 66" aria-hidden="true"><path d="M18 2h10l6 18H24zM42 2H32l-6 18h10z" fill="${got?'#e23b32':'var(--line)'}"/><circle cx="30" cy="40" r="22" fill="${got?b[3]:'var(--line)'}"/><circle cx="30" cy="40" r="17" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/><text x="30" y="${b[1].length>5?44:46}" text-anchor="middle" font-family="PT Sans Narrow,sans-serif" font-weight="700" font-size="${b[1].length>5?10:14}" fill="${got?'#fff':'var(--mut)'}">${esc(b[1])}</text></svg>`;
+
+/* au lancement : la série est-elle encore vivante ? (joker utilisé si un seul jour manqué) */
+function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)return;const gap=dayDiff(d.last,t);if(gap<=1)return;
+  const miss=gap-1;if(miss<=d.freeze){d.freeze-=miss;for(let i=1;i<=miss;i++)d.days[shiftDay(d.last,i)]={frz:1};d.last=shiftDay(t,-1);d.froze=miss}
+  else{d.lost=d.streak;d.streak=0}save()}
+
+function dailyCard(){const d=D(),t=dkey(),today=d.days[t]||{},done=!!today.done,lv=level(d.xp),nx=LVX[lv+1];
+  const h=24-new Date().getHours();
+  const msg=done?`Défi fait aujourd'hui (+${today.xp} XP). Reviens demain pour garder ta série.`
+    :d.streak?`Ta série de ${d.streak} jour${d.streak>1?'s':''} s'arrête à minuit (encore ${h} h) si tu ne fais pas le défi.${d.freeze?` Jokers : ${d.freeze}.`:''}`
+    :d.lost?`Ta série de ${d.lost} jours s'est arrêtée. Recommence aujourd'hui.`:`10 questions par jour. Chaque jour fait allonge ta série.`;
+  const wd=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const week=Array.from({length:7},(_,i)=>{const k=shiftDay(t,i-6),x=d.days[k],dt=new Date(k+'T12:00');return`<span class="${x&&x.done?'on':x&&x.frz?'frz':''} ${k===t?'now':''}"><i>${x&&x.done?'✓':x&&x.frz?'❄':dt.getDate()}</i>${wd[dt.getDay()]}</span>`}).join('');
+  return`<div class="dq ${done?'done':'todo'}">
+   ${d.froze?`<p class="dqn">Un joker a protégé ta série.</p>`:''}
+   <div class="dqtop"><span class="flame ${d.streak?'':'off'}">${FLAME}<b>${d.streak}</b></span><span class="dqs">jour${d.streak>1?'s':''} de suite<em class="ru">дней подряд</em></span><span class="sp"></span><span class="xpc"><b>${d.xp}</b> XP</span></div>
+   <div class="week">${week}</div>
+   <div class="lvl"><div class="brow"><span>Niveau ${lv+1} · ${LV[lv][0]}<em class="ru">${LV[lv][1]}</em></span><span>${nx?`${d.xp-LVX[lv]}/${nx-LVX[lv]}`:'max'}</span></div><div class="bar"><i style="width:${nx?Math.round((d.xp-LVX[lv])/(nx-LVX[lv])*100):100}%;background:#f2b705"></i></div></div>
+   <button class="dqbtn" id="dqgo">${done?'Encore un tour (XP en plus)':'Commencer le défi du jour'}<em class="ru">${done?'Ещё раз':'Задание дня'}</em></button>
+   <p class="dqm">${msg}</p>
+   <button class="dqr" data-go="recomp">Récompenses · ${BADGES.filter(b=>d.badges[b[0]]).length}/${BADGES.length} badges</button></div>`}
+
+function pickDaily(){const ks=o=>shuffle(Q.map((_,k)=>k).filter(o));
+  const err=ks(k=>st.r[k]===0),un=ks(k=>st.r[k]===undefined),ok=ks(k=>st.r[k]===1),out=err.slice(0,4);
+  for(const k of [...un.slice(0,8-out.length),...ok,...un,...err])if(out.length<10&&!out.includes(k))out.push(k);return shuffle(out)}
+function startDaily(){SND.unlock();S={view:'daily',list:pickDaily(),i:0,pick:null,xp:0,combo:0,maxc:0,wrong:{},again:{},fr:false,tipfr:false};renderDaily();scrollTo(0,0)}
+const CHEER=[['Отлично !','Excellent !'],['Верно !','Exact !'],['Молодец !','Bravo !'],['Так держать !','Continue comme ça !'],['Супер !','Super !']];
+function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.c,fr=S.fr,n=S.list.length;
+  const prog=Math.round((S.i+(p!==null?1:0))/n*100),cheer=CHEER[(S.i*7+k)%CHEER.length];
+  app.innerHTML=`<div class="dtop"><button class="dx" id="dqx" aria-label="Quitter">✕</button><div class="bar dbar"><i style="width:${prog}%"></i></div><span class="dcombo ${S.combo>=3?'hot':''}">${FLAME}${S.combo}</span></div>
+  <p class="dmeta">${S.again[S.i]?'Question ratée, deuxième chance':'Défi du jour'} · ${S.i+1}/${n} · <b>${S.xp} XP</b></p>
+  ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question">`:''}</div>`:''}
+  <p class="q">${esc(q.q)}${TTS?`<button class="say" id="dsay" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
+  ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
+  <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
+  <div class="ans">${q.a.map((x,j)=>`<button data-j="${j}" class="${p===null?'':j===q.c?'ok':j===p?'ko':''}" ${p!==null?'disabled':''}><span class="n">${j+1}</span><span>${esc(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`).join('')}</div>
+  ${p!==null?`<div class="sheet ${good?'g':'b'}"><b class="sh">${good?`${cheer[0]} <span>+${S.last} XP</span>`:'Pas tout à fait'}</b><small>${good?cheer[1]:`Bonne réponse : ${q.c+1}. ${S.again[S.i]?'':'Tu reverras cette question à la fin.'}`}</small>
+    ${!good?`<p class="shh">${esc(S.tipfr&&q.fh?q.fh:q.h)}</p>${q.fh?`<button class="tbtn shfr" id="shfr">${S.tipfr?'Русский':'Explication en français'}</button>`:''}`:''}
+    <button class="btn shbtn" id="dqnext">${S.i===n-1?'Terminer':'Continuer'}</button></div>`:''}`;
+  if(q.i&&!IMG[q.t])loadImg(q.t).then(()=>{if(S.view==='daily'&&S.list[S.i]===k)renderDaily()});
+  $('#dqx').onclick=()=>{if(TTS)speechSynthesis.cancel();render.home()};
+  $('#frb').onclick=()=>{S.fr=!S.fr;renderDaily()};
+  const sb=$('#dsay');if(sb)sb.onclick=()=>say(q.q,sb);
+  const sf=$('#shfr');if(sf)sf.onclick=()=>{S.tipfr=!S.tipfr;renderDaily()};
+  app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answerDaily(+b.dataset.j));
+  const nb=$('#dqnext');if(nb){nb.onclick=()=>{if(TTS)speechSynthesis.cancel();SND.play('tap');if(S.i<n-1){S.i++;S.pick=null;S.fr=false;S.tipfr=false;renderDaily();scrollTo(0,0)}else finishDaily()};nb.scrollIntoView({block:'nearest',behavior:'smooth'})}}
+function answerDaily(j){if(S.pick!==null)return;const k=S.list[S.i],good=j===Q[k].c;S.pick=j;st.r[k]=good?1:0;
+  if(good){S.combo++;S.maxc=Math.max(S.maxc,S.combo);S.last=(S.again[S.i]?5:10)+(S.combo>=3?5:0);S.xp+=S.last}
+  else{S.combo=0;S.wrong[k]=1;if(!S.again[S.i]){S.list.push(k);S.again[S.list.length-1]=1}}
+  save();fx(good);if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
+  renderDaily();if(good)floatXp('+'+S.last+' XP')}
+function floatXp(t){const e=document.createElement('div');e.className='fxp';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
+function finishDaily(){const d=D(),t=dkey(),first=!(d.days[t]&&d.days[t].done),perfect=!Object.keys(S.wrong).length,hr=new Date().getHours();
+  const lv0=level(d.xp),bonus=[['Défi terminé',20]];if(perfect)bonus.push(['Sans faute',30]);
+  let grew=false,gotFreeze=false;
+  if(first){d.streak=d.last===shiftDay(t,-1)?d.streak+1:d.last===t?d.streak:1;d.last=t;d.best=Math.max(d.best,d.streak);d.lost=0;grew=true;
+    if(d.streak>1)bonus.push(['Série de '+d.streak+' jours',Math.min(d.streak,30)*2]);
+    if(d.streak%7===0&&d.freeze<2){d.freeze++;gotFreeze=true}
+    if(hr<9)d.am=1;if(hr>=22)d.pm=1}
+  const tot=S.xp+bonus.reduce((a,b)=>a+b[1],0);
+  d.xp+=tot;d.total+=S.list.length;if(perfect)d.perfect++;d.maxc=Math.max(d.maxc||0,S.maxc);
+  const day=d.days[t]&&d.days[t].done?d.days[t]:{done:1,xp:0,n:0,r:0};day.xp+=tot;day.n+=S.list.length;day.r++;d.days[t]=day;
+  const nb=BADGES.filter(b=>!d.badges[b[0]]&&b[4](d));nb.forEach(b=>d.badges[b[0]]=t);
+  const lv1=level(d.xp);save();
+  app.innerHTML=`<div class="res dres"><p class="sub">Défi du jour terminé · Задание выполнено</p>
+   <b class="pass" id="xpc">+0</b><p style="font-size:20px;font-weight:700;margin:4px 0">XP gagnés</p>
+   <div class="kw" style="text-align:left"><ul><li><b>Bonnes réponses</b><span>+${S.xp}</span></li>${bonus.map(b=>`<li><b>${esc(b[0])}</b><span>+${b[1]}</span></li>`).join('')}</ul></div>
+   ${grew?`<div class="bigflame">${FLAME}<b>${d.streak}</b><span>jour${d.streak>1?'s':''} de suite</span></div>`:''}
+   ${gotFreeze?`<p class="note" style="font-weight:700;color:var(--fr)">Récompense : un joker. Il protège ta série si tu rates un jour (2 maximum).</p>`:''}
+   ${lv1>lv0?`<p class="lvup">Niveau ${lv1+1} : ${LV[lv1][0]}<em class="ru">${LV[lv1][1]}</em></p>`:''}
+   ${nb.length?`<h2>Nouveau${nb.length>1?'x':''} badge${nb.length>1?'s':''}</h2><div class="bgrid">${nb.map(b=>`<div class="bdg new">${medal(b,1)}<small>${esc(b[2])}</small></div>`).join('')}</div>`:''}</div>
+   <div class="nav"><button class="btn" id="back">Accueil</button>${Object.keys(S.wrong).length?'<button class="btn ghost" id="rev">Revoir mes fautes</button>':''}</div>`;
+  const bad=Object.keys(S.wrong).map(Number);
+  $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes du défi','free');
+  const el=$('#xpc'),t0=performance.now();(function up(now){const f=Math.min(1,(now-t0)/1100);el.textContent='+'+Math.round(tot*(1-Math.pow(1-f,3)));if(f<1)requestAnimationFrame(up)})(t0);
+  setTimeout(celebrate,200);if(grew)setTimeout(()=>SND.play('streak'),1500);if(nb.length||lv1>lv0)setTimeout(()=>SND.play('badge'),2600)}
+
+render.recomp=function(){S={view:'recomp'};const d=D(),lv=level(d.xp);
+  app.innerHTML=`<h1>Récompenses</h1><p class="sub">Награды. Série actuelle : ${d.streak} · record : ${d.best} · jokers : ${d.freeze}/2 · ${d.xp} XP</p>
+  <h2>Badges</h2><div class="bgrid">${BADGES.map(b=>`<div class="bdg ${d.badges[b[0]]?'':'lock'}">${medal(b,d.badges[b[0]])}<small>${esc(b[2])}</small></div>`).join('')}</div>
+  <h2>Niveaux</h2><div class="kw"><ul>${LV.map((x,i)=>`<li style="${i===lv?'font-weight:700;background:var(--yel)':i>lv?'opacity:.5':''}"><b>${i+1}. ${x[0]}</b><span>${x[1]} · ${LVX[i]} XP</span></li>`).join('')}</ul></div>
+  <h2>Comment gagner des XP</h2><div class="kw"><ul><li><b>Bonne réponse</b><span>+10 (+5 au 2e essai)</span></li><li><b>Combo de 3 et plus</b><span>+5 par réponse</span></li><li><b>Défi terminé</b><span>+20</span></li><li><b>Sans faute</b><span>+30</span></li><li><b>Série de jours</b><span>+2 par jour (max +60)</span></li><li><b>7 jours de suite</b><span>un joker</span></li></ul></div>
+  <h2>Sons</h2><button class="btn ${SND.on()?'':'ghost'}" id="snd">${SND.on()?'Sons activés':'Sons coupés'}</button><p class="note">Sur iPhone, l'interrupteur silencieux coupe aussi les sons de l'appli.</p>`;
+  $('#snd').onclick=()=>{SND.set(!SND.on());render.recomp()}};
+
+$('#home').onclick=()=>{clearInterval(tick);if(TTS)speechSynthesis.cancel();render.home()};
 $('#lexbtn').onclick=()=>{clearInterval(tick);render.lexique()};
 
 /* ---------- démarrage ---------- */
-Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json())]).then(([d,g])=>{Q=d;G=g;render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
+Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json())]).then(([d,g])=>{Q=d;G=g;checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
 if(window.claude&&claude.use){
   claude.use('sample').then(s=>{sample=s;if(S&&S.view==='quiz')renderQuiz()}).catch(()=>{});
   Promise.all([claude.use('db'),claude.use('user')]).then(async([d,u])=>{
     if(!d)return;db=d;
     try{uid=u&&await u.id()}catch(e){}
-    if(uid){try{const s=await db.doc('data/users/'+uid+'/state').get();if(s.exists){const v=s.data();if(v&&v.r&&Object.keys(v.r).length>=Object.keys(st.r).length){st=norm(v);if(S&&S.view==='home')render.home()}}}catch(e){}}
+    if(uid){try{const s=await db.doc('data/users/'+uid+'/state').get();if(s.exists){const v=s.data();if(v&&v.r&&Object.keys(v.r).length>=Object.keys(st.r).length){st=norm(v);checkStreak();if(S&&S.view==='home')render.home()}}}catch(e){}}
   }).catch(()=>{});
 }
 }
