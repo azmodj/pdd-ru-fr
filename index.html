@@ -250,6 +250,7 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 const $=s=>document.querySelector(s), app=$('#app');
 const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
 let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0()}, db=null, sample=null, uid=null, S=null, tick=null;
+window.pddView=()=>S&&S.view;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function D0(){return{xp:0,streak:0,best:0,last:'',freeze:0,days:{},badges:{},total:0,perfect:0,maxc:0}}
@@ -801,7 +802,7 @@ async function offStat(){const el=document.getElementById('offst');if(!el)return
   try{const c=await caches.open('pdd-offline'),n=(await c.keys()).length;
     if(n>=N){el.textContent='Hors ligne : prêt. Tu peux passer en mode avion.';el.style.color='var(--grn)'}
     else{el.textContent='Hors ligne : téléchargement '+n+'/'+N+'… garde l\'application ouverte avec Internet.';el.style.color='#e07b00';setTimeout(offStat,1500)}}catch(e){el.textContent=''}}
-window.offStat=offStat;window.pddView=()=>S&&S.view;
+window.offStat=offStat;
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 /* nouvelle version en ligne : recharger tout de suite à l'accueil, sinon proposer un bandeau */
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data!=='pdd-update')return;
