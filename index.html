@@ -204,7 +204,7 @@ function renderQuiz(){
   const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
   const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
   if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=makeVq(q.k[Math.random()*Math.min(q.k.length,3)|0]);
-  const hf=HF[k];
+  const hf=q.fh||HF[k];
   app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
   ${strip}
@@ -213,13 +213,14 @@ function renderQuiz(){
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
   <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${esc(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
-  ${a!==undefined&&!exam?`<div class="tip"><p>${esc(q.h)}</p>${hf?`<p class="fr">${esc(hf)}</p>`:S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
+  ${a!==undefined&&!exam?`<div class="tip"><p>${esc(q.h)}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam?'<p class="note">Simulation simplifiée : 20 questions, 20 minutes, échec à partir de 3 fautes. Les mots-clés et explications s\'affichent dans les billets, pas pendant l\'examen.</p>':''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
   $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
+  const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
   app.querySelectorAll('.vq button').forEach(b=>b.onclick=()=>{pickVq(S.vq,+b.dataset.o);renderQuiz()});
   app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
