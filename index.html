@@ -151,7 +151,8 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
   <p class="note" id="offst"></p>
   <div class="modes">
-   <button class="mode main" data-go="exam"><b>Examen blanc</b><span>Billet au hasard, 20 min, 2 fautes max</span></button>
+   <button class="mode main" data-go="exam"><b>Examen blanc</b><span>Comme au ГИБДД : 4 blocs de 5 questions, 20 min, 5 questions de plus par faute</span></button>
+   <button class="mode" data-go="texam"><b>Examen par thème</b><span>Panneaux, premiers secours, légal… avec les mêmes règles</span></button>
    <button class="mode" data-go="tickets"><b>Billets 1 à 40</b><span>20 questions par billet</span></button>
    <button class="mode" data-go="topics"><b>Par thème</b><span>${Object.keys(TOP).length} thèmes du ПДД</span></button>
    <button class="mode" data-go="errors"><b>Mes erreurs</b><span>${Object.values(st.r).filter(x=>x===0).length} question(s) à revoir</span></button>
@@ -163,7 +164,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length;
   if(window.offStat)offStat();
   app.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>startTicket(+b.dataset.rt,'ticket'));
   app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;flashMsg='';
-    if(g==='exam')startTicket(1+Math.random()*40|0,'exam');
+    if(g==='exam')startExam();
     else if(g==='marathon')startList(shuffle(Q.map((_,k)=>k)),'Marathon','free');
     else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
     else if(g==='vocab')startVocab();
@@ -178,6 +179,15 @@ tickets(){S={view:'tickets'};
 topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   app.innerHTML=`<h1>Par thème</h1><div class="list">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button data-p="${esc(p)}"><span>${esc(p)}<br><span class="fr" style="font-size:14px">${esc(TOP[p])}</span></span><small>${c[p].length} q.</small></button>`).join('')}</div>`;
   app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'))},
+texam(){S={view:'texam'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
+  const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
+  const item=(i,name,sub,n)=>`<button data-x="${i}"><span>${esc(name)}${sub?`<br><span class="fr" style="font-size:14px">${esc(sub)}</span>`:''}</span><small>${n} q.</small></button>`;
+  const th=Object.keys(TOP).filter(p=>c[p]);
+  app.innerHTML=`<h1>Examen par thème</h1><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec.</p>
+  <h2>Regroupements</h2><div class="list">${TEX.map((x,i)=>item('g'+i,x[0],x[1].join(' · '),pool(x[1]).length)).join('')}</div>
+  <h2>Thèmes officiels</h2><div class="list">${th.map((p,i)=>item('t'+i,p,TOP[p],c[p].length)).join('')}</div>`;
+  app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
+    if(x[0]==='g')startThemeExam(pool(TEX[i][1]),TEX[i][0]);else startThemeExam(c[th[i]],TOP[th[i]])})},
 lexique(){S={view:'lexique'};
   app.innerHTML=`<h1>Lexique de la route</h1><p class="sub">${G.length} mots-clés tirés des questions. Le chiffre indique dans combien de questions le mot apparaît.</p>
   <input class="search" id="lq" type="search" placeholder="Chercher en russe ou en français" autocomplete="off">
@@ -191,6 +201,39 @@ function startTicket(t,mode){startList(Q.map((q,k)=>q.t===t?k:-1).filter(k=>k>=0
   const p=mode==='ticket'&&st.p[t];
   if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=n<0?S.list.length-1:n;S.resumed=true;renderQuiz()}}
 function startList(list,title,mode,t){S={view:'quiz',list,title,mode,t,i:0,ans:{},fr:false,vq:null,end:mode==='exam'?Date.now()+20*60e3:0,done:false};renderQuiz();scrollTo(0,0)}
+
+/* ---------- examen façon ГИБДД ----------
+   20 questions en 4 blocs de 5. Une faute dans un bloc : +5 questions du même bloc (même groupe de thèmes) et +5 min.
+   Échec : 2 fautes dans le même bloc, 3 fautes dans les 20 questions, ou une faute dans les questions supplémentaires. */
+const GRP=['Panneaux, marquage, dispositions générales','Manœuvres, feux et agent, vitesse','Intersections, dépassement, arrêt et stationnement','Sécurité, premiers secours, responsabilité, équipement'];
+const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожная разметка']],
+ ['Santé : premiers secours',['Оказание доврачебной медицинской помощи']],
+ ['Légal et administratif',['Ответственность водителя','Общие обязанности водителей','Общие положения']],
+ ['Véhicule : pannes, feux, remorquage',['Неисправности и условия допуска транспортных средств к эксплуатации','Пользование внешними световыми приборами и звуковыми сигналами','Буксировка механических транспортных средств','Перевозка людей и грузов']],
+ ['Intersections, feux et agent',['Проезд перекрестков','Сигналы светофора и регулировщика']],
+ ['Manœuvres, dépassement, stationnement',['Начало движения, маневрирование','Обгон, опережение, встречный разъезд','Остановка и стоянка','Расположение транспортных средств на проезжей части']]];
+function runExam(title,blocks,src,names){
+  const list=[],bk={};blocks.forEach((b,i)=>b.forEach(k=>{list.push(k);bk[k]=i}));
+  S={view:'quiz',list,title,mode:'exam',i:0,ans:{},fr:false,vq:null,end:Date.now()+list.length*60e3,done:false,
+     ex:{bk,extra:{},got:{},src,names,nb:blocks.length,fail:'',msg:''}};renderQuiz();scrollTo(0,0)}
+function startExam(){const used=[new Set(),new Set(),new Set(),new Set()];
+  const src=g=>{const free=[...Array(40).keys()].map(i=>i+1).filter(t=>!used[g].has(t));if(!free.length)return[];const t=free[Math.random()*free.length|0];used[g].add(t);
+    return Q.map((q,k)=>q.t===t&&((q.n-1)/5|0)===g?k:-1).filter(k=>k>=0).sort((a,b)=>Q[a].n-Q[b].n)};
+  runExam('Examen blanc',[0,1,2,3].map(src),src,GRP)}
+function startThemeExam(pool,name){const left=shuffle(pool.slice());const src=()=>left.splice(0,5);
+  const L=left.length,n=L<10?1:Math.min(4,Math.floor((L-5)/5)),blocks=[];for(let i=0;i<n;i++)blocks.push(src());
+  runExam('Examen · '+name,blocks,src,blocks.map((_,i)=>name+' · bloc '+(i+1)))}
+function examAnswer(k){const E=S.ex,wrong=x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c;E.msg='';
+  if(!wrong(k))return;
+  if(k in E.extra){E.fail='Faute dans les questions supplémentaires.';return}
+  const b=E.bk[k],main=S.list.filter(x=>!(x in E.extra));
+  if(main.filter(x=>E.bk[x]===b&&wrong(x)).length>=2){E.fail='2 fautes dans le même bloc ('+E.names[b]+').';return}
+  if(main.filter(wrong).length>2){E.fail='3 fautes dans les questions principales.';return}
+  if(E.got[b])return;E.got[b]=1;
+  const add=E.src(b).filter(x=>!S.list.includes(x));
+  if(!add.length){E.fail='Faute sans question supplémentaire disponible dans ce thème.';return}
+  add.forEach(x=>{S.list.push(x);E.extra[x]=b;E.bk[x]=b});S.end+=add.length*60e3;
+  E.msg='Faute dans le bloc « '+E.names[b]+' » : '+add.length+' questions supplémentaires (n° '+(S.list.length-add.length+1)+' à '+S.list.length+') et '+add.length+' minutes ajoutées. Aucune faute permise sur ces questions.'}
 
 /* mini-quiz de vocabulaire */
 function makeVq(gi){const others=shuffle(G.map((_,i)=>i).filter(i=>i!==gi&&G[i][1]!==G[gi][1])).slice(0,2);return{gi,opts:shuffle([gi,...others]),pick:null}}
@@ -207,6 +250,7 @@ function renderQuiz(){
   const hf=q.fh||HF[k];
   app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
+  ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
   ${strip}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
   <p class="q">${esc(q.q)}</p>
@@ -216,7 +260,7 @@ function renderQuiz(){
   ${a!==undefined&&!exam?`<div class="tip"><p>${esc(q.h)}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>${vqHtml(S.vq)}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
-  ${exam?'<p class="note">Simulation simplifiée : 20 questions, 20 minutes, échec à partir de 3 fautes. Les mots-clés et explications s\'affichent dans les billets, pas pendant l\'examen.</p>':''}`;
+  ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Une faute ajoute 5 questions du même bloc ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec. Les mots-clés et explications s'affichent à la fin, dans « Revoir mes fautes ».</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
   $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
@@ -232,16 +276,17 @@ function renderQuiz(){
 }
 function go(i){S.i=i;S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0)}
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
-  if(S.mode==='exam'&&S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length>2)return finish();
+  if(S.ex){examAnswer(k);if(S.ex.fail)return finish()}
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
   if(S.t&&S.mode!=='free'){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tk[S.t];st.tk[S.t]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};if(S.mode==='ticket')delete st.p[S.t];save()}
   renderResult()}
 function renderResult(){
   const ok=S.list.filter(x=>S.ans[x]===Q[x].c).length,bad=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c),skip=S.list.filter(x=>S.ans[x]===undefined).length;
-  const pass=S.t?bad.length+skip<=2:null;
+  const E=S.ex;if(E&&!E.fail&&skip)E.fail=skip+' question(s) sans réponse (comptées comme fautes).';
+  const pass=E?!E.fail:S.t?bad.length+skip<=2:null;
   app.innerHTML=`<div class="res"><p class="sub">${esc(S.title)}</p><b class="${pass===null?'':pass?'pass':'fail'}">${ok}/${S.list.length}</b>
-  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?'Réussi, avec '+(S.list.length-ok)+' faute(s)':'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}</div>
+  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip&&!E?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
 }
