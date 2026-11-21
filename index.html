@@ -138,6 +138,26 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 @keyframes fxout{to{opacity:0;transform:scale(.6) translateY(-30px)}}
 @keyframes draw{to{stroke-dashoffset:0}}
 @keyframes shake{0%,100%{translate:0}20%{translate:-12px}40%{translate:10px}60%{translate:-7px}80%{translate:4px}}
+.cop{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:rgba(8,16,36,.78);animation:copin .3s ease both;-webkit-tap-highlight-color:transparent}
+.cop.out{animation:copout .35s ease both}@keyframes copin{from{opacity:0}}@keyframes copout{to{opacity:0}}
+.cop .box{position:relative;width:min(340px,88vw);text-align:center}
+.cop .bub{position:relative;background:#fff;color:#141a22;border-radius:20px;padding:14px 18px;font-weight:700;font-size:21px;line-height:1.25;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:bub .5s .55s cubic-bezier(.3,1.6,.5,1) both;margin-bottom:6px}
+.cop .bub:after{content:"";position:absolute;left:50%;bottom:-12px;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:#fff}
+.cop .bub i{display:block;font-style:normal;font-size:16px;color:#1b4f9c;margin-top:4px}
+@keyframes bub{from{transform:scale(.3) translateY(30px);opacity:0}}
+.cop svg.man{width:min(240px,62vw);height:auto;overflow:visible;animation:pop .7s cubic-bezier(.3,1.5,.5,1) both;transform-origin:50% 100%}
+@keyframes pop{0%{transform:scale(.2) translateY(80px);opacity:0}100%{transform:none;opacity:1}}
+.cop .bob{animation:bob 1.6s .7s ease-in-out infinite;transform-origin:100px 250px;transform-box:view-box}
+@keyframes bob{50%{transform:translateY(-6px) scaleY(1.01)}}
+.cop .arm{transform-origin:138px 150px;transform-box:view-box;animation:arm 1s .35s cubic-bezier(.3,1.6,.5,1) both,wave 1.2s 1.4s ease-in-out infinite}
+@keyframes arm{from{transform:rotate(95deg)}to{transform:rotate(0)}}@keyframes wave{50%{transform:rotate(-8deg)}}
+.cop .thumb{transform-origin:170px 72px;transform-box:view-box;animation:thumb .5s 1.05s cubic-bezier(.3,2,.5,1) both,tw .6s 1.6s ease-in-out infinite}
+@keyframes thumb{from{transform:scale(0) rotate(-40deg)}}@keyframes tw{50%{transform:rotate(-12deg) scale(1.08)}}
+.cop .eye{transform-origin:center;transform-box:fill-box;animation:blink 3.2s 1.8s infinite}@keyframes blink{0%,94%,100%{transform:none}97%{transform:scaleY(.1)}}
+.cop .st{position:absolute;z-index:2;left:50%;top:58%;width:40px;height:40px;margin:-20px;filter:drop-shadow(0 0 6px rgba(255,220,80,.9));pointer-events:none;opacity:0;animation:fly 1.1s var(--d) cubic-bezier(.15,.7,.3,1) both}
+@keyframes fly{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(var(--s)) rotate(var(--r))}}
+.cop .go{margin-top:12px;min-width:160px;animation:bub .4s 1.2s both}
+@media(prefers-reduced-motion:reduce){.cop *{animation:none!important;opacity:1!important}.cop .st{display:none}}
 .party{position:fixed;inset:0;z-index:60;pointer-events:none;background:rgba(8,16,36,.72);animation:dim 4.4s ease both}@keyframes dim{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
 .bravo{position:fixed;left:0;right:0;top:30%;z-index:61;text-align:center;pointer-events:none;perspective:700px}
 .bravo b{display:block;font:700 clamp(54px,16vw,96px)/1 "PT Sans Narrow",sans-serif;color:#ffd54a;text-shadow:0 2px 0 #e0a800,0 4px 0 #c78f00,0 6px 0 #a87800,0 8px 0 #8a6200,0 14px 24px rgba(0,0,0,.4);animation:pop 1s cubic-bezier(.2,1.6,.4,1) both}
@@ -478,7 +498,7 @@ function renderResult(){
   <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip&&!E?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
-  if(pass)setTimeout(celebrate,250);
+  if(S.t&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copCheer,300);else if(pass)setTimeout(celebrate,250);
 }
 
 
@@ -528,6 +548,53 @@ function fx(ok){SND.play(ok?'ok':'ko');document.querySelectorAll('.fx').forEach(
   const d=document.createElement('div');d.className='fx '+(ok?'ok':'ko');
   d.innerHTML='<div><svg viewBox="0 0 100 100">'+(ok?'<path d="M24 52 L43 70 L77 32"/>':'<path d="M30 30 L70 70"/><path d="M70 30 L30 70"/>')+'</svg></div>';
   document.body.appendChild(d);fxT=setTimeout(()=>{d.classList.add('out');setTimeout(()=>d.remove(),320)},ok?850:1100)}
+/* billet sans faute : policier qui lève le pouce */
+function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
+  const d=document.createElement('div');d.className='cop';
+  const star=c=>`<svg viewBox="0 0 24 24"><path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z" fill="${c}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/></svg>`;
+  let stars='';for(let i=0;i<22;i++){const a=Math.random()*Math.PI*2,r=130+Math.random()*170;
+    stars+=`<span class="st" style="--x:${Math.cos(a)*r|0}px;--y:${Math.sin(a)*r-40|0}px;--s:${(.6+Math.random()*.9).toFixed(2)};--r:${(Math.random()*540-270)|0}deg;--d:${(.5+(i%11)*.13+(i>10?.9:0)).toFixed(2)}s">${star(['#ffd54a','#ffb300','#7cf08e','#4fc3ff','#fff'][i%5])}</span>`}
+  d.innerHTML=`<div class="box">${stars}<div class="bub">Super, t'as réussi !<br>Continue comme ça !<i>Молодец! Так держать!</i></div>
+  <svg class="man" viewBox="0 0 200 260" aria-label="Policier qui lève le pouce"><defs>
+   <radialGradient id="cSk" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ffe3c8"/><stop offset=".6" stop-color="#f6c29a"/><stop offset="1" stop-color="#d99369"/></radialGradient>
+   <linearGradient id="cBl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3d6fc4"/><stop offset=".55" stop-color="#1f3f7e"/><stop offset="1" stop-color="#132a57"/></linearGradient>
+   <linearGradient id="cVe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaff6a"/><stop offset=".6" stop-color="#c3e000"/><stop offset="1" stop-color="#8fa800"/></linearGradient>
+   <radialGradient id="cCap" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#3b5c9e"/><stop offset="1" stop-color="#14254d"/></radialGradient>
+   <linearGradient id="cGd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset=".5" stop-color="#f5c400"/><stop offset="1" stop-color="#b08600"/></linearGradient>
+   <radialGradient id="cSh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="100" cy="250" rx="62" ry="9" fill="url(#cSh)"/>
+   <g class="bob">
+    <rect x="70" y="200" width="24" height="44" rx="10" fill="#14254d"/><rect x="106" y="200" width="24" height="44" rx="10" fill="#14254d"/>
+    <ellipse cx="82" cy="245" rx="17" ry="8" fill="#111"/><ellipse cx="118" cy="245" rx="17" ry="8" fill="#111"/><ellipse cx="78" cy="242" rx="6" ry="2" fill="#555"/><ellipse cx="114" cy="242" rx="6" ry="2" fill="#555"/>
+    <path d="M58 158 Q58 132 82 128 L118 128 Q142 132 142 158 L144 206 Q100 218 56 206 Z" fill="url(#cBl)"/>
+    <path d="M66 140 Q70 131 84 129 L116 129 Q130 131 134 140 L136 204 Q100 214 64 204 Z" fill="url(#cVe)"/>
+    <rect x="65" y="170" width="70" height="7" fill="#e8eef8" opacity=".95"/><rect x="65" y="186" width="70" height="7" fill="#e8eef8" opacity=".95"/>
+    <path d="M90 129 L100 146 L110 129" fill="#dfe8f5"/><path d="M97 138 L103 138 L104 160 L100 166 L96 160 Z" fill="#14254d"/>
+    <path d="M84 150 l3.5 7 7.5.6-5.8 4.8 2 7.3-7.2-4-7.2 4 2-7.3-5.8-4.8 7.5-.6z" transform="translate(30 -6) scale(.8)" fill="url(#cGd)" stroke="#8a6a00" stroke-width=".8"/>
+    <path d="M60 140 Q44 150 46 186 Q47 198 56 198 Q64 197 64 186 L66 154 Z" fill="url(#cBl)"/><circle cx="56" cy="198" r="10" fill="url(#cSk)"/>
+    <g class="arm"><path d="M134 136 Q150 132 160 118 L172 98 Q177 90 169 86 Q161 82 156 92 L142 118 Q138 124 132 128 Z" fill="url(#cBl)"/>
+     <rect x="155" y="84" width="22" height="9" rx="3" transform="rotate(-62 166 88)" fill="#e8eef8"/>
+     <g><circle cx="171" cy="79" r="15" fill="url(#cSk)"/><path d="M162 72 q9 -3 18 0" stroke="#c98257" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M161 79 q10 -2 20 0M162 85 q9 -2 18 0" stroke="#c98257" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <g class="thumb"><rect x="163" y="38" width="15" height="36" rx="7.5" fill="url(#cSk)" stroke="#d99369" stroke-width="1"/><ellipse cx="170.5" cy="45" rx="4.6" ry="4" fill="#ffe9de"/></g></g></g>
+    <rect x="90" y="112" width="20" height="18" rx="6" fill="#e6a87e"/>
+    <circle cx="57" cy="86" r="10" fill="url(#cSk)"/><circle cx="143" cy="86" r="10" fill="url(#cSk)"/>
+    <ellipse cx="100" cy="82" rx="44" ry="42" fill="url(#cSk)"/>
+    <ellipse cx="80" cy="96" rx="8" ry="5" fill="#ff8a80" opacity=".45"/><ellipse cx="120" cy="96" rx="8" ry="5" fill="#ff8a80" opacity=".45"/>
+    <g class="eye"><ellipse cx="84" cy="80" rx="8.5" ry="10" fill="#fff"/><circle cx="86" cy="82" r="5.5" fill="#2b2014"/><circle cx="88" cy="79" r="2" fill="#fff"/></g>
+    <g class="eye"><ellipse cx="116" cy="80" rx="8.5" ry="10" fill="#fff"/><circle cx="118" cy="82" r="5.5" fill="#2b2014"/><circle cx="120" cy="79" r="2" fill="#fff"/></g>
+    <path d="M75 66 q9 -6 18 -1M107 65 q9 -5 18 1" stroke="#5a3a22" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path d="M84 100 Q100 116 116 100 Q100 106 84 100 Z" fill="#7a2e2a"/><path d="M89 104 Q100 112 111 104 Q100 110 89 104Z" fill="#ff8a80"/>
+    <path d="M86 98 Q100 104 114 98" stroke="#7a2e2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M52 56 Q54 22 100 18 Q148 20 150 54 Q128 46 100 46 Q72 46 52 56Z" fill="url(#cCap)"/>
+    <path d="M54 54 Q100 40 148 52 L147 62 Q100 50 55 64Z" fill="#d7261e"/>
+    <path d="M56 62 Q100 50 146 60 Q150 70 140 72 Q100 62 60 72 Q50 70 56 62Z" fill="#0d1324"/><path d="M66 66 Q100 58 132 64" stroke="#fff" stroke-opacity=".25" stroke-width="2" fill="none"/>
+    <circle cx="100" cy="44" r="8" fill="url(#cGd)" stroke="#8a6a00" stroke-width=".8"/><circle cx="100" cy="44" r="3.5" fill="#d7261e"/>
+    <path d="M66 32 Q84 22 104 22" stroke="#fff" stroke-opacity=".28" stroke-width="4" fill="none" stroke-linecap="round"/>
+   </g></svg>
+  <button class="btn go">Merci !</button></div>`;
+  document.body.appendChild(d);
+  const close=()=>{if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>d.remove(),350)};
+  d.onclick=close;setTimeout(close,9000)}
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
@@ -582,6 +649,15 @@ const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd'
     tap(){n(60,0,.1,.12)},
     win(){[48,52,55,60,64,67].forEach((m,i)=>n(m,i*.08,.24,.5));[48,60,64,67].forEach(m=>n(m,.55,.16,1.6))},
     streak(){[55,60,64,67,72].forEach((m,i)=>n(m,i*.09,.3,.6));n(60,.5,.3,1.4)},
+    /* « na-ning, na-ning ! » : petite voix qui glisse vers le haut, puis fanfare de gagnant */
+    cop(){const v=(a,b,t,d)=>{const s=ac.currentTime+.02+t,f0=440*Math.pow(2,(a-69)/12),f1=440*Math.pow(2,(b-69)/12);
+        [['triangle',.32,1],['sine',.22,2],['sine',.2,.5]].forEach(([ty,vol,mul])=>{const o=ac.createOscillator(),g=ac.createGain(),vb=ac.createOscillator(),vg=ac.createGain();
+          o.type=ty;o.frequency.setValueAtTime(f0*mul,s);o.frequency.exponentialRampToValueAtTime(f1*mul,s+d*.45);
+          vb.frequency.value=7;vg.gain.value=f1*mul*.012;vb.connect(vg);vg.connect(o.frequency);
+          g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(vol,s+.02);g.gain.setValueAtTime(vol,s+d*.6);g.gain.exponentialRampToValueAtTime(.0005,s+d);
+          o.connect(g);g.connect(out);o.start(s);vb.start(s);o.stop(s+d+.05);vb.stop(s+d+.05)})};
+      v(60,67,0,.2);v(64,72,.2,.34);v(62,69,.62,.2);v(65,74,.82,.42);
+      [60,64,67,72].forEach((m,i)=>n(m,1.35+i*.09,.3,.5));[48,60,64,67,72].forEach(m=>n(m,1.75,.2,1.8))},
     badge(){n(60,0,.32,.5);n(67,.12,.32,.6);n(72,.24,.36,1)}};
   return{play(x){try{if(ctx())P[x]()}catch(e){}},on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok')},unlock:()=>{try{ctx()}catch(e){}}}})();
 document.addEventListener('touchend',SND.unlock,{once:true});document.addEventListener('click',SND.unlock,{once:true});
