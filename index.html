@@ -174,6 +174,7 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 .lvup{font:700 24px "PT Sans Narrow",sans-serif;color:#7c3aed}.lvup .ru{font-size:16px;color:var(--mut)}
 .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;text-align:center}
 .dres .kw li b{font:700 17px/1.3 "PT Sans",sans-serif;display:inline}.dres .kw li span{text-align:right;font-weight:700}
+.res .kw li b{font:700 16px/1.3 "PT Sans",sans-serif;display:inline;text-align:left}.res .kw li span{text-align:right;font-weight:700}
 .bdg svg{width:64px;height:70px}.bdg small{display:block;font-size:12px;line-height:1.2;color:var(--mut)}.bdg.lock{opacity:.55}
 .bdg.new svg{animation:pop 1s .5s cubic-bezier(.2,1.6,.4,1) both}
 @media(max-width:600px){.modes{grid-template-columns:minmax(0,1fr)}.q{font-size:18px}}
@@ -229,6 +230,35 @@ vocab:`<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="4" width="24" 
 marathon:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M14 38 18 4h4l4 34z" fill="#5b636b"/><g stroke="#fff" stroke-width="1.6"><line x1="20" y1="8" x2="20" y2="12"/><line x1="20" y1="17" x2="20" y2="22"/><line x1="20" y1="27" x2="20" y2="33"/></g><line x1="31" y1="6" x2="31" y2="24" stroke="#444" stroke-width="2"/><path d="M31 6h8v6h-8z" fill="#1f8a3b"/></svg>`,
 lexique:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 9c6-3 11-3 17 1v24c-6-4-11-4-17-1z" fill="#3b82f6"/><path d="M37 9c-6-3-11-3-17 1v24c6-4 11-4 17-1z" fill="#60a5fa"/><path d="M20 10v24" stroke="#fff" stroke-width="1.5"/></svg>`,
 reset:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M30 13a12 12 0 1 0 2 12" fill="none" stroke="#9aa3ad" stroke-width="4" stroke-linecap="round"/><path d="M24 6l9 5-9 5z" fill="#9aa3ad"/></svg>`};
+/* icônes des thèmes (40×40) */
+const TI={
+"Дорожные знаки":'<circle cx="20" cy="20" r="17" fill="#fff" stroke="#e23b32" stroke-width="5"/><path d="M12 24h16l-8-10z" fill="#1a1a1a"/>',
+"Проезд перекрестков":'<rect x="14" y="2" width="12" height="36" fill="#6b7280"/><rect x="2" y="14" width="36" height="12" fill="#6b7280"/><path d="M20 4v8M20 28v8M4 20h8M28 20h8" stroke="#fff" stroke-width="1.6" stroke-dasharray="2 2"/>',
+"Начало движения, маневрирование":'<path d="M10 36V22a8 8 0 0 1 8-8h10" fill="none" stroke="#1b4f9c" stroke-width="5" stroke-linecap="round"/><path d="M26 6l9 8-9 8z" fill="#1b4f9c"/>',
+"Безопасность движения и техника управления автомобилем":'<circle cx="20" cy="20" r="15" fill="none" stroke="#374151" stroke-width="5"/><circle cx="20" cy="20" r="4" fill="#374151"/><path d="M6 18h28M20 24v11" stroke="#374151" stroke-width="4"/>',
+"Остановка и стоянка":'<rect x="4" y="4" width="32" height="32" rx="5" fill="#1b4f9c"/><text x="20" y="29" text-anchor="middle" font-size="24" font-weight="700" fill="#fff" font-family="PT Sans,sans-serif">P</text>',
+"Дорожная разметка":'<path d="M8 38 15 2h10l7 36z" fill="#6b7280"/><path d="M20 6v6M20 17v6M20 28v7" stroke="#fff" stroke-width="2.4"/><path d="M11 38 16 2M29 38 24 2" stroke="#fff" stroke-width="1.2"/>',
+"Обгон, опережение, встречный разъезд":'<rect x="6" y="18" width="12" height="18" rx="3" fill="#e23b32"/><rect x="22" y="6" width="12" height="18" rx="3" fill="#1b4f9c"/><path d="M12 14c0-6 4-9 8-10" fill="none" stroke="#f2b705" stroke-width="3" stroke-linecap="round"/>',
+"Сигналы светофора и регулировщика":'<rect x="12" y="2" width="16" height="36" rx="6" fill="#2b2f33"/><circle cx="20" cy="10" r="4.5" fill="#e23b32"/><circle cx="20" cy="20" r="4.5" fill="#f2b705"/><circle cx="20" cy="30" r="4.5" fill="#3ee06b"/>',
+"Расположение транспортных средств на проезжей части":'<rect x="3" y="3" width="34" height="34" rx="5" fill="#1b4f9c"/><path d="M13 32V12M27 32V12" stroke="#fff" stroke-width="3"/><path d="M8 14l5-7 5 7zM22 14l5-7 5 7z" fill="#fff"/>',
+"Неисправности и условия допуска транспортных средств к эксплуатации":'<path d="M28 4a9 9 0 0 0-9 12L5 30a3.5 3.5 0 0 0 5 5l14-14A9 9 0 0 0 36 12l-6 3-5-5 3-6z" fill="#6b7280"/>',
+"Общие положения":'<path d="M4 8c6-3 11-3 16 1v26c-5-4-10-4-16-1z" fill="#1b4f9c"/><path d="M36 8c-6-3-11-3-16 1v26c5-4 10-4 16-1z" fill="#3b82f6"/>',
+"Пользование внешними световыми приборами и звуковыми сигналами":'<path d="M18 8a12 12 0 0 0 0 24z" fill="#f2b705"/><path d="M22 12l14-4M22 20h15M22 28l14 4" stroke="#f2b705" stroke-width="3" stroke-linecap="round"/>',
+"Скорость движения":'<path d="M5 30a15 15 0 1 1 30 0" fill="none" stroke="#374151" stroke-width="5" stroke-linecap="round"/><path d="M20 30 29 16" stroke="#e23b32" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="30" r="4" fill="#374151"/>',
+"Оказание доврачебной медицинской помощи":'<rect x="3" y="3" width="34" height="34" rx="6" fill="#fff" stroke="#d9dfe7" stroke-width="2"/><path d="M15 8h10v7h7v10h-7v7H15v-7H8V15h7z" fill="#e23b32"/>',
+"Ответственность водителя":'<rect x="6" y="20" width="14" height="8" rx="2" fill="#8a5a2b" transform="rotate(-40 13 24)"/><rect x="16" y="22" width="20" height="4" rx="2" fill="#b07a3a" transform="rotate(-40 26 24)"/><rect x="4" y="33" width="20" height="5" rx="2" fill="#6b7280"/>',
+"Общие обязанности водителей":'<rect x="2" y="8" width="36" height="24" rx="4" fill="#e8b4c8"/><circle cx="12" cy="18" r="4" fill="#7a4b5c"/><path d="M6 28a6 5 0 0 1 12 0z" fill="#7a4b5c"/><path d="M22 15h12M22 21h12M22 27h8" stroke="#7a4b5c" stroke-width="2.4"/>',
+"Движение по автомагистралям":'<rect x="3" y="3" width="34" height="34" rx="5" fill="#1f8a3b"/><path d="M12 34 18 8M28 34 22 8" stroke="#fff" stroke-width="3"/><path d="M20 30v-4M20 22v-4M20 14v-3" stroke="#fff" stroke-width="2"/>',
+"Движение через железнодорожные пути":'<g transform="rotate(35 20 20)"><rect x="2" y="16" width="36" height="8" fill="#fff" stroke="#e23b32" stroke-width="1.5"/><path d="M8 16v8M20 16v8M32 16v8" stroke="#e23b32" stroke-width="5"/></g><g transform="rotate(-35 20 20)"><rect x="2" y="16" width="36" height="8" fill="#fff" stroke="#e23b32" stroke-width="1.5"/><path d="M8 16v8M20 16v8M32 16v8" stroke="#e23b32" stroke-width="5"/></g>',
+"Применение специальных сигналов":'<path d="M10 32V20a10 10 0 0 1 20 0v12z" fill="#3b82f6"/><rect x="6" y="32" width="28" height="5" rx="2" fill="#374151"/><path d="M20 4V1M6 10 4 8M34 10l2-2" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>',
+"Применение аварийной сигнализации и знака аварийной остановки":'<path d="M20 4 37 34H3z" fill="#e23b32"/><path d="M20 14 29 30H11z" fill="#fff"/>',
+"Буксировка механических транспортных средств":'<rect x="2" y="14" width="13" height="14" rx="3" fill="#f2b705"/><rect x="25" y="14" width="13" height="14" rx="3" fill="#6b7280"/><path d="M15 21h10" stroke="#374151" stroke-width="3"/><circle cx="7" cy="30" r="3" fill="#374151"/><circle cx="31" cy="30" r="3" fill="#374151"/>',
+"Движение в жилых зонах":'<path d="M4 19 20 5l16 14v17H4z" fill="#1b4f9c"/><rect x="16" y="24" width="8" height="12" fill="#fff"/>',
+"Перевозка людей и грузов":'<rect x="6" y="10" width="28" height="22" rx="2" fill="#b07a3a"/><path d="M6 18h28M20 10v8" stroke="#7a5326" stroke-width="2"/>',
+"Приоритет маршрутных транспортных средств":'<rect x="4" y="5" width="32" height="26" rx="5" fill="#f2b705"/><rect x="8" y="9" width="24" height="10" rx="2" fill="#cfe8ff"/><circle cx="11" cy="32" r="4" fill="#374151"/><circle cx="29" cy="32" r="4" fill="#374151"/>',
+"Учебная езда и дополнительные требования к движению велосипедистов":'<circle cx="9" cy="27" r="7" fill="none" stroke="#1b4f9c" stroke-width="3"/><circle cx="31" cy="27" r="7" fill="none" stroke="#1b4f9c" stroke-width="3"/><path d="M9 27l7-12h10l5 12M16 15l4 12h4l2-12M14 12h6" fill="none" stroke="#1b4f9c" stroke-width="2.6" stroke-linejoin="round"/>',
+"Пешеходные переходы и места остановок маршрутных транспортных средств":'<rect x="3" y="3" width="34" height="34" rx="5" fill="#1b4f9c"/><path d="M5 34 20 6l15 28z" fill="#fff"/><circle cx="21" cy="15" r="2.3" fill="#1a1a1a"/><path d="M20 18l-2 6 3 2-1 6M18 24l-3 6M20 19l4 3" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M10 33h20" stroke="#1a1a1a" stroke-width="2" stroke-dasharray="3 2"/>'};
+const tIco=p=>`<svg viewBox="0 0 40 40" aria-hidden="true">${TI[p]||TI["Общие положения"]}</svg>`;
 const stats=()=>{const v=Object.values(st.r);return{seen:v.length,ok:v.filter(x=>x===1).length,pass:Object.values(st.tk).filter(x=>x.last===0).length}};
 let flashMsg='';
 const render={
@@ -274,15 +304,15 @@ tickets(){S={view:'tickets'};
   <div class="grid">${Array.from({length:40},(_,i)=>{const t=i+1,r=st.tk[t],p=st.p[t];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/20`:r?`${20-r.last}/20`:'';return`<button class="tk ${cls}" data-t="${t}" aria-label="Billet ${t}">${r?`<i>×${r.n}</i>`:''}${t}${low?`<small>${low}</small>`:''}</button>`}).join('')}</div>`;
   app.querySelectorAll('.tk').forEach(b=>b.onclick=()=>startTicket(+b.dataset.t,'ticket'))},
 topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
-  app.innerHTML=`<h1>Par thème</h1><div class="list">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button data-p="${esc(p)}"><span>${esc(p)}<br><span class="fr" style="font-size:14px">${esc(TOP[p])}</span></span><small>${c[p].length} q.</small></button>`).join('')}</div>`;
+  app.innerHTML=`<h1>Thèmes</h1><p class="sub">Темы. Toutes les questions d'un thème, sans chrono.</p><div class="rows">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button class="row" data-p="${esc(p)}">${tIco(p)}<span><b>${esc(TOP[p])}</b><em class="ru">${esc(p)}</em><small>${c[p].length} questions</small></span></button>`).join('')}</div>`;
   app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'))},
 texam(){S={view:'texam'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
-  const item=(i,name,sub,n)=>`<button data-x="${i}"><span>${esc(name)}${sub?`<br><span class="fr" style="font-size:14px">${esc(sub)}</span>`:''}</span><small>${n} q.</small></button>`;
+  const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
   const th=Object.keys(TOP).filter(p=>c[p]);
   app.innerHTML=`<h1>Examen par thème</h1><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec.</p>
-  <h2>Regroupements</h2><div class="list">${TEX.map((x,i)=>item('g'+i,x[0],x[1].join(' · '),pool(x[1]).length)).join('')}</div>
-  <h2>Thèmes officiels</h2><div class="list">${th.map((p,i)=>item('t'+i,p,TOP[p],c[p].length)).join('')}</div>`;
+  <h2>Regroupements</h2><div class="rows">${TEX.map((x,i)=>item('g'+i,x[1][0],x[0],'',x[1].map(p=>TOP[p]).join(', '),pool(x[1]).length)).join('')}</div>
+  <h2>Thèmes officiels</h2><div class="rows">${th.map((p,i)=>item('t'+i,p,TOP[p],p,'',c[p].length)).join('')}</div>`;
   app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
     if(x[0]==='g')startThemeExam(pool(TEX[i][1]),TEX[i][0]);else startThemeExam(c[th[i]],TOP[th[i]])})},
 voix(){S={view:'voix'};const v=TTS?ruVoices().sort((a,b)=>vScore(b)-vScore(a)):[],r=+(localStorage.getItem('pdd-rate')||.95);
