@@ -83,6 +83,8 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .ans button.ok{border-color:var(--grn);background:var(--grnbg)}.ans button.ok .n{background:var(--grn);color:#fff}
 .ans button.ko{border-color:var(--red);background:var(--redbg)}.ans button.ko .n{background:var(--red);color:#fff}
 .ans button:disabled{cursor:default}
+.ans button.sel{border-color:var(--blue);background:var(--blue2)}.ans button.sel .n{background:var(--blue);color:#fff}
+.strip .sel{background:var(--blue2);border-color:var(--blue);color:var(--ink)}
 .tip{border-left:4px solid var(--blue);background:var(--blue2);padding:12px 14px;border-radius:0 10px 10px 0;font-size:15px}
 .tip p{margin:0 0 8px}.tip p:last-child{margin:0}
 .tip button{background:none;border:1.5px solid var(--fr);color:var(--fr);border-radius:8px;min-height:36px;padding:0 10px;font-size:14px}
@@ -424,7 +426,7 @@ texam(){S={view:'texam'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||
   const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
   const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
   const th=Object.keys(TOP).filter(p=>c[p]);
-  app.innerHTML=`<h1>Examen par thème</h1><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec.</p>
+  app.innerHTML=`<h1>Examen par thème</h1><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : aucune correction pendant l'examen, tout s'affiche à la fin. Une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec. Les questions jamais tombées en examen passent en premier.</p>
   <h2>Regroupements</h2><div class="rows">${TEX.map((x,i)=>item('g'+i,x[1][0],x[0],'',x[1].map(p=>TOP[p]).join(', '),pool(x[1]).length)).join('')}</div>
   <h2>Thèmes officiels</h2><div class="rows">${th.map((p,i)=>item('t'+i,p,TOP[p],p,'',c[p].length)).join('')}</div>`;
   app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
@@ -460,28 +462,39 @@ const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожн�
  ['Véhicule : pannes, feux, remorquage',['Неисправности и условия допуска транспортных средств к эксплуатации','Пользование внешними световыми приборами и звуковыми сигналами','Буксировка механических транспортных средств','Перевозка людей и грузов']],
  ['Intersections, feux et agent',['Проезд перекрестков','Сигналы светофора и регулировщика']],
  ['Manœuvres, dépassement, stationnement',['Начало движения, маневрирование','Обгон, опережение, встречный разъезд','Остановка и стоянка','Расположение транспортных средств на проезжей части']]];
+/* tirage : questions jamais (ou le moins souvent) tombées en examen d'abord, au hasard entre elles ;
+   jamais deux fois la même question (les 6 doublons officiels comptent comme une seule) */
+const sigK=k=>Q[k].q+'|'+Q[k].i;
+function pickFresh(pool,n,excl){const u=st.xu||{},seen=new Set(excl.map(sigK)),out=[];
+  for(const k of shuffle(pool).sort((a,b)=>(u[a]||0)-(u[b]||0))){if(out.length>=n)break;if(seen.has(sigK(k)))continue;seen.add(sigK(k));out.push(k)}return out}
 function runExam(title,blocks,src,names){
   const list=[],bk={};blocks.forEach((b,i)=>b.forEach(k=>{list.push(k);bk[k]=i}));
   S={view:'quiz',list,title,mode:'exam',i:0,ans:{},fr:false,vq:null,end:Date.now()+list.length*60e3,done:false,
-     ex:{bk,extra:{},got:{},src,names,nb:blocks.length,fail:'',msg:''}};renderQuiz();scrollTo(0,0)}
-function startExam(){const used=[new Set(),new Set(),new Set(),new Set()];
-  const src=g=>{const free=[...Array(40).keys()].map(i=>i+1).filter(t=>!used[g].has(t));if(!free.length)return[];const t=free[Math.random()*free.length|0];used[g].add(t);
-    return Q.map((q,k)=>q.t===t&&((q.n-1)/5|0)===g?k:-1).filter(k=>k>=0).sort((a,b)=>Q[a].n-Q[b].n)};
-  runExam('Examen blanc',[0,1,2,3].map(src),src,GRP)}
-function startThemeExam(pool,name){const left=shuffle(pool.slice());const src=()=>left.splice(0,5);
-  const L=left.length,n=L<10?1:Math.min(4,Math.floor((L-5)/5)),blocks=[];for(let i=0;i<n;i++)blocks.push(src());
-  runExam('Examen · '+name,blocks,src,blocks.map((_,i)=>name+' · bloc '+(i+1)))}
-function examAnswer(k){const E=S.ex,wrong=x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c;E.msg='';
-  if(!wrong(k))return;
-  if(k in E.extra){E.fail='Faute dans les questions supplémentaires.';return}
-  const b=E.bk[k],main=S.list.filter(x=>!(x in E.extra));
-  if(main.filter(x=>E.bk[x]===b&&wrong(x)).length>=2){E.fail='2 fautes dans le même bloc ('+E.names[b]+').';return}
-  if(main.filter(wrong).length>2){E.fail='3 fautes dans les questions principales.';return}
-  if(E.got[b])return;E.got[b]=1;
-  const add=E.src(b).filter(x=>!S.list.includes(x));
-  if(!add.length){E.fail='Faute sans question supplémentaire disponible dans ce thème.';return}
-  add.forEach(x=>{S.list.push(x);E.extra[x]=b;E.bk[x]=b});S.end+=add.length*60e3;
-  E.msg='Faute dans le bloc « '+E.names[b]+' » : '+add.length+' questions supplémentaires (n° '+(S.list.length-add.length+1)+' à '+S.list.length+') et '+add.length+' minutes ajoutées. Aucune faute permise sur ces questions.'}
+     ex:{bk,extra:{},src,names,nb:blocks.length,main:list.length,phase:1,fail:'',msg:'',warn:0}};renderQuiz();scrollTo(0,0)}
+/* examen blanc : 20 questions tirées au hasard parmi les 800, 5 par bloc (les blocs suivent la place de la question dans les billets officiels) */
+function startExam(){const P=[0,1,2,3].map(g=>Q.map((q,k)=>((q.n-1)/5|0)===g?k:-1).filter(k=>k>=0)),acc=[];
+  const blocks=P.map(p=>{const b=pickFresh(p,5,acc);acc.push(...b);return b});
+  runExam('Examen blanc',blocks,g=>pickFresh(P[g],5,S.list),GRP)}
+function startThemeExam(pool,name){const L=pool.length,n=L<10?1:Math.min(4,Math.floor((L-5)/5)),acc=[],blocks=[];
+  for(let i=0;i<n;i++){const b=pickFresh(pool,5,acc);acc.push(...b);blocks.push(b)}
+  runExam('Examen · '+name,blocks,()=>pickFresh(pool,5,S.list),blocks.map((_,i)=>name+' · bloc '+(i+1)))}
+/* fin des questions principales : 5 questions supplémentaires par bloc où il y a une faute (ou une question sans réponse), +5 min chacune */
+function examExtras(){const E=S.ex,bad=x=>S.ans[x]!==Q[x].c,main=S.list.slice(0,E.main);let added=0;const nm=[];
+  for(let b=0;b<E.nb;b++){if(!main.some(x=>E.bk[x]===b&&bad(x)))continue;
+    const add=E.src(b);add.forEach(x=>{S.list.push(x);E.extra[x]=b;E.bk[x]=b});added+=add.length;if(add.length)nm.push(E.names[b])}
+  E.phase=2;if(!added)return false;S.end+=added*60e3;
+  E.msg=added+' questions supplémentaires ('+nm.join(', ')+') et '+added+' minutes ajoutées. Aucune faute permise sur ces questions.';return true}
+/* verdict, calculé seulement à la fin */
+function examEval(){const E=S.ex,bad=x=>S.ans[x]!==Q[x].c,main=S.list.slice(0,E.main),why=[];
+  for(let b=0;b<E.nb;b++){const n=main.filter(x=>E.bk[x]===b&&bad(x)).length;if(n>=2)why.push(n+' fautes dans le bloc « '+E.names[b]+' »')}
+  const tot=main.filter(bad).length;if(tot>=3)why.push(tot+' fautes sur les '+E.main+' questions principales');
+  const xe=S.list.filter(x=>x in E.extra&&bad(x)).length;if(xe)why.push(xe+' faute(s) dans les questions supplémentaires');
+  if(E.phase===1&&main.some(bad)&&!why.length)why.push('Temps écoulé avant les questions supplémentaires');
+  E.fail=why.join(' · ')}
+function examEnd(){const E=S.ex,left=S.list.filter(x=>S.ans[x]===undefined).length;
+  if(left&&E.warn!==S.list.length){E.warn=S.list.length;E.msg='Il reste '+left+' question(s) sans réponse. Touche encore « Terminer » pour finir quand même (elles compteront comme fautes).';renderQuiz();return}
+  if(E.phase===1&&examExtras()){go(E.main,1);return}
+  finish()}
 
 /* exercice d'association : 3 mots russes à relier à leur traduction (toucher-toucher ou glisser-déposer) */
 function pickWords(pool,n,used){const fr=new Set((used||[]).map(i=>G[i][1])),out=[];
@@ -530,11 +543,11 @@ function renderQuiz(){
   clearInterval(tick);
   if(S.done)return renderResult();
   const k=S.list[S.i],q=Q[k],a=S.ans[k],exam=S.mode==='exam',fr=S.fr;
-  const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
+  const strip=S.list.length<=40?`<div class="strip">${S.list.map((x,i)=>`<button data-i="${i}" class="${i===S.i?'cur ':''}${S.ans[x]!==undefined?(exam?'sel':S.ans[x]===Q[x].c?'ok':'ko'):''}">${i+1}</button>`).join('')}</div>`:'';
   const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
   if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=vmForQuestion(q.k,q);
   const hf=q.fh||HF[k],showM=(a!==undefined&&!exam)||fr,hlq=t=>showM&&q.m?hlText(t,q.m):esc(t);
-  app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${favBtn(k)}${exam?`<span class="timer" id="tm"></span><span style="color:${fails?'var(--red)':'var(--mut)'};font-size:14px">${fails} faute(s)</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
+  app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${favBtn(k)}${exam?`<span class="timer" id="tm"></span><span style="color:var(--mut);font-size:14px">${S.list.filter(x=>S.ans[x]!==undefined).length}/${S.list.length} répondues</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
   ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
   ${strip}
@@ -542,11 +555,11 @@ function renderQuiz(){
   <p class="q">${hlq(q.q)}${TTS?`<button class="say" data-say="q" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
-  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
+  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':exam?(j===a?'sel':''):j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><div id="vmw"></div>${vmDone(S.vq)?`<ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>`:''}</div>`:''}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
-  ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Une faute ajoute 5 questions du même bloc ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec. Les mots-clés et explications s'affichent à la fin, dans « Revoir mes fautes ».</p>`:''}`;
+  ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Aucune correction pendant l'examen : le résultat s'affiche à la fin. Une faute dans un bloc ajoute 5 questions de ce bloc après la question ${S.ex.main} ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec.</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);bindFav(k);
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
@@ -559,7 +572,7 @@ function renderQuiz(){
   app.querySelectorAll('.strip button').forEach(b=>b.onclick=()=>go(+b.dataset.i));
   const tb=$('#tipb');if(tb)tb.onclick=()=>trTip(k);
   $('#prev').onclick=()=>go(S.i-1,-1);
-  $('#next').onclick=()=>{if(S.i<S.list.length-1)go(S.i+1,1);else finish()};
+  $('#next').onclick=()=>{if(S.i<S.list.length-1)go(S.i+1,1);else if(S.ex)examEnd();else finish()};
   if(exam){const tm=$('#tm'),up=()=>{const r=Math.max(0,S.end-Date.now());tm.textContent=Math.floor(r/60e3)+':'+String(Math.floor(r/1e3)%60).padStart(2,'0');if(!r)finish()};up();tick=setInterval(up,1000)}
   if(db&&!(k in HF)&&a!==undefined&&!exam){HF[k]=undefined;db.doc('fh/q'+k).get().then(s=>{if(s.exists&&s.data().t){HF[k]=String(s.data().t);if(S.view==='quiz'&&S.list[S.i]===k)renderQuiz()}}).catch(()=>{})}
 }
@@ -573,18 +586,19 @@ function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;S.fr=false;S.vq=null;S.
     document.querySelectorAll('.wtip').forEach(e=>e.remove());
     if(dx<0&&S.i<S.list.length-1)go(S.i+1,1);else if(dx>0&&S.i>0)go(S.i-1,-1)},{passive:true})})();
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
+  if(S.ex){SND.play('tap');S.ex.msg='';renderQuiz();if(S.i<S.list.length-1)setTimeout(()=>{if(S.view==='quiz'&&!S.done&&S.list[S.i]===k)go(S.i+1,1)},350);return}
   fx(j===Q[k].c);
-  if(S.ex){examAnswer(k);if(S.ex.fail)return setTimeout(finish,900)}
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
+  if(S.ex){examEval();st.xu=st.xu||{};S.list.forEach(x=>st.xu[x]=(st.xu[x]||0)+1);save()}
   if(S.t&&S.mode!=='free'){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tk[S.t];st.tk[S.t]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};if(S.mode==='ticket')delete st.p[S.t];save()}
   renderResult()}
 function renderResult(){
   const ok=S.list.filter(x=>S.ans[x]===Q[x].c).length,bad=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c),skip=S.list.filter(x=>S.ans[x]===undefined).length;
-  const E=S.ex;if(E&&!E.fail&&skip)E.fail=skip+' question(s) sans réponse (comptées comme fautes).';
+  const E=S.ex;if(E)bad.push(...S.list.filter(x=>S.ans[x]===undefined));
   const pass=E?!E.fail:S.t?bad.length+skip<=2:null;
   app.innerHTML=`<div class="res"><p class="sub">${esc(S.title)}</p><b class="${pass===null?'':pass?'pass':'fail'}">${ok}/${S.list.length}</b>
-  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${skip&&!E?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
+  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
   if(S.t&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copCheer,300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);
