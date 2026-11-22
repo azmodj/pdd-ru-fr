@@ -390,7 +390,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
   <div class="tiles">
    ${tile('exam','#7c83e6','Examen','Экзамен','Comme au ГИБДД','exam')}
    ${tile('tickets','#4f9f72','Billets','Билеты','40 billets de 20 questions','tickets')}
-   ${tile('topics','#4b9be8','Thèmes','Темы',Object.keys(TOP).length+' thèmes à réviser','topics')}
+   ${tile('topics','#4b9be8','Thèmes','Темы',Object.keys(TOP).length+' thèmes + régulateur','topics')}
    ${tile('errors','#e07a74','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
   <div class="rows">
@@ -420,14 +420,17 @@ tickets(){S={view:'tickets'};
   <div class="grid">${Array.from({length:40},(_,i)=>{const t=i+1,r=st.tk[t],p=st.p[t];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/20`:r?`${20-r.last}/20`:'';return`<button class="tk ${cls}" data-t="${t}" aria-label="Billet ${t}">${r?`<i>×${r.n}</i>`:''}${t}${low?`<small>${low}</small>`:''}</button>`}).join('')}</div>`;
   app.querySelectorAll('.tk').forEach(b=>b.onclick=()=>startTicket(+b.dataset.t,'ticket'))},
 topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
-  app.innerHTML=`<h1>Thèmes</h1><p class="sub">Темы. Toutes les questions d'un thème, sans chrono.</p><div class="rows">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button class="row" data-p="${esc(p)}">${tIco(p)}<span><b>${esc(TOP[p])}</b><em class="ru">${esc(p)}</em><small>${c[p].length} questions</small></span></button>`).join('')}</div>`;
-  app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'))},
-texam(){S={view:'texam'};const reg=REG.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
+  const reg=REG_IDX();app.innerHTML=`<h1>Thèmes</h1><p class="sub">Темы. Toutes les questions d'un thème, sans chrono.</p>
+  <div class="rows"><button class="row" data-r="0">${REGI}<span><b>Régulateur</b><em class="ru">Регулировщик</em><small>${reg.length} questions · correction tout de suite</small></span></button><button class="row" data-r="1">${REGI}<span><b>Régulateur · examen</b><em class="ru">Регулировщик · экзамен</em><small>Tirage au hasard, résultat à la fin</small></span></button></div>
+  <h2>Thèmes officiels</h2><div class="rows">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button class="row" data-p="${esc(p)}">${tIco(p)}<span><b>${esc(TOP[p])}</b><em class="ru">${esc(p)}</em><small>${c[p].length} questions</small></span></button>`).join('')}</div>`;
+  app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'));
+  app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>b.dataset.r==='0'?startList(shuffle(reg),'Régulateur','free'):startThemeExam(reg,'Régulateur'))},
+texam(){S={view:'texam'};const reg=REG_IDX();const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
-  const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
+  const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${ic==='REG'?REGI:tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
   const th=Object.keys(TOP).filter(p=>c[p]);
   app.innerHTML=`<h1>Examen par thème</h1><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : aucune correction pendant l'examen, tout s'affiche à la fin. Une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec. Les questions jamais tombées en examen passent en premier.</p>
-  <h2>Spécial régulateur</h2><p class="sub" style="margin-top:0">Les ${reg.length} questions où un régulateur (регулировщик) dirige la circulation, dans le texte ou sur l'image.</p><div class="rows">${item('r0','Сигналы светофора и регулировщика','Régulateur · révision','Регулировщик','Correction et explication tout de suite',reg.length)}${item('r1','Сигналы светофора и регулировщика','Régulateur · examen','Регулировщик','Tirage au hasard, résultat à la fin',reg.length)}</div>
+  <h2>Spécial régulateur</h2><p class="sub" style="margin-top:0">Les ${reg.length} questions où un régulateur (регулировщик) dirige la circulation, dans le texte ou sur l'image.</p><div class="rows">${item('r0','REG','Régulateur · révision','Регулировщик','Correction et explication tout de suite',reg.length)}${item('r1','REG','Régulateur · examen','Регулировщик','Tirage au hasard, résultat à la fin',reg.length)}</div>
   <h2>Regroupements</h2><div class="rows">${TEX.map((x,i)=>item('g'+i,x[1][0],x[0],'',x[1].map(p=>TOP[p]).join(', '),pool(x[1]).length)).join('')}</div>
   <h2>Thèmes officiels</h2><div class="rows">${th.map((p,i)=>item('t'+i,p,TOP[p],p,'',c[p].length)).join('')}</div>`;
   app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
@@ -459,6 +462,9 @@ function startList(list,title,mode,t){S={view:'quiz',list,title,mode,t,i:0,ans:{
 const GRP=['Panneaux, marquage, dispositions générales','Manœuvres, feux et agent, vitesse','Intersections, dépassement, arrêt et stationnement','Sécurité, premiers secours, responsabilité, équipement'];
 /* questions avec un régulateur (texte ou image), vérifiées une par une : [billet, question] */
 const REG=[[5,13],[6,6],[7,6],[8,6],[9,6],[10,6],[12,6],[12,13],[14,6],[15,6],[18,6],[23,13],[27,6],[27,13],[28,6],[30,6],[31,13],[33,13],[34,13],[36,13],[37,6],[39,6],[40,6]];
+/* petit régulateur : casquette, uniforme, bras tendu avec le bâton rayé */
+const REGI=`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#ffe08a"/><rect x="15" y="29" width="4" height="9" rx="1" fill="#1d2a4d"/><rect x="21" y="29" width="4" height="9" rx="1" fill="#1d2a4d"/><rect x="10" y="18" width="4" height="10" rx="2" fill="#24366b"/><rect x="25" y="18" width="9" height="4" rx="2" fill="#24366b"/><rect x="14" y="17" width="12" height="13" rx="3" fill="#24366b"/><rect x="14" y="25" width="12" height="2" fill="#fff"/><rect x="31.5" y="15" width="7.5" height="3.4" rx="1.2" fill="#fff" stroke="#1d2a4d" stroke-width=".6" transform="rotate(-20 33 19)"/><rect x="33.6" y="15" width="1.6" height="3.4" fill="#1d2a4d" transform="rotate(-20 33 19)"/><rect x="36.4" y="15" width="1.6" height="3.4" fill="#1d2a4d" transform="rotate(-20 33 19)"/><circle cx="20" cy="12.5" r="4.3" fill="#f2c29b"/><rect x="15" y="6.4" width="10" height="3.8" rx="1.6" fill="#1d2a4d"/><rect x="14.6" y="9.6" width="11" height="1.5" rx=".7" fill="#0d1428"/><circle cx="20" cy="8.2" r="1.1" fill="#f2b705"/></svg>`;
+const REG_IDX=()=>REG.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
 const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожная разметка']],
  ['Santé : premiers secours',['Оказание доврачебной медицинской помощи']],
  ['Légal et administratif',['Ответственность водителя','Общие обязанности водителей','Общие положения']],
