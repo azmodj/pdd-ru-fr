@@ -51,6 +51,8 @@ h2{font:700 22px/1.2 "PT Sans Narrow",sans-serif;margin:24px 0 10px}
 .btn{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:0 18px;min-height:46px;font-weight:700}
 .btn.ghost{background:none;color:var(--fr);border:2px solid var(--fr)}
 .btn:disabled{opacity:.45;cursor:default}
+.qorig{background:var(--blue2);border-radius:12px;padding:8px 12px;margin:0 0 12px;display:grid;gap:0;font-size:15px;line-height:1.35}
+.qorig b{font-size:16px}.qorig em.ru{font-size:13px;margin:0 0 2px}
 .qhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 #app.swl{animation:swl .25s ease-out}#app.swr{animation:swr .25s ease-out}
 @keyframes swl{from{transform:translateX(40px);opacity:.3}}@keyframes swr{from{transform:translateX(-40px);opacity:.3}}
@@ -273,6 +275,8 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 <script>
 {
 const $=s=>document.querySelector(s), app=$('#app');
+/* origine de la question : billet, numéro dans le billet, thème(s) */
+const qOrig=q=>`<div class="qorig"><b>Billet ${q.t} · question ${q.n}</b><em class="ru">Билет ${q.t}, вопрос ${q.n}</em><span>Thème : ${q.p.map(p=>esc(TOP[p]||p)).join(' · ')}</span><em class="ru">Тема: ${q.p.map(esc).join(' · ')}</em></div>`;
 const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
 let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0()}, db=null, sample=null, uid=null, S=null, tick=null;
 window.pddView=()=>S&&S.view;
@@ -556,7 +560,7 @@ function renderQuiz(){
   const fails=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c).length;
   if(a!==undefined&&!exam&&q.k.length&&!S.vq)S.vq=vmForQuestion(q.k,q);
   const hf=q.fh||HF[k],showM=(a!==undefined&&!exam)||fr,hlq=t=>showM&&q.m?hlText(t,q.m):esc(t);
-  app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${favBtn(k)}${exam?`<span class="timer" id="tm"></span><span style="color:var(--mut);font-size:14px">${S.list.filter(x=>S.ans[x]!==undefined).length}/${S.list.length} répondues</span>`:`<span style="color:var(--mut);font-size:14px">Billet ${q.t}, q. ${q.n}</span>`}</div>
+  app.innerHTML=`<div class="qhead"><span class="t">${esc(S.title)} · ${S.i+1}/${S.list.length}</span>${favBtn(k)}${exam?`<span class="timer" id="tm"></span><span style="color:var(--mut);font-size:14px">${S.list.filter(x=>S.ans[x]!==undefined).length}/${S.list.length} répondues</span>`:''}</div>${qOrig(q)}
   ${S.resumed?`<p class="note" style="margin-top:0">Billet repris là où tu l'avais laissé. <button class="tbtn" style="color:var(--fr);border-color:var(--fr);min-height:32px" id="restart">Recommencer à zéro</button></p>`:''}
   ${S.ex&&S.ex.msg?`<p class="note" style="color:#e07b00;font-weight:700">${esc(S.ex.msg)}</p>`:''}
   ${strip}
@@ -819,7 +823,7 @@ const CHEER=[['Отлично !','Excellent !'],['Верно !','Exact !'],['М�
 function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.c,fr=S.fr,n=S.list.length;
   const prog=Math.round((S.i+(p!==null?1:0))/n*100),cheer=CHEER[(S.i*7+k)%CHEER.length];
   app.innerHTML=`<div class="dtop"><button class="dx" id="dqx" aria-label="Quitter">✕</button><div class="bar dbar"><i style="width:${prog}%"></i></div><span class="dcombo ${S.combo>=3?'hot':''}">${FLAME}${S.combo}</span></div>
-  <div style="display:flex;align-items:center;gap:8px"><p class="dmeta" style="flex:1">${S.again[S.i]?'Question ratée, deuxième chance':'Défi du jour'} · ${S.i+1}/${n} · <b>${S.xp} XP</b></p>${favBtn(k)}</div>
+  <div style="display:flex;align-items:center;gap:8px"><p class="dmeta" style="flex:1">${S.again[S.i]?'Question ratée, deuxième chance':'Défi du jour'} · ${S.i+1}/${n} · <b>${S.xp} XP</b></p>${favBtn(k)}</div>${qOrig(q)}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question">`:''}</div>`:''}
   <p class="q">${esc(q.q)}${TTS?`<button class="say" id="dsay" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
