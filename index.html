@@ -970,7 +970,10 @@ function finishDaily(){const d=D(),t=dkey(),first=!(d.days[t]&&d.days[t].done),p
   const bad=Object.keys(S.wrong).map(Number);
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes du défi','free');
   const el=$('#xpc'),t0=performance.now();(function up(now){const f=Math.min(1,(now-t0)/1100);el.textContent='+'+Math.round(tot*(1-Math.pow(1-f,3)));if(f<1)requestAnimationFrame(up)})(t0);
-  setTimeout(celebrate,200);if(grew)setTimeout(()=>SND.play('streak'),1500);if(nb.length||lv1>lv0)setTimeout(()=>SND.play('badge'),2600)}
+  setTimeout(celebrate,200);if(grew)setTimeout(()=>SND.play('streak'),1500);if(nb.length||lv1>lv0)setTimeout(()=>SND.play('badge'),2600);
+  /* après le « Bravo ! » : la policière récompense le sans-faute, ou promet la surprise s'il y a eu des fautes */
+  const nq=new Set(S.list).size,nw=Object.keys(S.wrong).length;
+  setTimeout(()=>{if(S.view==='quiz'||!document.querySelector('.dres'))return;perfect?copWin():copTease((nq-nw)+'/'+nq)},3900)}
 
 render.recomp=function(){S={view:'recomp'};const d=D(),lv=level(d.xp);
   app.innerHTML=`<h1>Récompenses</h1><p class="sub">Награды. Série actuelle : ${d.streak} · record : ${d.best} · jokers : ${d.freeze}/2 · ${d.xp} XP</p>
