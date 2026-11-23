@@ -189,7 +189,7 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 @keyframes polBg{0%{box-shadow:inset 0 0 140px 30px rgba(40,90,255,.55)}50%{box-shadow:inset 0 0 140px 30px rgba(255,40,60,.55)}}
 .cop .polf{width:min(68vw,300px);aspect-ratio:2/3;margin:0 auto;border-radius:18px;overflow:hidden;border:4px solid #fff;
   box-shadow:-14px 0 40px rgba(40,90,255,.7),14px 0 40px rgba(255,40,60,.7);animation:polIn .8s cubic-bezier(.3,1.45,.5,1) both}
-.cop .polf img{width:100%;height:100%;object-fit:cover;display:block}
+.cop .polf img{width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
 @keyframes polIn{from{transform:translateY(60px) rotate(-8deg) scale(.7);opacity:0}}
 .cop.pol .bub{margin-top:14px;animation:bub .5s .7s cubic-bezier(.3,1.6,.5,1) both}
 .cop.sad{background:rgba(14,18,28,.86)}
@@ -770,7 +770,7 @@ const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise
 /* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
 const POLWIN=['policiere'];
 function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
-function copTease(score){copWoman('policiere2',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
+function copTease(score){copWoman('agent4',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
 function copWoman(img,msg,ru){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
   const d=document.createElement('div');d.className='cop pol';
   d.innerHTML=`<div class="box"><div class="polf"><img src="cop/${img||'policiere'}.webp" alt="Policière qui te félicite"></div>
@@ -793,7 +793,7 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre','policiere','policiere2','policiere3','policiere4','policiere5','policiere6'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere','agent1','agent2','agent3','agent4'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
@@ -892,8 +892,8 @@ function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)retu
 
 /* petit policier de l'accueil : coucou au lancement, puis content (défi fait) ou fâché (défi pas fait) */
 let copHi=true;
-const COPS={hi:['policiere6','Coucou ! Content de te revoir.','Привет!'],ok:['policiere6','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:[['policiere3','policiere4','policiere5'],{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
-const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1],img=Array.isArray(c[0])?c[0][Math.random()*c[0].length|0]:c[0];return`<img class="${img.startsWith('policiere')?'ph':''}" src="cop/${img}.webp" alt="${img.startsWith('policiere')?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
+const COPS={hi:['agent1','Coucou ! Content de te revoir.','Привет!'],ok:['agent4','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:[['agent2','agent3'],{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
+const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1],img=Array.isArray(c[0])?c[0][Math.random()*c[0].length|0]:c[0];return`<img class="${/^(policiere|agent)/.test(img)?'ph':''}" src="cop/${img}.webp" alt="${/^(policiere|agent)/.test(img)?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
 function copRow(done){const m=copHi?'hi':done?'ok':'ko';
   if(copHi){copHi=false;setTimeout(()=>{const r=document.querySelector('.dqcop');if(r){const m2=r.dataset.m;r.className='dqcop '+m2;r.innerHTML=copInner(m2);bindCop()}},2400)}
   setTimeout(bindCop,0);
