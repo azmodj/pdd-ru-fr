@@ -452,6 +452,11 @@ body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);backg
 .tart svg{display:none}
 .tile:not(:has(.tart[style*="url"])) .tart svg{display:block}
 @media(prefers-reduced-motion:no-preference){.tile:active{transform:scale(.97)}}
+/* carrés du menu (analyse, favoris, vocabulaire…) */
+.tiles.sq .tile{aspect-ratio:1}
+.tiles.sq .tile b{font-size:clamp(19px,5.4vw,30px);white-space:normal}
+.tiles.sq .tile .ru{font-size:14px}.tiles.sq .tile small{font-size:12px}
+.tart.fit{background-size:contain;background-position:50% 55%;margin:4px 10px 8px}
 /* menu en panneaux séparés */
 .rows.menu{background:none;clip-path:none;border:0;overflow:visible;display:grid;gap:10px}
 .menu .row{--c:14px;--pbg:linear-gradient(90deg,#2A1A36,#1E1426 60%);min-height:86px;padding:8px 16px 8px 10px;gap:14px}
@@ -594,6 +599,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
   const TART={exam:['tile-exam','#FF4F7B'],tickets:['tile-billets','#33D6E0'],topics:['tile-themes','#3FA9FF'],errors:['tile-erreurs','#FF9A2E']};
   const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c0:${c};--bd:${TART[go][1]}"><span class="tt"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span><span class="tart" style="background-image:url(img/ui/${TART[go][0]}.webp)">${ILL[ill]}</span></button>`;
   const RIMG={ana:'ico-analyse',texam:'ico-themes-exam',fav:'ico-favoris'};
+  const sq=(go,img,bd,t,ru,sub,fit)=>`<button class="tile" data-go="${go}" style="--bd:${bd};--c0:color-mix(in srgb,${bd} 45%,#1A1228)"><span class="tt"><b>${t}</b><em class="ru">${ru}</em><small>${sub}</small></span><span class="tart${fit?' fit':''}" style="background-image:url(${img}.webp)"></span></button>`;
   const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${RIMG[go]?`<span class="rimg" style="background-image:url(img/ui/${RIMG[go]}.webp)"></span>`:ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
   const nw=!s.seen,pend=[...Object.entries(st.p).map(([t,x])=>({d:x.d||0,go:()=>startTicket(+t,'ticket')})),
     ...Object.entries(st.tp||{}).map(([key,x])=>{const i=key.lastIndexOf('|');return{d:x.d||0,go:()=>startThemeTicket(key.slice(0,i),+key.slice(i+1))}})].sort((a,b)=>b.d-a.d);
@@ -605,21 +611,23 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
   app.innerHTML=hero+`
   ${Object.keys(st.p).length?`<div class="pend" aria-label="Billets à terminer">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
-  `+dailyCard()+`
   <div class="tiles">
    ${tile('exam','#8C4558','Examen','Экзамен','Comme au ГИБДД','exam')}
    ${tile('tickets','#2E6B55','Billets','Билеты','40 billets de 20 questions','tickets')}
    ${tile('topics','#2D4F86','Thèmes','Темы','Entraînement en billets','topics')}
    ${tile('errors','#8A5A2B','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
+  `+dailyCard()+`
+  <div class="tiles sq">
+   ${sq('ana','img/ui/ico-analyse','#FF4F7B','Mon analyse','Мой анализ','Points forts et faibles')}
+   ${sq('texam','img/ui/ico-themes-exam','#3FA9FF','Examen par thème','Экзамен по темам','Comme au ГИБДД')}
+   ${sq('fav','img/ui/ico-favoris','#F2B705','Favoris','Избранное',nf?nf+' question'+(nf>1?'s':''):'Touche l\'étoile ☆')}
+   ${sq('vocab','cop/alina-buste','#B06CFF','Vocabulaire','Словарный тест',G.length+' mots · '+vk+' travaillés')}
+   ${sq('marathon','cop/vera-panneau','#33D6E0','Marathon','Марафон','Les 800 questions mélangées')}
+   ${sq('lexique','img/ico/livre','#FF9A2E','Lexique','Словарь','Tous les mots-clés RU → FR',1)}
+   ${TTS?sq('voix','cop/alina-erreur','#7CF08E','Voix de lecture','Голос','Voix russe et vitesse'):''}
+  </div>
   <div class="rows menu">
-   ${row('ana','ana','Mon analyse','Мой анализ','Points forts, points faibles et quiz ciblé')}
-   ${row('texam','texam','Thèmes · examen','Экзамен по темам','Un examen comme au ГИБДД sur le thème choisi')}
-   ${row('fav','fav','Questions favorites','Избранное',nf?nf+' question'+(nf>1?'s':'')+' à mémoriser':'Touche l\'étoile d\'une question pour l\'ajouter ici')}
-   ${row('vocab','vocab','Quiz de vocabulaire','Словарный тест',G.length+' mots · '+vk+' déjà travaillés')}
-   ${row('marathon','marathon','Marathon','Марафон','Les 800 questions mélangées')}
-   ${row('lexique','lexique','Lexique RU → FR','Словарь','Tous les mots-clés')}
-   ${TTS?row('voix','vocab','Voix de lecture','Голос','Choisir la voix russe et la vitesse'):''}
    ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression (garde la série et les XP)')}
   </div>
   <div class="card0">
