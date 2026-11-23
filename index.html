@@ -1221,19 +1221,22 @@ function startDaily(){SND.unlock();S={view:'daily',list:pickDaily(),i:0,pick:nul
 const CHEER=[['Отлично !','Excellent !'],['Верно !','Exact !'],['Молодец !','Bravo !'],['Так держать !','Continue comme ça !'],['Супер !','Super !']];
 function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.c,fr=S.fr,n=S.list.length;
   const prog=Math.round((S.i+(p!==null?1:0))/n*100),cheer=CHEER[(S.i*7+k)%CHEER.length];
+  /* mots surlignés et cliquables (traduction) : dès que le français est affiché ou après la réponse, comme dans les billets */
+  const hlq=t=>(fr||p!==null)&&q.m?hlText(t,q.m):esc(t);
   app.innerHTML=`<div class="dtop"><button class="dx" id="dqx" aria-label="Quitter">✕</button><div class="bar dbar"><i style="width:${prog}%"></i></div><span class="dcombo ${S.combo>=3?'hot':''}">${FLAME}${S.combo}</span></div>
   <div style="display:flex;align-items:center;gap:8px"><p class="dmeta" style="flex:1">${S.again[S.i]?'Question ratée, deuxième chance':'Défi du jour'} · ${S.i+1}/${n} · <b>${S.xp} XP</b></p>${favBtn(k)}</div>${qOrig(q)}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question">`:''}</div>`:''}
-  <p class="q">${esc(q.q)}${TTS?`<button class="say" id="dsay" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
+  <p class="q">${hlq(q.q)}${TTS?`<button class="say" id="dsay" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
-  <div class="ans">${q.a.map((x,j)=>`<button data-j="${j}" class="${p===null?'':j===q.c?'ok':j===p?'ko':''}" ${p!==null?'disabled':''}><span class="n">${j+1}</span><span>${esc(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`).join('')}</div>
+  <div class="ans">${q.a.map((x,j)=>`<button data-j="${j}" class="${p===null?'':j===q.c?'ok':j===p?'ko':''}" ${p!==null?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`).join('')}</div>
   ${p!==null?`<div class="sheet ${good?'g':'b'}"><b class="sh">${good?`${cheer[0]} <span>+${S.last} XP</span>`:'Pas tout à fait'}</b><small>${good?cheer[1]:`Bonne réponse : ${q.c+1}. ${S.again[S.i]?'':'Tu reverras cette question à la fin.'}`}</small>
-    ${!good?`<p class="shh">${esc(S.tipfr&&q.fh?q.fh:q.h)}</p>${q.fh?`<button class="tbtn shfr" id="shfr">${S.tipfr?'Русский':'Explication en français'}</button>`:''}`:''}
+    ${!good?`<p class="shh">${S.tipfr&&q.fh?esc(q.fh):hlq(q.h)}</p>${q.fh?`<button class="tbtn shfr" id="shfr">${S.tipfr?'Русский':'Explication en français'}</button>`:''}`:''}
     <button class="btn shbtn" id="dqnext">${S.i===n-1?'Terminer':'Continuer'}</button></div>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t).then(()=>{if(S.view==='daily'&&S.list[S.i]===k)renderDaily()});
   $('#dqx').onclick=()=>{if(TTS)speechSynthesis.cancel();render.home()};
   $('#frb').onclick=()=>{S.fr=!S.fr;renderDaily()};
+  app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   const sb=$('#dsay');if(sb)sb.onclick=()=>say(q.q,sb);
   const sf=$('#shfr');if(sf)sf.onclick=()=>{S.tipfr=!S.tipfr;renderDaily()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answerDaily(+b.dataset.j));bindFav(k);
