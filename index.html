@@ -999,12 +999,12 @@ const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:
 const FIXMSG={fr:'Bravo, tu as corrigé toutes tes erreurs ! Je ne vais pas t\'arrêter aujourd\'hui.',en:'Well done, you fixed all your mistakes! I won\'t arrest you today.',zh:'做得好，你改正了所有错误！今天我不逮捕你。',ar:'أحسنت، لقد صححت كل أخطائك! لن أعتقلك اليوم.'};
 const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`};
 /* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
-const POLWIN=['policiere'];
+const POLWIN=['policiere-illu'];
 function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
 function copTease(score){copWoman('alina-pouce',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
 function copWoman(img,msg,ru){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
   const d=document.createElement('div');d.className='cop pol';
-  d.innerHTML=`<div class="box"><div class="polf"><img src="cop/${img||'policiere'}.webp" alt="Policière qui te félicite"></div>
+  d.innerHTML=`<div class="box"><div class="polf"><img src="cop/${img||'policiere-illu'}.webp" alt="Policière qui te félicite"></div>
   <div class="bub">${msg||POLMSG[LANG]||POLMSG.fr}<i>${ru||'Поздравляю! Сегодня я тебя не арестую.'}</i></div>
   <button class="btn go">Merci !</button></div>`;
   document.body.appendChild(d);
@@ -1024,7 +1024,7 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre','policiere','alina-main','alina-baton','alina-menottes','alina-pouce'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere-illu','alina-main','alina-baton','alina-menottes','alina-pouce'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
