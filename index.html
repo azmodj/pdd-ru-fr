@@ -132,6 +132,16 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .tile small{font-size:13px;line-height:1.25;margin-top:3px;opacity:.92;position:relative;z-index:1;max-width:80%}
 .tile svg{position:absolute;right:-3%;bottom:-3%;width:56%;height:auto}
 .tile:active{transform:scale(.97)}
+.ansum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 4px}
+.ansum div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+.ansum b{display:block;font:700 28px/1.1 "PT Sans Narrow",sans-serif}.ansum b span{font-size:16px;color:var(--mut)}.ansum small{color:var(--mut);font-size:13px}
+.anf{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:6px 14px}
+.anf p{margin:0;padding:10px 0 10px 18px;position:relative;border-bottom:1px solid var(--line);line-height:1.45}.anf p:last-child{border-bottom:0}
+.anf i{position:absolute;left:0;top:17px;width:9px;height:9px;border-radius:50%}
+.anbtn{display:grid;gap:10px;margin:14px 0 6px}.anbtn .btn{width:100%}
+.anbars{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:4px 14px}
+.anr .brow span:last-child{white-space:nowrap;flex:none}
+.anr{padding:10px 0;border-bottom:1px solid var(--line)}.anr:last-child{border-bottom:0}.anr small{color:var(--mut);font-size:13px}.anr .bar{margin:5px 0 3px}
 .rows{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px}
 .row{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px;text-align:left;min-height:62px}
 .row:last-child{border-bottom:0}.row svg{width:40px;height:40px;flex:none}
@@ -313,7 +323,7 @@ function useEnglish(E){
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function D0(){return{xp:0,streak:0,best:0,last:'',freeze:0,days:{},badges:{},total:0,perfect:0,maxc:0}}
-const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})},f:{...(s.f||{})},d:{...D0(),...(s.d||{})}}};
+const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})},f:{...(s.f||{})},d:{...D0(),...(s.d||{})},h:Array.isArray(s.h)?s.h:[],xu:{...(s.xu||{})}}};
 try{const s=JSON.parse(localStorage.getItem('pdd-st')||'null');if(s&&s.r)st=norm(s)}catch(e){}
 
 /* ---------- sauvegarde ---------- */
@@ -338,6 +348,7 @@ async function trTip(k){
 
 /* ---------- vues ---------- */
 const ILL={
+ana:`<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="22" width="6" height="14" rx="1.5" fill="#e07a74"/><rect x="12" y="14" width="6" height="22" rx="1.5" fill="#f2b705"/><rect x="21" y="6" width="6" height="30" rx="1.5" fill="#1f8a3b"/><circle cx="30" cy="22" r="6.5" fill="#fff" stroke="#1d4f9c" stroke-width="3"/><line x1="34.5" y1="26.5" x2="38.5" y2="30.5" stroke="#1d4f9c" stroke-width="3.4" stroke-linecap="round"/></svg>`,
 fav:`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l5.1 10.6 11.6 1.5-8.5 8 2.2 11.5L20 29l-10.4 5.6 2.2-11.5-8.5-8 11.6-1.5z" fill="#ffc61a" stroke="#d99a00" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
 exam:`<svg viewBox="0 0 120 130" aria-hidden="true"><rect x="55" y="80" width="10" height="50" fill="#9aa3ad"/><circle cx="60" cy="56" r="50" fill="#fff"/><circle cx="60" cy="56" r="46" fill="#e23b32"/><circle cx="60" cy="56" r="33" fill="#fff"/><text x="60" y="71" text-anchor="middle" font-family="PT Sans Narrow,Arial Narrow,sans-serif" font-weight="700" font-size="42" fill="#1a1a1a">60</text></svg>`,
 tickets:`<svg viewBox="0 0 120 120" aria-hidden="true"><g stroke="rgba(0,0,0,.15)"><rect x="18" y="92" width="88" height="18" rx="3" fill="#2f6f7e"/><rect x="24" y="96" width="80" height="10" fill="#f3e9cf"/><rect x="12" y="74" width="92" height="18" rx="3" fill="#8a3b3b"/><rect x="18" y="78" width="84" height="10" fill="#f3e9cf"/><rect x="22" y="56" width="84" height="18" rx="3" fill="#3d5f8a"/><rect x="28" y="60" width="76" height="10" fill="#f3e9cf"/><rect x="14" y="38" width="88" height="18" rx="3" fill="#b07a3a"/><rect x="20" y="42" width="80" height="10" fill="#f3e9cf"/><rect x="26" y="20" width="76" height="18" rx="3" fill="#4f8a5b" transform="rotate(-6 64 29)"/></g><text x="62" y="34" font-family="PT Sans Narrow,sans-serif" font-weight="700" font-size="11" fill="#fff" transform="rotate(-6 64 29)" text-anchor="middle">ПДД</text></svg>`,
@@ -398,6 +409,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
    ${tile('errors','#e07a74','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
   <div class="rows">
+   ${row('ana','ana','Mon analyse','Мой анализ','Points forts, points faibles et quiz ciblé')}
    ${row('texam','texam','Examen par thème','Экзамен по темам','Panneaux, premiers secours, légal…')}
    ${row('fav','fav','Questions favorites','Избранное',nf?nf+' question'+(nf>1?'s':'')+' à mémoriser':'Touche l\'étoile d\'une question pour l\'ajouter ici')}
    ${row('vocab','vocab','Quiz de vocabulaire','Словарный тест',G.length+' mots · '+vk+' déjà travaillés')}
@@ -429,6 +441,44 @@ topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]
   <h2>Thèmes officiels</h2><div class="rows">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button class="row" data-p="${esc(p)}">${tIco(p)}<span><b>${esc(TOP[p])}</b><em class="ru">${esc(p)}</em><small>${c[p].length} questions</small></span></button>`).join('')}</div>`;
   app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'));
   app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>b.dataset.r==='0'?startList(shuffle(reg),'Régulateur','free'):startThemeExam(reg,'Régulateur'))},
+ana(){S={view:'ana'};const P=profile(),A=P.all,F=[];
+  const col=r=>r>=.85?'#1f8a3b':r>=.7?'#e07b00':'#c8372d';
+  const bar=(name,ru,x,extra)=>`<div class="anr"><div class="brow"><span>${esc(name)}${ru?`<em class="ru">${esc(ru)}</em>`:''}</span><span style="color:${col(x.r)};font-weight:700">${pc(x.r)}</span></div><div class="bar"><i style="width:${Math.round(x.r*100)}%;background:${col(x.r)}"></i></div><small>${x.n} réponse${x.n>1?'s':''}${extra||''}</small></div>`;
+  const ths=Object.keys(P.th).filter(p=>P.th[p].n>=4).sort((a,b)=>P.th[a].r-P.th[b].r);
+  const good=ths.filter(p=>P.th[p].r>=.85).reverse(),bad=ths.filter(p=>P.th[p].r<.75);
+  if(A.n<20)F.push(['i','Pas encore assez de réponses pour une analyse fiable ('+A.n+' pour l\'instant). Fais 2 ou 3 billets, puis reviens ici.']);
+  else{
+    if(good.length)F.push(['g','Tes points forts : '+good.slice(0,3).map(p=>'« '+TOP[p]+' » ('+pc(P.th[p].r)+')').join(', ')+'.']);
+    if(bad.length)F.push(['b','Là où tu perds le plus de points : '+bad.slice(0,3).map(p=>'« '+TOP[p]+' » ('+pc(P.th[p].r)+' sur '+P.th[p].n+' réponses)').join(', ')+'.']);
+    else F.push(['g','Aucun thème sous 75 %. Ton niveau est régulier sur l\'ensemble du code.']);
+    if(P.txt.n>=15&&P.img.n>=15){const d=P.img.r-P.txt.r;
+      if(d>=.08)F.push(['b','Tu réussis '+pc(P.img.r)+' des questions avec image mais seulement '+pc(P.txt.r)+' des questions sans image. Sans image, tout se joue sur la lecture du russe : ces points perdus viennent surtout de la langue, pas des règles. Travaille le quiz de vocabulaire et le quiz ciblé sans français.']);
+      else if(d<=-.08)F.push(['i','Tu es meilleur sur les questions en texte seul ('+pc(P.txt.r)+') que sur celles avec image ('+pc(P.img.r)+') : regarde chaque image plus longtemps, les détails (panneaux, marquage, position des véhicules) décident de la réponse.']);
+      else F.push(['g','Les questions sans image ne te gênent pas plus que les autres ('+pc(P.txt.r)+' contre '+pc(P.img.r)+') : le russe des énoncés n\'est pas un frein.'])}
+    if(P.lng.n>=15&&P.sht.n>=15&&P.sht.r-P.lng.r>=.08)F.push(['b','Les énoncés longs (14 mots et plus) te coûtent cher : '+pc(P.lng.r)+' contre '+pc(P.sht.r)+' pour les courts. Relis la fin de la question, c\'est souvent là que se trouve le piège (« кроме », « не », « только »).']);
+    if(P.reg.n>=5)F.push([P.reg.r>=.85?'g':'b','Régulateur : '+pc(P.reg.r)+' sur '+P.reg.n+' réponses.'+(P.reg.r<.85?' À travailler dans Thèmes › Régulateur.':'')]);
+    const wb=P.blk.map((x,i)=>[x,i]).filter(([x])=>x.n>=8).sort((a,b)=>a[0].r-b[0].r)[0];
+    if(wb&&wb[0].r<.8)F.push(['b','À l\'examen, ton bloc le plus fragile est « '+GRP[wb[1]]+' » ('+pc(wb[0].r)+'). Deux fautes dans un même bloc suffisent pour échouer.'])}
+  if(P.fr.n>=20){const u=P.fr.use/P.fr.n;
+    if(u>=.3)F.push(['b','Tu ouvres la traduction française avant de répondre sur '+pc(u)+' des questions. À l\'examen du ГИБДД, ce ne sera pas possible.'+(P.fr.nn>=10?' Sans traduction, tu réussis '+pc(P.fr.rn)+'.':'')+' Entraîne-toi avec le quiz ciblé sans français.']);
+    else F.push(['g','Tu réponds sans traduction sur '+pc(1-u)+' des questions'+(P.fr.nn>=10?', avec '+pc(P.fr.rn)+' de réussite':'')+'. Bon signe pour l\'examen en russe.'])}
+  else F.push(['i','L\'usage du français est mesuré à partir d\'aujourd\'hui : l\'analyse dira bientôt si tu dépends de la traduction.']);
+  if(P.rec.n>=30){const d=P.rec.a-P.rec.b;F.push([d>=.05?'g':d<=-.05?'b':'i','Tes 60 dernières réponses : '+pc(P.rec.a)+' (contre '+pc(P.rec.b)+' juste avant). '+(d>=.05?'Tu progresses.':d<=-.05?'Petite baisse : fatigue ou nouveau thème ?':'Niveau stable.')])}
+  if(P.traps.length)F.push(['b',P.traps.length+' question'+(P.traps.length>1?'s':'')+' ratée'+(P.traps.length>1?'s':'')+' au moins deux fois : ce sont tes pièges personnels.']);
+  const un=Object.keys(P.th).filter(p=>P.th[p].tot>=8&&P.th[p].seen/P.th[p].tot<.5).sort((a,b)=>P.th[a].seen/P.th[a].tot-P.th[b].seen/P.th[b].tot);
+  if(A.n>=20&&un.length)F.push(['i','Thèmes encore peu explorés : '+un.slice(0,3).map(p=>'« '+TOP[p]+' » ('+P.th[p].seen+'/'+P.th[p].tot+')').join(', ')+'. Le quiz ciblé en ajoute.']);
+  const dot={g:'#1f8a3b',b:'#c8372d',i:'#1d4f9c'};
+  app.innerHTML=`<h1>Mon analyse</h1><p class="sub">Мой анализ. Calculée sur tes réponses enregistrées sur ce téléphone.</p>
+  <div class="ansum"><div><b style="color:${A.n?col(A.r):'inherit'}">${A.n?pc(A.r):'–'}</b><small>réussite globale</small></div><div><b>${A.n}</b><small>réponses</small></div><div><b>${P.seen}<span>/800</span></b><small>questions vues</small></div></div>
+  <h2>Ce que je remarque</h2><div class="anf">${F.map(([t,x])=>`<p><i style="background:${dot[t]}"></i>${esc(x)}</p>`).join('')}</div>
+  <div class="anbtn"><button class="btn" id="tq1">Quiz ciblé · 20 questions</button><button class="btn" id="tq2">Quiz ciblé sans français</button>${P.traps.length?`<button class="btn ghost" id="tq3">Mes pièges (${P.traps.length})</button>`:''}</div>
+  <p class="note">Le quiz ciblé choisit surtout dans tes thèmes faibles, tes fautes et les questions jamais vues${P.txt.n>=15&&P.txt.r<P.img.r-.08?', avec plus de questions sans image':''}. « Sans français » : la traduction n'apparaît qu'après ta réponse, comme à l'examen.</p>
+  ${ths.length?`<h2>Par thème</h2><div class="anbars">${ths.map(p=>bar(TOP[p],p,P.th[p],' · '+P.th[p].seen+'/'+P.th[p].tot+' questions vues')).join('')}</div>`:''}
+  ${A.n>=10?`<h2>Par type de question</h2><div class="anbars">${bar('Avec image','С картинкой',P.img)}${bar('Sans image (texte seul)','Без картинки',P.txt)}${bar('Énoncé court','Короткий вопрос',P.sht)}${bar('Énoncé long (14 mots et plus)','Длинный вопрос',P.lng)}${P.reg.n?bar('Régulateur','Регулировщик',P.reg):''}${P.fr.nf>=5?bar('Après avoir ouvert le français','С переводом',{r:P.fr.rf,n:P.fr.nf}):''}${P.fr.nn>=5?bar('Sans ouvrir le français','Без перевода',{r:P.fr.rn,n:P.fr.nn}):''}</div>
+  <h2>Par bloc d'examen</h2><div class="anbars">${P.blk.map((x,i)=>x.n?bar(GRP[i],'Вопросы '+(i*5+1)+'–'+(i*5+5),x):'').join('')}</div>`:''}`;
+  $('#tq1').onclick=()=>startList(targeted(P,20),'Quiz ciblé','free');
+  $('#tq2').onclick=()=>{startList(targeted(P,20),'Quiz ciblé · sans français','free');S.nofr=true;renderQuiz()};
+  const t3=$('#tq3');if(t3)t3.onclick=()=>startList(shuffle(P.traps),'Mes pièges','free')},
 texam(){S={view:'texam'};const reg=REG_IDX();const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
   const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${ic==='REG'?REGI:tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
@@ -463,6 +513,32 @@ function startList(list,title,mode,t){S={view:'quiz',list,title,mode,t,i:0,ans:{
 /* ---------- examen façon ГИБДД ----------
    20 questions en 4 blocs de 5. Une faute dans un bloc : +5 questions du même bloc (même groupe de thèmes) et +5 min.
    Échec : 2 fautes dans le même bloc, 3 fautes dans les 20 questions, ou une faute dans les questions supplémentaires. */
+/* ---------- analyse du profil ----------
+   Chaque question : tentatives et bonnes réponses tirées de l'historique (ou du dernier résultat connu pour les réponses
+   données avant la création de l'historique). On compare ensuite des groupes de questions entre eux. */
+function profile(){const H=st.h||[],att={},okc={},fails={},inH=new Set();
+  H.forEach(([k,o])=>{inH.add(k);att[k]=(att[k]||0)+1;okc[k]=(okc[k]||0)+o;if(!o)fails[k]=(fails[k]||0)+1});
+  for(const k in st.r){const n=+k;if(!inH.has(n)){att[n]=1;okc[n]=st.r[k]}}
+  const g=f=>{let n=0,o=0,qs=0;for(const k in att){if(!f(Q[k],+k))continue;n+=att[k];o+=okc[k];qs++}return{n,o,qs,r:n?o/n:0}};
+  const reg=new Set(REG_IDX()),words=q=>q.q.split(/\s+/).length;
+  const th={};Object.keys(TOP).forEach(p=>{const x=g(q=>q.p.includes(p));x.tot=Q.filter(q=>q.p.includes(p)).length;x.seen=x.qs;th[p]=x});
+  const hf=H.filter(h=>h[2]),hn=H.filter(h=>!h[2]),rate=a=>a.length?a.reduce((s,h)=>s+h[1],0)/a.length:0;
+  return{all:g(()=>1),seen:Object.keys(att).length,th,
+    blk:[0,1,2,3].map(b=>g(q=>((q.n-1)/5|0)===b)),
+    img:g(q=>!!q.i),txt:g(q=>!q.i),lng:g(q=>words(q)>=14),sht:g(q=>words(q)<14),reg:g((q,k)=>reg.has(k)),
+    fr:{n:H.length,use:hf.length,rf:rate(hf),rn:rate(hn),nf:hf.length,nn:hn.length},
+    rec:{a:rate(H.slice(-60)),b:rate(H.slice(-120,-60)),n:Math.min(60,Math.max(0,H.length-60))},
+    traps:Object.keys(fails).filter(k=>fails[k]>=2).map(Number),att,okc,words}}
+const pc=r=>Math.round(r*100)+' %';
+/* quiz ciblé : chaque question reçoit un poids (faute récente, thème faible, question jamais vue dans un thème faible,
+   texte seul ou longue question si c'est un point faible), puis tirage pondéré sans remise */
+function targeted(P,n){const weak=p=>P.th[p].n>=4?1-P.th[p].r:.35,txtW=P.txt.n>=15&&P.txt.r<P.img.r-.08,lngW=P.lng.n>=15&&P.lng.r<P.sht.r-.08;
+  const w=Q.map((q,k)=>{let v=.3+Math.max(...q.p.map(weak))*4;const a=P.att[k];
+    if(a){const r=P.okc[k]/a;v+=(1-r)*6;if(r===1&&a>=2)v*=.25}else v+=1.2;
+    if(txtW&&!q.i)v+=2;if(lngW&&P.words(q)>=14)v+=1.5;return v});
+  const out=[],used=new Set();while(out.length<n){let t=0;w.forEach((v,k)=>{if(!used.has(k))t+=v});let x=Math.random()*t,pick=-1;
+    for(let k=0;k<w.length;k++){if(used.has(k))continue;x-=w[k];if(x<=0){pick=k;break}}if(pick<0)break;used.add(pick);
+    Q.forEach((q,k)=>{if(sigK(k)===sigK(pick))used.add(k)});out.push(pick)}return out}
 const GRP=['Panneaux, marquage, dispositions générales','Manœuvres, feux et agent, vitesse','Intersections, dépassement, arrêt et stationnement','Sécurité, premiers secours, responsabilité, équipement'];
 /* questions avec un régulateur (texte ou image), vérifiées une par une : [billet, question] */
 const REG=[[5,13],[6,6],[7,6],[8,6],[9,6],[10,6],[12,6],[12,13],[14,6],[15,6],[18,6],[23,13],[27,6],[27,13],[28,6],[30,6],[31,13],[33,13],[34,13],[36,13],[37,6],[39,6],[40,6]];
@@ -567,7 +643,7 @@ function renderQuiz(){
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
   <p class="q">${hlq(q.q)}${TTS?`<button class="say" data-say="q" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
-  <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
+  ${S.nofr&&a===undefined?`<p class="note" style="margin:6px 0 10px">Mode examen réel : pas de traduction avant ta réponse.</p>`:`<button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>`}
   <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':exam?(j===a?'sel':''):j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><div id="vmw"></div>${vmDone(S.vq)?`<ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>`:''}</div>`:''}
@@ -577,7 +653,7 @@ function renderQuiz(){
   const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
   app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
-  $('#frb').onclick=()=>{S.fr=!S.fr;renderQuiz()};
+  const frb=$('#frb');if(frb)frb.onclick=()=>{S.fr=!S.fr;renderQuiz()};
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
   {const w=$('#vmw');if(w){const y=scrollY;vmMount(w,S.vq,()=>{renderQuiz();scrollTo(0,y)})}}
@@ -598,7 +674,8 @@ function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;S.fr=false;S.vq=null;S.
     if(Date.now()-t0>700||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.6)return;
     document.querySelectorAll('.wtip').forEach(e=>e.remove());
     if(dx<0&&S.i<S.list.length-1)go(S.i+1,1);else if(dx>0&&S.i>0)go(S.i-1,-1)},{passive:true})})();
-function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
+function logAns(k,ok){st.h=st.h||[];st.h.push([k,ok?1:0,S.fr?1:0,Date.now()/1e3|0]);if(st.h.length>6000)st.h=st.h.slice(-5000)}
+function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;logAns(k,j===Q[k].c);if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now()};save();
   if(S.ex){SND.play('tap');S.ex.msg='';renderQuiz();if(S.i<S.list.length-1)setTimeout(()=>{if(S.view==='quiz'&&!S.done&&S.list[S.i]===k)go(S.i+1,1)},350);return}
   fx(j===Q[k].c);
   renderQuiz()}
@@ -839,7 +916,7 @@ function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.
   const sf=$('#shfr');if(sf)sf.onclick=()=>{S.tipfr=!S.tipfr;renderDaily()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answerDaily(+b.dataset.j));bindFav(k);
   const nb=$('#dqnext');if(nb){nb.onclick=()=>{if(TTS)speechSynthesis.cancel();SND.play('tap');if(S.i<n-1){S.i++;S.pick=null;S.fr=false;S.tipfr=false;renderDaily();scrollTo(0,0)}else finishDaily()};nb.scrollIntoView({block:'nearest',behavior:'smooth'})}}
-function answerDaily(j){if(S.pick!==null)return;const k=S.list[S.i],good=j===Q[k].c;S.pick=j;st.r[k]=good?1:0;
+function answerDaily(j){if(S.pick!==null)return;const k=S.list[S.i],good=j===Q[k].c;S.pick=j;st.r[k]=good?1:0;logAns(k,good);
   if(good){S.combo++;S.maxc=Math.max(S.maxc,S.combo);S.last=(S.again[S.i]?5:10)+(S.combo>=3?5:0);S.xp+=S.last}
   else{S.combo=0;S.wrong[k]=1;if(!S.again[S.i]){S.list.push(k);S.again[S.list.length-1]=1}}
   save();fx(good);if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
