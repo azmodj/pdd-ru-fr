@@ -455,7 +455,7 @@ body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);backg
 /* carrés du menu (analyse, favoris, vocabulaire…) */
 .tiles.sq .tile{aspect-ratio:1}
 .tiles.sq .tile b{font-size:clamp(19px,5.4vw,30px);white-space:normal}
-.tiles.sq .tile .ru{font-size:14px}.tiles.sq .tile small{font-size:12px}
+.tiles.sq .tile .ru{font-size:14px}.tiles.sq .tart{background-position:50% 22%}.tiles.sq .tile small{font-size:12px}
 .tart.fit{background-size:contain;background-position:50% 55%;margin:4px 10px 8px}
 /* menu en panneaux séparés */
 .rows.menu{background:none;clip-path:none;border:0;overflow:visible;display:grid;gap:10px}
@@ -619,13 +619,13 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
   </div>
   `+dailyCard()+`
   <div class="tiles sq">
-   ${sq('ana','img/ui/ico-analyse','#FF4F7B','Mon analyse','Мой анализ','Points forts et faibles')}
-   ${sq('texam','img/ui/ico-themes-exam','#3FA9FF','Examen par thème','Экзамен по темам','Comme au ГИБДД')}
-   ${sq('fav','img/ui/ico-favoris','#F2B705','Favoris','Избранное',nf?nf+' question'+(nf>1?'s':''):'Touche l\'étoile ☆')}
-   ${sq('vocab','cop/alina-buste','#B06CFF','Vocabulaire','Словарный тест',G.length+' mots · '+vk+' travaillés')}
-   ${sq('marathon','cop/vera-panneau','#33D6E0','Marathon','Марафон','Les 800 questions mélangées')}
-   ${sq('lexique','img/ico/livre','#FF9A2E','Lexique','Словарь','Tous les mots-clés RU → FR',1)}
-   ${TTS?sq('voix','cop/alina-erreur','#7CF08E','Voix de lecture','Голос','Voix russe et vitesse'):''}
+   ${sq('ana','img/ui/perso-controle','#FF4F7B','Mon analyse','Мой анализ','Points forts et faibles')}
+   ${sq('texam','img/ui/perso-salut','#3FA9FF','Examen par thème','Экзамен по темам','Comme au ГИБДД')}
+   ${sq('fav','img/ui/perso-cheval','#F2B705','Favoris','Избранное',nf?nf+' question'+(nf>1?'s':''):'Touche l\'étoile ☆')}
+   ${sq('vocab','img/ui/perso-patrouille-parc','#B06CFF','Vocabulaire','Словарный тест',G.length+' mots · '+vk+' travaillés')}
+   ${sq('marathon','img/ui/perso-patrouille-hiver','#33D6E0','Marathon','Марафон','Les 800 questions mélangées')}
+   ${sq('lexique','img/ui/perso-matraque','#FF9A2E','Lexique','Словарь','Tous les mots-clés RU → FR')}
+   ${TTS?sq('voix','img/ui/perso-regulateur','#7CF08E','Voix de lecture','Голос','Voix russe et vitesse'):''}
   </div>
   <div class="rows menu">
    ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression (garde la série et les XP)')}
