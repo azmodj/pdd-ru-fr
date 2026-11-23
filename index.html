@@ -9,13 +9,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ПДД by Azmo">
-<meta name="theme-color" content="#10162E">
+<meta name="theme-color" content="#140E20">
 <style>
 /* VOICE: sobre, pratique, comme un terminal d'examen du ГИБДД
    IDEA: la plaque de panneau routier russe — bleu de signalisation, bord blanc, chiffres nets
    PICTURE: la carte-question elle-même (image, question, réponses) en haut de l'écran
    COLOUR and TYPE: blanc, bleu panneau #1b4f9c, rouge #d7261e pour les fautes, vert pour les bonnes; PT Sans (cyrillique) + PT Sans Narrow
    LAYOUT: barre bleue, une colonne de 780px, grille de 40 billets, réponses empilées */
+@font-face{font-family:"Affiche";src:url(fonts/affiche-latin.woff) format("woff");unicode-range:U+0020-017F,U+2013-2026,U+00AB,U+00BB;font-display:swap}
+@font-face{font-family:"Affiche";src:url(fonts/titre-cond.woff) format("woff");unicode-range:U+0400-045F,U+2116;font-display:swap}
 @font-face{font-family:"Titre";src:url(fonts/titre-cond.woff) format("woff");font-weight:700;font-display:swap}
 :root{color-scheme:dark;--night:#10162E;--slate:#202B43;--cream:#F4EEE6;--amber:#FFB366;--green:#58D89B;--coral:#FF7772;
 --fc:"Titre","PT Sans Narrow","Arial Narrow",sans-serif;--fb:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
@@ -366,6 +368,69 @@ img.port{display:block;flex:none;pointer-events:none;-webkit-user-select:none;us
  .corr.ok img.port{animation:nod .9s .15s ease-in-out both}@keyframes nod{30%{transform:rotate(-1.5deg) translateY(2px)}60%{transform:rotate(1deg)}}
  .corr.ko img.port{animation:fadeup .35s ease-out both}}
 @media(prefers-reduced-motion:reduce){#app.swl,#app.swr{animation:none}}
+
+/* ===== Style « affiche » (maquette validée) =====
+   fond violet nuit, panneaux à coins coupés bordés de violet, titres en capitales grasses inclinées, boutons orange » */
+:root{--night:#140E20;--slate:#221833;--bg:var(--night);--card:var(--slate);--blue2:#2C2142;--line:#4A3864;--mut:#B9AECB;
+ --orange1:#FFB547;--orange2:#F58A1F;--teal:#2FE0B0;--bd:#5B4478;--pbg:linear-gradient(#1E152E,#1E152E);
+ --fa:"Affiche","Titre",Impact,sans-serif}
+body{background:var(--night) radial-gradient(120% 60% at 70% -10%,#3A1F4F 0,transparent 60%) no-repeat}
+.top{background:rgba(20,14,32,.88);border-bottom:0}
+.aff{font-family:var(--fa);font-weight:400;text-transform:uppercase;font-style:normal;display:inline-block;transform:skewX(-9deg);letter-spacing:.005em;line-height:.95}
+/* panneau à coins coupés (haut-gauche, bas-droite) avec bordure sur les diagonales */
+.cut,.card0,.rows,.anbars,.anf,.rev,.corr,.qorig,.kw,.stk,.lvlc,.dq2,.rewd{--c:14px;border:2px solid transparent;border-radius:0;
+ clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));
+ background:linear-gradient(135deg,transparent 50%,var(--bd) 50%,var(--bd) calc(50% + 2.8px),transparent 0) 0 0/var(--c) var(--c) no-repeat border-box,
+  linear-gradient(-45deg,transparent 50%,var(--bd) 50%,var(--bd) calc(50% + 2.8px),transparent 0) 100% 100%/var(--c) var(--c) no-repeat border-box,
+  var(--pbg) padding-box,var(--bd) border-box}
+.corr.ok{--bd:var(--green);--pbg:linear-gradient(160deg,#16382F,#221833 70%)}.corr.ko{--bd:var(--coral);--pbg:linear-gradient(160deg,#3E1E33,#221833 70%)}
+.kw{--pbg:linear-gradient(#1E152E,#1E152E)}.kw h3{background:linear-gradient(90deg,var(--orange1),var(--orange2))}
+.tbtn,.plate{--c:8px;border-radius:0;clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));background:#0E0A16;border:2px solid var(--cream)}
+.plate{font-family:var(--fa);font-weight:400;font-size:21px;padding:3px 12px}
+.btn{--c:10px;border-radius:0;clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));background:linear-gradient(180deg,var(--orange1),var(--orange2));color:#1A0F05;font-weight:800}
+.btn.ghost{background:#0E0A16;color:var(--cream);border:2px solid var(--line)}
+.btn .chev{font:400 1.25em/1 var(--fa);margin-left:auto;padding-left:12px}
+.tile{--c:16px;border-radius:0;clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));background:linear-gradient(165deg,var(--c2,var(--c0)),#1A1228 115%);box-shadow:none}
+.tile b{font-family:var(--fa);font-weight:400;text-transform:uppercase;transform:skewX(-9deg);display:inline-block;letter-spacing:.01em}
+h1{font-family:var(--fa);font-weight:400;text-transform:uppercase;transform:skewX(-7deg);transform-origin:0 100%;letter-spacing:.005em}
+h2{font-family:var(--fa);font-weight:400;text-transform:uppercase;letter-spacing:.02em}
+.verdict b,.rev h3,.kw h3{font-family:var(--fa);font-weight:400;text-transform:uppercase;letter-spacing:.02em}
+/* accueil façon affiche */
+.hero2{position:relative;margin:-18px calc(-1*max(4vw,14px)) 16px;min-height:clamp(470px,128vw,640px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.hero2 .hbg{position:absolute;inset:0;background:url(cop/alina-ok.webp) right -110px top 0/auto 92% no-repeat,linear-gradient(180deg,#3A1F4F,#6A2E4E 45%,#2A1736 80%)}
+.hero2::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,14,32,.72),rgba(20,14,32,0) 58%),linear-gradient(180deg,rgba(20,14,32,0) 62%,var(--night) 96%)}
+.hero2 .htx{position:relative;z-index:1;padding:22px max(4vw,16px) 0;max-width:62%}
+.hero2 h1{font-size:clamp(58px,17vw,96px);line-height:.9;margin:0;color:#FFF4E2;text-shadow:3px 3px 0 #120A1C,0 0 24px rgba(0,0,0,.5);transform:skewX(-9deg)}
+.hero2 .hru{display:inline-block;margin:10px 0 0;font:800 italic clamp(20px,5.8vw,30px)/1.1 var(--fb);white-space:nowrap;color:var(--orange1);text-shadow:2px 2px 0 #120A1C;position:relative;padding-bottom:8px}
+.hero2 .hru::after{content:"";position:absolute;left:0;right:-6%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--orange2),var(--orange1) 70%,transparent);transform:skewX(-20deg) rotate(-2deg)}
+.hero2 p{margin:12px 0 0;font-weight:700;font-size:17px;color:#FFF4E2;text-shadow:1px 1px 0 #120A1C}
+.hero2 .go{position:relative;z-index:1;margin:0 max(4vw,14px) 6px;min-height:72px;display:flex;align-items:center;gap:10px;padding:0 24px;font:400 clamp(21px,6.1vw,36px)/1 var(--fa);text-transform:none;white-space:nowrap;box-shadow:none;filter:drop-shadow(0 5px 0 #8A3F00)}
+.hero2 .go span:first-child{transform:skewX(-9deg);display:inline-block}
+.hero2 .go:active{transform:translateY(3px);filter:drop-shadow(0 2px 0 #8A3F00)}
+@media(min-width:720px){.hero2{margin:-18px 0 18px;min-height:440px}.hero2 .hbg{background-position:right -4% top 0,0 0;background-size:auto 100%,cover}.hero2 .htx{max-width:56%;padding:40px 32px 0}.hero2 .go{margin:0 32px 26px;align-self:flex-start;min-width:420px}}
+/* cartes série, niveau, défi, récompenses */
+.stk{padding:14px 16px 12px;margin:0 0 12px}
+.stkt{display:flex;align-items:center;gap:10px}.stkt .flame svg{width:34px;height:42px}.stkt .flame b{font:400 44px/1 var(--fa);color:#FFF4E2;transform:skewX(-9deg);display:inline-block}
+.stkt .aff{font-size:26px;color:#FFF4E2}.stkt .ru{font-size:12px;color:var(--mut)}
+.stkt .sep{width:2px;align-self:stretch;background:var(--bd);margin:0 6px 0 auto}.stkt .xpc{font:400 22px var(--fa)}.stkt .xpc b{font:400 38px var(--fa);color:#FFF4E2}
+.stk .week{margin:12px 0 0;color:var(--cream)}.stk .week i{background:#3A2D50;color:#E9E1F4;width:38px;height:38px;font-size:15px}
+.stk .week .on i{background:#FFC83A;color:#1A0F05}.stk .week .now i{box-shadow:0 0 0 2px #FFF4E2}
+.lvlc{padding:12px 16px 14px;margin:0 0 12px}.lvlc .brow{font-size:19px}.lvlc .bar{height:14px;background:#3A2D50}.lvlc .bar i{background:linear-gradient(90deg,#FFC83A,var(--orange2))}
+.dq2{--c:18px;padding:16px 16px 14px;margin:0 0 12px;--bd:var(--orange2);--pbg:linear-gradient(160deg,#3B1F2A,#221833 75%)}
+.dq2.done{--bd:var(--teal);--pbg:linear-gradient(160deg,#0F3F37,#122A2B 80%)}
+.dqh{display:flex;align-items:center;gap:14px}.dqh .ico{flex:none;width:62px;height:62px}.dqh .ico svg{width:100%;height:100%}
+.dqh .bar2{width:2px;align-self:stretch;background:currentColor;opacity:.5}
+.dq2 .aff{font-size:clamp(26px,7.4vw,36px);color:#FFF4E2}
+.dq2 .sub2{display:flex;align-items:center;gap:14px;margin-top:6px;flex-wrap:wrap}
+.xpb{font:400 26px/1 var(--fa);color:#0D2A24;background:var(--teal);padding:4px 14px;transform:skewX(-12deg);display:inline-block;clip-path:polygon(4% 0,100% 6%,96% 100%,0 92%)}
+.mol{font:800 italic 22px var(--fb);color:var(--teal)}
+.dq2.todo .sub2{color:var(--mut);font-size:15px}
+.dq2 .btn{width:100%;margin:14px 0 0;min-height:60px;display:flex;align-items:center;padding:0 22px;font:400 clamp(22px,6.4vw,30px)/1 var(--fa);filter:drop-shadow(0 4px 0 #8A3F00)}
+.dq2 .btn span:first-child{transform:skewX(-9deg);display:inline-block}
+.dq2 .dqm{color:var(--mut);font-size:14px;margin:10px 0 0}.dq2 .dqn{color:var(--teal);font-weight:700;margin:0 0 8px}
+.rewd{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;margin:0 0 16px;color:#FFF4E2;font-weight:800;font-size:17px;text-align:left}
+.rewd svg{width:36px;height:40px;flex:none}.rewd i{width:2px;align-self:stretch;background:var(--bd)}
+@media(prefers-reduced-motion:no-preference){.hero2 .htx>*{animation:rise2 .45s ease-out both}.hero2 .htx>*:nth-child(2){animation-delay:.07s}.hero2 .go{animation:rise2 .45s .14s ease-out both}}
 </style>
 </head>
 <body>
@@ -493,15 +558,15 @@ let flashMsg='';
 const render={
 home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.keys(st.f||{}).length;
   const err=Object.values(st.r).filter(x=>x===0).length,pct=(a,b)=>Math.round(a/b*100);
-  const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c:${c}"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small>${ILL[ill]}</button>`;
+  const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c0:${c}"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small>${ILL[ill]}</button>`;
   const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
   const nw=!s.seen,pend=[...Object.entries(st.p).map(([t,x])=>({d:x.d||0,go:()=>startTicket(+t,'ticket')})),
     ...Object.entries(st.tp||{}).map(([key,x])=>{const i=key.lastIndexOf('|');return{d:x.d||0,go:()=>startThemeTicket(key.slice(0,i),+key.slice(i+1))}})].sort((a,b)=>b.d-a.d);
   const nextT=()=>{for(let t=1;t<=40;t++)if(!st.tk[t])return t;return Object.keys(st.tk).sort((a,b)=>st.tk[a].d-st.tk[b].d)[0]|0||1};
-  const hero=`<section class="hero" aria-labelledby="hh"><div class="scene" role="img" aria-label="Alina, policière, à un passage piéton au crépuscule"></div><div class="txt">
-   <h1 id="hh">${nw?'Bienvenue':'Bon retour'}<em class="ru">${nw?'Добро пожаловать':'С возвращением'}</em></h1>
-   ${nw?'<p>Entraînez-vous. Vous allez y arriver.<em class="ru">Тренируйтесь. У вас всё получится.</em></p>':`<p class="meta">${s.seen} questions vues sur 800</p>`}
-   <button class="btn go" id="herogo">${nw?'Commencer':'Reprendre l\'entraînement'}<em class="ru">${nw?'Начать':'Продолжить тренировку'}</em></button></div></section>`;
+  const hero=`<section class="hero2" aria-labelledby="hh"><div class="hbg" role="img" aria-label="Alina, policière"></div><div class="htx">
+   <h1 id="hh">${nw?'Bienvenue':'Bon retour'}</h1><br><em class="hru">${nw?'Добро пожаловать':'С возвращением'}</em>
+   <p>${nw?'Entraînez-vous. Vous allez y arriver.':`${s.seen} questions vues sur 800`}</p></div>
+   <button class="btn go" id="herogo"><span>${nw?'Commencer':'Reprendre l\'entraînement'}</span><span class="chev" aria-hidden="true">»</span></button></section>`;
   app.innerHTML=hero+dailyCard()+`<div class="card0">
    <div class="brow"><span>Questions vues<em class="ru">Пройдено вопросов</em></span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
    <div class="bars2"><div><div class="brow"><span>Billets réussis<em class="ru">Билеты без ошибок</em></span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
@@ -1036,15 +1101,15 @@ function dailyCard(){const d=D(),t=dkey(),today=d.days[t]||{},done=!!today.done,
     :d.lost?`Ta série de ${d.lost} jours s'est arrêtée. Recommence aujourd'hui.`:`10 questions par jour. Chaque jour fait allonge ta série.`;
   const wd=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
   const week=Array.from({length:7},(_,i)=>{const k=shiftDay(t,i-6),x=d.days[k],dt=new Date(k+'T12:00');return`<span class="${x&&x.done?'on':x&&x.frz?'frz':''} ${k===t?'now':''}"><i>${x&&x.done?'✓':x&&x.frz?'❄':dt.getDate()}</i>${wd[dt.getDay()]}</span>`}).join('');
-  return`<div class="dq ${done?'done':'todo'}">
-   ${d.froze?`<p class="dqn">Un joker a protégé ta série.</p>`:''}
-   <div class="dqtop"><span class="flame ${d.streak?'':'off'}">${FLAME}<b>${d.streak}</b></span><span class="dqs">jour${d.streak>1?'s':''} de suite<em class="ru">дней подряд</em></span><span class="sp"></span><span class="xpc"><b>${d.xp}</b> XP</span></div>
-   <div class="week">${week}</div>
-   <div class="lvl"><div class="brow"><span>Niveau ${lv+1} · ${LV[lv][0]}<em class="ru">${LV[lv][1]}</em></span><span>${nx?`${d.xp-LVX[lv]}/${nx-LVX[lv]}`:'max'}</span></div><div class="bar"><i style="width:${nx?Math.round((d.xp-LVX[lv])/(nx-LVX[lv])*100):100}%;background:#f2b705"></i></div></div>
-   ${copRow(done)}
-   <button class="dqbtn" id="dqgo">${done?'Encore un tour (XP en plus)':'Commencer le défi du jour'}<em class="ru">${done?'Ещё раз':'Задание дня'}</em></button>
-   <p class="dqm">${msg}</p>
-   <button class="dqr" data-go="recomp">Récompenses · ${BADGES.filter(b=>d.badges[b[0]]).length}/${BADGES.length} badges</button></div>`}
+  return`<div class="stk"><div class="stkt"><span class="flame ${d.streak?'':'off'}">${FLAME}<b>${d.streak}</b></span><span><span class="aff">jour${d.streak>1?'s':''} de suite</span><em class="ru">дней подряд</em></span><i class="sep"></i><span class="xpc"><b>${d.xp}</b> XP</span></div>
+   <div class="week">${week}</div></div>
+   <div class="lvlc"><div class="brow"><span>Niveau ${lv+1} · ${LV[lv][0]}<em class="ru">${LV[lv][1]}</em></span><span>${nx?`${d.xp-LVX[lv]}/${nx-LVX[lv]}`:'max'}</span></div><div class="bar"><i style="width:${nx?Math.round((d.xp-LVX[lv])/(nx-LVX[lv])*100):100}%"></i></div></div>
+   <div class="dq2 ${done?'done':'todo'}">${d.froze?`<p class="dqn">Un joker a protégé ta série.</p>`:''}
+   <div class="dqh"><span class="ico">${done?'<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="none" stroke="#2FE0B0" stroke-width="5"/><path d="M19 33l9 9 17-19" fill="none" stroke="#2FE0B0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>':FLAME}</span><i class="bar2" style="color:${done?'#2FE0B0':'#F58A1F'}"></i><div><span class="aff">${done?'Défi du jour terminé':'Défi du jour'}</span>
+   <div class="sub2">${done?`<span class="xpb">+${today.xp} XP</span><span class="mol">Молодец !</span>`:'<span>10 questions · Задание дня</span>'}</div></div></div>
+   <button class="btn" id="dqgo"><span>${done?'Encore un tour':'Commencer le défi'}</span><span class="chev" aria-hidden="true">»</span></button>
+   <p class="dqm">${msg}</p></div>
+   <button class="rewd" data-go="recomp"><svg viewBox="0 0 36 40" aria-hidden="true"><path d="M8 22 3 38l7-3 4 5 4-14zM28 22l5 16-7-3-4 5-4-14z" fill="#F58A1F"/><circle cx="18" cy="15" r="13" fill="#FFC83A" stroke="#B86A00" stroke-width="2"/><path d="m18 7 2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z" fill="#B86A00"/></svg><i></i><span>Récompenses · ${BADGES.filter(b=>d.badges[b[0]]).length}/${BADGES.length} badges</span></button>`}
 
 function pickDaily(){const ks=o=>shuffle(Q.map((_,k)=>k).filter(o));
   const err=ks(k=>st.r[k]===0),un=ks(k=>st.r[k]===undefined),ok=ks(k=>st.r[k]===1),out=err.slice(0,4);
