@@ -768,7 +768,7 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
 const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!'};
 const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`};
 /* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
-const POLWIN=['policiere','policiere6'];
+const POLWIN=['policiere'];
 function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
 function copTease(score){copWoman('policiere2',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
 function copWoman(img,msg,ru){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
