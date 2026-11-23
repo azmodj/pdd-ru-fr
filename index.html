@@ -185,6 +185,13 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 @keyframes fly{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(var(--s)) rotate(var(--r))}}
 .cop .go{margin-top:22px;min-width:160px;animation:bub .4s 1.2s both}
 /* billet échoué : policier triste sous son nuage, puis il remonte le moral */
+.cop.pol{background:rgba(8,10,22,.88);animation:polBg 1.1s steps(1) infinite}
+@keyframes polBg{0%{box-shadow:inset 0 0 140px 30px rgba(40,90,255,.55)}50%{box-shadow:inset 0 0 140px 30px rgba(255,40,60,.55)}}
+.cop .polf{width:min(68vw,300px);aspect-ratio:2/3;margin:0 auto;border-radius:18px;overflow:hidden;border:4px solid #fff;
+  box-shadow:-14px 0 40px rgba(40,90,255,.7),14px 0 40px rgba(255,40,60,.7);animation:polIn .8s cubic-bezier(.3,1.45,.5,1) both}
+.cop .polf img{width:100%;height:100%;object-fit:cover;display:block}
+@keyframes polIn{from{transform:translateY(60px) rotate(-8deg) scale(.7);opacity:0}}
+.cop.pol .bub{margin-top:14px;animation:bub .5s .7s cubic-bezier(.3,1.6,.5,1) both}
 .cop.sad{background:rgba(14,18,28,.86)}
 .cop.sad .p1{filter:grayscale(.6) brightness(.78) drop-shadow(0 12px 14px rgba(0,0,0,.45));animation:sadIn .6s ease-out both,sadSlump 2.2s .6s ease-in-out infinite}
 @keyframes sadIn{from{transform:translateY(50px);opacity:0}}
@@ -242,6 +249,8 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 @media(prefers-reduced-motion:no-preference){
 .dqcop.hi img{animation:copHi .55s ease-in-out 4 alternate}@keyframes copHi{from{transform:rotate(-7deg)}to{transform:rotate(7deg) translateY(-4px)}}
 .dqcop.ok img{animation:copOk 1.8s ease-in-out infinite}@keyframes copOk{50%{transform:translateY(-5px) scale(1.02,.98)}}
+.dqcop.ko img{height:150px;border-radius:14px;border:3px solid #fff;box-shadow:-6px 0 16px rgba(40,90,255,.6),6px 0 16px rgba(255,40,60,.6);filter:none}
+.dqcop.ko{min-height:150px}.dqcop.ko .cb{color:#c8102e;border:2px solid #c8102e}.dqcop.ko .cb em{color:#c8102e}
 .dqcop.ko img{animation:copKo 3.2s ease-in-out infinite}@keyframes copKo{0%,78%,100%{transform:none}82%{transform:translateX(-4px) rotate(-3deg)}86%{transform:translateX(4px) rotate(3deg)}90%{transform:translateX(-3px)}94%{transform:translateX(2px)}}
 .dqcop.jump img{animation:copJ .9s cubic-bezier(.3,1.4,.5,1)}@keyframes copJ{30%{transform:translateY(-34px) rotate(-5deg)}60%{transform:translateY(0) scale(1.06,.94)}}
 .dqcop .cb{animation:cbIn .35s cubic-bezier(.3,1.6,.5,1) both}@keyframes cbIn{from{transform:scale(.6);opacity:0}}}
@@ -692,7 +701,7 @@ function renderResult(){
   <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
-  if(S.t&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copCheer,300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);
+  if((S.t||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWoman,300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);
 }
 
 
@@ -755,6 +764,16 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
   const close=()=>{if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>d.remove(),350)};
   d.onclick=close;setTimeout(close,9000);setTimeout(()=>{if(d.isConnected)SND.play('combo')},2330)}
 /* billet échoué : policier triste sous la pluie, puis il encourage et propose de corriger les fautes */
+/* sans faute (billet 20/20 ou examen sans faute) : la policière félicite, avec gyrophares bleu et rouge */
+const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!'};
+function copWoman(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
+  const d=document.createElement('div');d.className='cop pol';
+  d.innerHTML=`<div class="box"><div class="polf"><img src="cop/policiere.webp" alt="Policière qui te félicite"></div>
+  <div class="bub">${POLMSG[LANG]||POLMSG.fr}<i>Поздравляю! Сегодня я тебя не арестую.</i></div>
+  <button class="btn go">Merci !</button></div>`;
+  document.body.appendChild(d);
+  const close=()=>{if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>d.remove(),350)};
+  d.onclick=close;setTimeout(close,10000);setTimeout(()=>{if(d.isConnected)SND.play('combo')},1200)}
 function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('sad');
   const d=document.createElement('div');d.className='cop sad';
   const drop=x=>`<path class="d" d="M${x} 62 q-4 7 0 10 q4-3 0-10z" fill="#8fb6e8"/>`;
@@ -769,7 +788,7 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
@@ -868,8 +887,8 @@ function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)retu
 
 /* petit policier de l'accueil : coucou au lancement, puis content (défi fait) ou fâché (défi pas fait) */
 let copHi=true;
-const COPS={hi:['accueil','Coucou ! Content de te revoir.','Привет!'],ok:['pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:['stop','Hé ! Ton défi du jour n\'est pas fait.','Задание дня ждёт!']};
-const copInner=m=>{const c=COPS[m];return`<img src="cop/${c[0]}.webp" alt="Policier"><p class="cb">${c[1]}<em>${c[2]}</em></p>`};
+const COPS={hi:['accueil','Coucou ! Content de te revoir.','Привет!'],ok:['pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:['policiere',{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
+const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1];return`<img src="cop/${c[0]}.webp" alt="${m==='ko'?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
 function copRow(done){const m=copHi?'hi':done?'ok':'ko';
   if(copHi){copHi=false;setTimeout(()=>{const r=document.querySelector('.dqcop');if(r){const m2=r.dataset.m;r.className='dqcop '+m2;r.innerHTML=copInner(m2);bindCop()}},2400)}
   setTimeout(bindCop,0);
