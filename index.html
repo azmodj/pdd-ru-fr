@@ -299,7 +299,7 @@ const $=s=>document.querySelector(s), app=$('#app');
 /* origine de la question : billet, numéro dans le billet, thème(s) */
 const qOrig=q=>`<div class="qorig"><b>Billet ${q.t} · question ${q.n}</b><em class="ru">Билет ${q.t}, вопрос ${q.n}</em><span>Thème : ${q.p.map(p=>esc(TOP[p]||p)).join(' · ')}</span><em class="ru">Тема: ${q.p.map(esc).join(' · ')}</em></div>`;
 const TOP={"Дорожные знаки":"Panneaux de signalisation","Проезд перекрестков":"Passage des intersections","Начало движения, маневрирование":"Démarrage et manœuvres","Безопасность движения и техника управления автомобилем":"Sécurité et technique de conduite","Остановка и стоянка":"Arrêt et stationnement","Дорожная разметка":"Marquage au sol","Обгон, опережение, встречный разъезд":"Dépassement, devancement, croisement","Сигналы светофора и регулировщика":"Feux et signaux de l'agent","Расположение транспортных средств на проезжей части":"Position sur la chaussée","Неисправности и условия допуска транспортных средств к эксплуатации":"Pannes et conditions d'utilisation","Общие положения":"Dispositions générales","Пользование внешними световыми приборами и звуковыми сигналами":"Feux et klaxon","Скорость движения":"Vitesse","Оказание доврачебной медицинской помощи":"Premiers secours","Ответственность водителя":"Responsabilité du conducteur","Общие обязанности водителей":"Obligations du conducteur","Движение по автомагистралям":"Autoroutes","Движение через железнодорожные пути":"Passages à niveau","Применение специальных сигналов":"Véhicules prioritaires","Применение аварийной сигнализации и знака аварийной остановки":"Feux de détresse et triangle","Буксировка механических транспортных средств":"Remorquage","Движение в жилых зонах":"Zones résidentielles","Перевозка людей и грузов":"Transport de personnes et de chargements","Приоритет маршрутных транспортных средств":"Priorité des transports en commun","Учебная езда и дополнительные требования к движению велосипедистов":"Apprentissage et cyclistes","Пешеходные переходы и места остановок маршрутных транспортных средств":"Passages piétons et arrêts de bus"};
-let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0()}, db=null, sample=null, uid=null, S=null, tick=null;
+let Q=[], G=[], IMG={}, HF={}, st={r:{},tk:{},v:{},p:{},f:{},d:D0(),tt:{},tp:{}}, db=null, sample=null, uid=null, S=null, tick=null;
 window.pddView=()=>S&&S.view;
 /* langue de traduction : français (par défaut) ou anglais. En anglais, les traductions des questions et du lexique sont remplacées,
    et les textes de l'interface sont traduits à l'affichage. */
@@ -334,7 +334,7 @@ function useEnglish(E){
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 function D0(){return{xp:0,streak:0,best:0,last:'',freeze:0,days:{},badges:{},total:0,perfect:0,maxc:0}}
-const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})},f:{...(s.f||{})},d:{...D0(),...(s.d||{})},h:Array.isArray(s.h)?s.h:[],xu:{...(s.xu||{})}}};
+const norm=s=>{const tk={};for(const[t,x]of Object.entries(s.tk||{}))tk[t]=x.n?x:{n:1,last:x.e,best:x.e,d:x.d};return{r:{...s.r},tk,v:{...(s.v||{})},p:{...(s.p||{})},f:{...(s.f||{})},d:{...D0(),...(s.d||{})},h:Array.isArray(s.h)?s.h:[],xu:{...(s.xu||{})},tt:{...(s.tt||{})},tp:{...(s.tp||{})}}};
 try{const s=JSON.parse(localStorage.getItem('pdd-st')||'null');if(s&&s.r)st=norm(s)}catch(e){}
 
 /* ---------- sauvegarde ---------- */
@@ -416,12 +416,12 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
   <div class="tiles">
    ${tile('exam','#7c83e6','Examen','Экзамен','Comme au ГИБДД','exam')}
    ${tile('tickets','#4f9f72','Billets','Билеты','40 billets de 20 questions','tickets')}
-   ${tile('topics','#4b9be8','Thèmes','Темы',Object.keys(TOP).length+' thèmes + régulateur','topics')}
+   ${tile('topics','#4b9be8','Thèmes','Темы','Entraînement en billets','topics')}
    ${tile('errors','#e07a74','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
   <div class="rows">
    ${row('ana','ana','Mon analyse','Мой анализ','Points forts, points faibles et quiz ciblé')}
-   ${row('texam','texam','Examen par thème','Экзамен по темам','Panneaux, premiers secours, légal…')}
+   ${row('texam','texam','Thèmes · examen','Экзамен по темам','Un examen comme au ГИБДД sur le thème choisi')}
    ${row('fav','fav','Questions favorites','Избранное',nf?nf+' question'+(nf>1?'s':'')+' à mémoriser':'Touche l\'étoile d\'une question pour l\'ajouter ici')}
    ${row('vocab','vocab','Quiz de vocabulaire','Словарный тест',G.length+' mots · '+vk+' déjà travaillés')}
    ${row('marathon','marathon','Marathon','Марафон','Les 800 questions mélangées')}
@@ -438,7 +438,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
     else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
     else if(g==='vocab')startVocab();
     else if(g==='fav'){const l=Object.keys(st.f||{}).map(Number).sort((a,b)=>Q[a].t-Q[b].t||Q[a].n-Q[b].n);if(l.length)startList(l,'Favorites','free');else{flashMsg='Aucune question favorite pour l\'instant. Pendant un billet, touche l\'étoile ☆ en haut d\'une question pour la garder ici.';render.home()}}
-    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{},f:st.f||{},d:st.d};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
+    else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{},f:st.f||{},d:st.d,tt:{},tp:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
     else render[g]()})},
 tickets(){S={view:'tickets'};
   app.innerHTML=`<h1>Billets</h1>
@@ -446,12 +446,22 @@ tickets(){S={view:'tickets'};
   <p class="sub">En haut à droite : nombre de fois terminé. En bas : dernier résultat, ou nombre de questions faites si le billet est en cours.</p>
   <div class="grid">${Array.from({length:40},(_,i)=>{const t=i+1,r=st.tk[t],p=st.p[t];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/20`:r?`${20-r.last}/20`:'';return`<button class="tk ${cls}" data-t="${t}" aria-label="Billet ${t}">${r?`<i>×${r.n}</i>`:''}${t}${low?`<small>${low}</small>`:''}</button>`}).join('')}</div>`;
   app.querySelectorAll('.tk').forEach(b=>b.onclick=()=>startTicket(+b.dataset.t,'ticket'))},
-topics(){S={view:'topics'};const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
-  const reg=REG_IDX();app.innerHTML=`<h1>Thèmes</h1><p class="sub">Темы. Toutes les questions d'un thème, sans chrono.</p>
-  <div class="rows"><button class="row" data-r="0">${REGI}<span><b>Régulateur</b><em class="ru">Регулировщик</em><small>${reg.length} questions · correction tout de suite</small></span></button><button class="row" data-r="1">${REGI}<span><b>Régulateur · examen</b><em class="ru">Регулировщик · экзамен</em><small>Tirage au hasard, résultat à la fin</small></span></button></div>
-  <h2>Thèmes officiels</h2><div class="rows">${Object.keys(TOP).filter(p=>c[p]).map(p=>`<button class="row" data-p="${esc(p)}">${tIco(p)}<span><b>${esc(TOP[p])}</b><em class="ru">${esc(p)}</em><small>${c[p].length} questions</small></span></button>`).join('')}</div>`;
-  app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startList(c[b.dataset.p],TOP[b.dataset.p],'free'));
-  app.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>b.dataset.r==='0'?startList(shuffle(reg),'Régulateur','free'):startThemeExam(reg,'Régulateur'))},
+topics(){S={view:'topics'};const L=THEMES();
+  const row=T=>{const bt=themeTickets(T.list),ok=bt.filter((_,b)=>{const r=st.tt[T.id+'|'+b];return r&&r.last===0}).length,go=bt.filter((_,b)=>st.tp[T.id+'|'+b]).length;
+    return`<button class="row" data-th="${esc(T.id)}">${T.id==='REG'?REGI:tIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
+  app.innerHTML=`<h1>Thèmes · entraînement</h1><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>
+  <div class="rows">${row(L[0])}</div>
+  <h2>Thèmes officiels</h2><div class="rows">${L.slice(1).map(row).join('')}</div>
+  <p class="note">Pour te tester sans correction, va dans <button class="tbtn" id="gotex" style="color:var(--fr);border-color:var(--fr);min-height:32px">Thèmes · examen</button></p>`;
+  app.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{render.theme(b.dataset.th);scrollTo(0,0)});
+  $('#gotex').onclick=()=>{render.texam();scrollTo(0,0)}},
+theme(id){const T=THEMES().find(x=>x.id===id);if(!T)return render.topics();S={view:'theme',id};const bt=themeTickets(T.list);
+  app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="tback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Thèmes</button></p>
+  <h1>${esc(T.name)}</h1><p class="sub"><em class="ru">${esc(T.ru)}</em> ${T.list.length} questions en ${bt.length} billet${bt.length>1?'s':''}, dans l'ordre des billets officiels.</p>
+  <p class="legend"><span style="--c:#e07b00">Commencé, à terminer</span><span style="--c:var(--grn)">Dernier passage sans faute</span><span style="--c:var(--red)">Dernier passage avec fautes</span></p>
+  <div class="grid">${bt.map((l,b)=>{const key=T.id+'|'+b,r=st.tt[key],p=st.tp[key];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/${l.length}`:r?`${l.length-r.last}/${l.length}`:`${l.length} q.`;return`<button class="tk ${cls}" data-b="${b}" aria-label="Billet ${b+1}">${r?`<i>×${r.n}</i>`:''}${b+1}<small>${low}</small></button>`}).join('')}</div>`;
+  $('#tback').onclick=()=>{render.topics();scrollTo(0,0)};
+  app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startThemeTicket(id,+b.dataset.b))},
 ana(){S={view:'ana'};const P=profile(),A=P.all,F=[];
   const col=r=>r>=.85?'#1f8a3b':r>=.7?'#e07b00':'#c8372d';
   const bar=(name,ru,x,extra)=>`<div class="anr"><div class="brow"><span>${esc(name)}${ru?`<em class="ru">${esc(ru)}</em>`:''}</span><span style="color:${col(x.r)};font-weight:700">${pc(x.r)}</span></div><div class="bar"><i style="width:${Math.round(x.r*100)}%;background:${col(x.r)}"></i></div><small>${x.n} réponse${x.n>1?'s':''}${extra||''}</small></div>`;
@@ -519,6 +529,15 @@ lexique(){S={view:'lexique'};
 function startTicket(t,mode){startList(Q.map((q,k)=>q.t===t?k:-1).filter(k=>k>=0),(mode==='exam'?'Examen · ':'')+'Billet '+t,mode,t);
   const p=mode==='ticket'&&st.p[t];
   if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=Number.isInteger(p.i)&&p.i>=0&&p.i<S.list.length?p.i:n<0?S.list.length-1:n;S.resumed=true;renderQuiz()}}
+/* thèmes en billets d'entraînement : chaque thème est coupé en billets d'environ 20 questions, dans l'ordre officiel (billet puis numéro) */
+function themeTickets(list){const s=[...list].sort((a,b)=>Q[a].t-Q[b].t||Q[a].n-Q[b].n),nb=Math.max(1,Math.ceil(s.length/20)),out=[];
+  for(let b=0;b<nb;b++)out.push(s.slice(Math.round(b*s.length/nb),Math.round((b+1)*s.length/nb)));return out}
+function THEMES(){const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
+  return[{id:'REG',name:'Régulateur',ru:'Регулировщик',list:REG_IDX()},...Object.keys(TOP).filter(p=>c[p]).map(p=>({id:p,name:TOP[p],ru:p,list:c[p]}))]}
+function startThemeTicket(id,b){const T=THEMES().find(x=>x.id===id),bt=themeTickets(T.list),key=id+'|'+b;
+  startList(bt[b],T.name+' · billet '+(b+1),'theme');S.th=key;S.thId=id;S.thB=b;S.thN=bt.length;
+  const p=st.tp[key];if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=Number.isInteger(p.i)&&p.i>=0&&p.i<S.list.length?p.i:n<0?S.list.length-1:n;S.resumed=true}
+  renderQuiz()}
 function startList(list,title,mode,t){S={view:'quiz',list,title,mode,t,i:0,ans:{},fr:false,vq:null,end:mode==='exam'?Date.now()+20*60e3:0,done:false};renderQuiz();scrollTo(0,0)}
 
 /* ---------- examen façon ГИБДД ----------
@@ -661,7 +680,7 @@ function renderQuiz(){
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Aucune correction pendant l'examen : le résultat s'affiche à la fin. Une faute dans un bloc ajoute 5 questions de ce bloc après la question ${S.ex.main} ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec.</p>`:''}`;
   if(q.i&&!IMG[q.t])loadImg(q.t);bindFav(k);
-  const rs=$('#restart');if(rs)rs.onclick=()=>{delete st.p[S.t];save();startTicket(S.t,'ticket')};
+  const rs=$('#restart');if(rs)rs.onclick=()=>{if(S.th){delete st.tp[S.th];save();startThemeTicket(S.thId,S.thB)}else{delete st.p[S.t];save();startTicket(S.t,'ticket')}};
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
   app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   const frb=$('#frb');if(frb)frb.onclick=()=>{S.fr=!S.fr;renderQuiz()};
@@ -676,7 +695,7 @@ function renderQuiz(){
   if(exam){const tm=$('#tm'),up=()=>{const r=Math.max(0,S.end-Date.now());tm.textContent=Math.floor(r/60e3)+':'+String(Math.floor(r/1e3)%60).padStart(2,'0');if(!r)finish()};up();tick=setInterval(up,1000)}
   if(db&&!(k in HF)&&a!==undefined&&!exam){HF[k]=undefined;db.doc('fh/q'+k).get().then(s=>{if(s.exists&&s.data().t){HF[k]=String(s.data().t);if(S.view==='quiz'&&S.list[S.i]===k)renderQuiz()}}).catch(()=>{})}
 }
-function keepPos(){if(S.mode==='ticket'&&S.t&&!S.done){st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};save()}}
+function keepPos(){if(S.mode==='ticket'&&S.t&&!S.done){st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};save()}if(S.th&&!S.done){st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save()}}
 function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0);
   if(dir&&!matchMedia('(prefers-reduced-motion: reduce)').matches){app.classList.remove('swl','swr');void app.offsetWidth;app.classList.add(dir>0?'swl':'swr')}}
 /* glisser le doigt à gauche = question suivante, à droite = question précédente */
@@ -687,23 +706,24 @@ function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.
     document.querySelectorAll('.wtip').forEach(e=>e.remove());
     if(dx<0&&S.i<S.list.length-1)go(S.i+1,1);else if(dx>0&&S.i>0)go(S.i-1,-1)},{passive:true})})();
 function logAns(k,ok){st.h=st.h||[];st.h.push([k,ok?1:0,S.fr?1:0,Date.now()/1e3|0]);if(st.h.length>6000)st.h=st.h.slice(-5000)}
-function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;logAns(k,j===Q[k].c);if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};save();
+function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;logAns(k,j===Q[k].c);if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};if(S.th)st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save();
   if(S.ex){SND.play('tap');S.ex.msg='';renderQuiz();if(S.i<S.list.length-1)setTimeout(()=>{if(S.view==='quiz'&&!S.done&&S.list[S.i]===k)go(S.i+1,1)},350);return}
   fx(j===Q[k].c);
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
   if(S.ex){examEval();st.xu=st.xu||{};S.list.forEach(x=>st.xu[x]=(st.xu[x]||0)+1);save()}
   if(S.t&&S.mode!=='free'){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tk[S.t];st.tk[S.t]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};if(S.mode==='ticket')delete st.p[S.t];save()}
+  if(S.th){const e=S.list.filter(x=>S.ans[x]!==Q[x].c).length,o=st.tt[S.th];st.tt[S.th]={n:(o?o.n:0)+1,last:e,best:o?Math.min(o.best,e):e,d:Date.now()};delete st.tp[S.th];save()}
   renderResult()}
 function renderResult(){
   const ok=S.list.filter(x=>S.ans[x]===Q[x].c).length,bad=S.list.filter(x=>S.ans[x]!==undefined&&S.ans[x]!==Q[x].c),skip=S.list.filter(x=>S.ans[x]===undefined).length;
   const E=S.ex;if(E)bad.push(...S.list.filter(x=>S.ans[x]===undefined));
-  const pass=E?!E.fail:S.t?bad.length+skip<=2:null;
+  const pass=E?!E.fail:(S.t||S.th)?bad.length+skip<=2:null;
   app.innerHTML=`<div class="res"><p class="sub">${esc(S.title)}</p><b class="${pass===null?'':pass?'pass':'fail'}">${ok}/${S.list.length}</b>
-  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
-  <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
-  $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
-  if((S.t||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWin,300);else if(pass&&(S.t||E))setTimeout(()=>copTease(ok+'/'+S.list.length),300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);else if(ok===S.list.length&&S.list.length)setTimeout(()=>/^(Mes erreurs|Fautes)/.test(S.title)?copWoman('policiere',FIXMSG[LANG]||FIXMSG.fr,'Молодец! Все ошибки исправлены.'):copWin(),300);
+  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${S.th&&st.tt[S.th]?`<p class="sub">Billet terminé ${st.tt[S.th].n} fois · meilleur résultat : ${S.list.length-st.tt[S.th].best}/${S.list.length}</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
+  <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}${S.th&&S.thB<S.thN-1?'<button class="btn" id="nxt">Billet suivant</button>':''}<button class="btn ghost" id="back">${S.th?'Retour au thème':'Accueil'}</button></div>`;
+  {const th=S.th&&S.thId,b=S.thB,nx=$('#nxt');if(nx)nx.onclick=()=>startThemeTicket(th,b+1);$('#back').onclick=th?()=>{render.theme(th);scrollTo(0,0)}:render.home}const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
+  if((S.t||S.th||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWin,300);else if(pass&&(S.t||S.th||E))setTimeout(()=>copTease(ok+'/'+S.list.length),300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);else if(ok===S.list.length&&S.list.length)setTimeout(()=>/^(Mes erreurs|Fautes)/.test(S.title)?copWoman('policiere',FIXMSG[LANG]||FIXMSG.fr,'Молодец! Все ошибки исправлены.'):copWin(),300);
 }
 
 
