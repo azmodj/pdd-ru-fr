@@ -249,8 +249,8 @@ mark.kwm{color:inherit;font-weight:700;border-radius:4px;padding:0 2px;backgroun
 @media(prefers-reduced-motion:no-preference){
 .dqcop.hi img{animation:copHi .55s ease-in-out 4 alternate}@keyframes copHi{from{transform:rotate(-7deg)}to{transform:rotate(7deg) translateY(-4px)}}
 .dqcop.ok img{animation:copOk 1.8s ease-in-out infinite}@keyframes copOk{50%{transform:translateY(-5px) scale(1.02,.98)}}
-.dqcop.ko img{height:150px;border-radius:14px;border:3px solid #fff;box-shadow:-6px 0 16px rgba(40,90,255,.6),6px 0 16px rgba(255,40,60,.6);filter:none}
-.dqcop.ko{min-height:150px}.dqcop.ko .cb{color:#c8102e;border:2px solid #c8102e}.dqcop.ko .cb em{color:#c8102e}
+.dqcop img.ph{height:150px;border-radius:14px;border:3px solid #fff;box-shadow:-6px 0 16px rgba(40,90,255,.6),6px 0 16px rgba(255,40,60,.6);filter:none}
+.dqcop{min-height:150px}.dqcop.ko .cb{color:#c8102e;border:2px solid #c8102e}.dqcop.ko .cb em{color:#c8102e}
 .dqcop.ko img{animation:copKo 3.2s ease-in-out infinite}@keyframes copKo{0%,78%,100%{transform:none}82%{transform:translateX(-4px) rotate(-3deg)}86%{transform:translateX(4px) rotate(3deg)}90%{transform:translateX(-3px)}94%{transform:translateX(2px)}}
 .dqcop.jump img{animation:copJ .9s cubic-bezier(.3,1.4,.5,1)}@keyframes copJ{30%{transform:translateY(-34px) rotate(-5deg)}60%{transform:translateY(0) scale(1.06,.94)}}
 .dqcop .cb{animation:cbIn .35s cubic-bezier(.3,1.6,.5,1) both}@keyframes cbIn{from{transform:scale(.6);opacity:0}}}
@@ -768,7 +768,7 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
 const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!'};
 const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`};
 /* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
-const POLWIN=['policiere'];
+const POLWIN=['policiere','policiere6'];
 function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
 function copTease(score){copWoman('policiere2',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
 function copWoman(img,msg,ru){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
@@ -793,7 +793,7 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre','policiere','policiere2'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere','policiere2','policiere3','policiere4','policiere5','policiere6'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
@@ -892,8 +892,8 @@ function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)retu
 
 /* petit policier de l'accueil : coucou au lancement, puis content (défi fait) ou fâché (défi pas fait) */
 let copHi=true;
-const COPS={hi:['accueil','Coucou ! Content de te revoir.','Привет!'],ok:['pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:['policiere',{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
-const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1];return`<img src="cop/${c[0]}.webp" alt="${m==='ko'?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
+const COPS={hi:['policiere6','Coucou ! Content de te revoir.','Привет!'],ok:['policiere6','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:[['policiere3','policiere4','policiere5'],{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
+const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1],img=Array.isArray(c[0])?c[0][Math.random()*c[0].length|0]:c[0];return`<img class="${img.startsWith('policiere')?'ph':''}" src="cop/${img}.webp" alt="${img.startsWith('policiere')?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
 function copRow(done){const m=copHi?'hi':done?'ok':'ko';
   if(copHi){copHi=false;setTimeout(()=>{const r=document.querySelector('.dqcop');if(r){const m2=r.dataset.m;r.className='dqcop '+m2;r.innerHTML=copInner(m2);bindCop()}},2400)}
   setTimeout(bindCop,0);
