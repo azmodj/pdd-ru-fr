@@ -452,6 +452,37 @@ body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);backg
 .tart svg{display:none}
 .tile:not(:has(.tart[style*="url"])) .tart svg{display:block}
 @media(prefers-reduced-motion:no-preference){.tile:active{transform:scale(.97)}}
+/* écrans plein écran de fin : « Mission réussie » / « Wasted » */
+.mres{position:fixed;inset:0;z-index:60;overflow-y:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:max(env(safe-area-inset-top),14px) 18px max(env(safe-area-inset-bottom),18px);color:#FFF4E2;animation:mIn .35s ease-out both}
+.mres.ok{background:radial-gradient(120% 60% at 50% 70%,#6B3A1E 0,transparent 60%),linear-gradient(180deg,#2A1638,#1A1024 60%,#120A1C)}
+.mres.ko{background:radial-gradient(120% 50% at 50% 100%,#5A0E14 0,transparent 70%),linear-gradient(180deg,#1A1A1E,#141018 55%,#1E0B10)}
+.mres.out{animation:mOut .3s ease-in both}@keyframes mIn{from{opacity:0}}@keyframes mOut{to{opacity:0}}
+.mres .mt{font:400 clamp(40px,12vw,64px)/.95 var(--fa);text-transform:uppercase;transform:skewX(-9deg);margin:6px 0 0;letter-spacing:.01em}
+.mres.ok .mt{background:linear-gradient(180deg,#FFF2B0,#FFC531 45%,#E08A00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(3px 3px 0 #3A1A00)}
+.mres .mru{font:800 italic clamp(17px,5vw,24px)/1.1 var(--fb);margin:4px 0 0;text-transform:uppercase}
+.mres.ok .mru{color:#FFF4E2;text-shadow:2px 2px 0 #120A1C}
+.mres .mart{width:min(100%,420px);aspect-ratio:var(--ar);background:50% 0/cover no-repeat;margin:10px 0 -6%;-webkit-mask:linear-gradient(180deg,#000 72%,transparent);mask:linear-gradient(180deg,#000 72%,transparent)}
+.mres.ko .mart{margin:0 0 -18%;animation:mGray 1.4s .2s ease-out both}@keyframes mGray{from{filter:grayscale(0) brightness(1.1)}to{filter:grayscale(.35) brightness(.9)}}
+.mres .stars{display:flex;gap:6px;justify-content:center;position:relative;z-index:1}
+.mres .stars svg{width:clamp(44px,13vw,62px);height:auto;filter:drop-shadow(0 3px 0 #6A3A00) drop-shadow(0 0 12px rgba(255,200,60,.6));animation:mStar .5s cubic-bezier(.3,1.6,.5,1) both}
+.mres .stars svg.off{opacity:.25;filter:grayscale(1)}
+@keyframes mStar{from{transform:scale(0) rotate(-40deg)}}
+.mres .wst{font:400 clamp(72px,24vw,130px)/.85 var(--fa);color:#E8232F;text-transform:uppercase;transform:skewX(-9deg);text-shadow:4px 4px 0 #3A0006,0 0 30px rgba(232,35,47,.45);position:relative;z-index:1;margin:0;animation:mSlam .45s .25s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes mSlam{from{transform:skewX(-9deg) scale(2.4);opacity:0}}
+.mres.ko .mru{color:#FFF4E2}.mres .mru2{font:800 clamp(14px,4vw,18px) var(--fb);color:#FF3A44;text-transform:uppercase;margin:2px 0 0}
+.mres .msc{position:relative;z-index:1;margin:14px 0 0;padding:6px 34px;font:400 clamp(44px,13vw,64px)/1 var(--fa);transform:skewX(-9deg);clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
+.mres.ok .msc{background:linear-gradient(180deg,#123A30,#0C241E);box-shadow:inset 0 0 0 3px #FFC531}
+.mres.ko .msc{background:linear-gradient(180deg,#2A1014,#1A090C);box-shadow:inset 0 0 0 3px #E8232F}
+.mres .msc i{font-style:normal;opacity:.7;margin:0 .15em}
+.mres .rib{margin:10px 0 0;padding:6px 24px;font:800 italic clamp(17px,5vw,22px) var(--fb);background:linear-gradient(90deg,transparent,#14603A 15%,#14603A 85%,transparent);width:min(100%,380px)}
+.mres .mbtn{margin:18px 0 0;width:min(100%,380px);min-height:64px;border:0;font:400 clamp(26px,8vw,38px)/1 var(--fa);text-transform:uppercase;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
+.mres .mbtn span{display:inline-block;transform:skewX(-9deg)}
+.mres.ok .mbtn{background:linear-gradient(180deg,#FFE27A,#FFB300 60%,#E08A00);color:#1A1024}
+.mres.ko .mbtn{background:linear-gradient(180deg,#F0444E,#B5121D);color:#FFF4E2}
+.mres .mbtn:active{transform:translateY(2px)}
+.mres .mlink{margin:12px 0 0;padding:8px 22px;border-radius:10px;background:rgba(0,0,0,.35);border:2px solid #E9C98A;color:#FFF4E2;font:700 italic 17px var(--fb)}
+.mres.ko .mlink{border-color:#E9B0B0}
+@media(prefers-reduced-motion:reduce){.mres,.mres *{animation:none!important}}
 /* carrés du menu (analyse, favoris, vocabulaire…) */
 .tiles.sq .tile{aspect-ratio:1}
 .tiles.sq .tile b{font-size:clamp(19px,5.4vw,30px);white-space:normal}
@@ -798,10 +829,11 @@ function runExam(title,blocks,src,names){
   S={view:'quiz',list,title,mode:'exam',i:0,ans:{},fr:false,vq:null,end:Date.now()+list.length*60e3,done:false,
      ex:{bk,extra:{},src,names,nb:blocks.length,main:list.length,phase:1,fail:'',msg:'',warn:0}};renderQuiz();scrollTo(0,0)}
 /* examen blanc : 20 questions tirées au hasard parmi les 800, 5 par bloc (les blocs suivent la place de la question dans les billets officiels) */
-function startExam(){const P=[0,1,2,3].map(g=>Q.map((q,k)=>((q.n-1)/5|0)===g?k:-1).filter(k=>k>=0)),acc=[];
+let LASTX=null;
+function startExam(){LASTX=startExam;const P=[0,1,2,3].map(g=>Q.map((q,k)=>((q.n-1)/5|0)===g?k:-1).filter(k=>k>=0)),acc=[];
   const blocks=P.map(p=>{const b=pickFresh(p,5,acc);acc.push(...b);return b});
   runExam('Examen blanc',blocks,g=>pickFresh(P[g],5,S.list),GRP)}
-function startThemeExam(pool,name){const L=pool.length,n=L<10?1:Math.min(4,Math.floor((L-5)/5)),acc=[],blocks=[];
+function startThemeExam(pool,name){LASTX=()=>startThemeExam(pool,name);const L=pool.length,n=L<10?1:Math.min(4,Math.floor((L-5)/5)),acc=[],blocks=[];
   for(let i=0;i<n;i++){const b=pickFresh(pool,5,acc);acc.push(...b);blocks.push(b)}
   runExam('Examen · '+name,blocks,()=>pickFresh(pool,5,S.list),blocks.map((_,i)=>name+' · bloc '+(i+1)))}
 /* fin des questions principales : 5 questions supplémentaires par bloc où il y a une faute (ou une question sans réponse), +5 min chacune */
@@ -942,7 +974,9 @@ function renderResult(){
   <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${S.th&&st.tt[S.th]?`<p class="sub">Billet terminé ${st.tt[S.th].n} fois · meilleur résultat : ${S.list.length-st.tt[S.th].best}/${S.list.length}</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}${revThemes(bad)}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}${S.th&&S.thB<S.thN-1?'<button class="btn" id="nxt">Billet suivant</button>':''}<button class="btn ghost" id="back">${S.th?'Retour au thème':'Accueil'}</button></div>`;
   {const th=S.th&&S.thId,b=S.thB,nx=$('#nxt');if(nx)nx.onclick=()=>startThemeTicket(th,b+1);$('#back').onclick=th?()=>{render.theme(th);scrollTo(0,0)}:render.home}const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
-  if((S.t||S.th||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWin,300);else if(pass&&(S.t||S.th||E))setTimeout(()=>copTease(ok+'/'+S.list.length),300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);else if(ok===S.list.length&&S.list.length)setTimeout(()=>/^(Mes erreurs|Fautes)/.test(S.title)?copWoman('policiere-illu',FIXMSG[LANG]||FIXMSG.fr,'Молодец! Все ошибки исправлены.'):copWin(),300);
+  const isEx=!!E,n=S.list.length,perfect=!bad.length&&!skip&&!(E&&E.fail),th=S.thId,tb=S.thB,tk=S.t,tm=S.mode,lx=LASTX;
+  const again=E?lx:S.th?()=>startThemeTicket(th,tb):tk?()=>startTicket(tk,tm==='free'?'ticket':tm):null;
+  if(pass&&(S.t||S.th||E))setTimeout(()=>missionWin(ok,n,isEx,perfect),300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>missionFail(ok,n,isEx,bad,again,E&&E.fail),350);else if(ok===S.list.length&&S.list.length)setTimeout(()=>/^(Mes erreurs|Fautes)/.test(S.title)?copWoman('policiere-illu',FIXMSG[LANG]||FIXMSG.fr,'Молодец! Все ошибки исправлены.'):copWin(),300);
 }
 
 
@@ -1032,7 +1066,31 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre','policiere-illu','alina-main','alina-baton','alina-menottes','alina-pouce'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere-illu','alina-main','alina-baton','alina-menottes','alina-pouce','mission-ok','mission-ko'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+/* fin de billet ou d'examen : écran « Mission réussie » ou « Wasted » (illustrations dans cop/mission-ok et cop/mission-ko) */
+function mClose(d,then){if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>{d.remove();if(then)then()},300)}
+function missionWin(ok,n,isEx,perfect){document.querySelectorAll('.cop,.mres').forEach(e=>e.remove());SND.play('win');
+  const nb=Math.max(1,5-(n-ok)),star='<path d="M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z" fill="#FFC531" stroke="#FFF2B0" stroke-width=".8" stroke-linejoin="round"/>';
+  const d=document.createElement('div');d.className='mres ok';
+  d.innerHTML=`<h2 class="mt">Mission réussie</h2><p class="mru">Миссия выполнена</p>
+  <div class="mart" role="img" aria-label="Policière qui lève le pouce" style="--ar:764/635;background-image:url(cop/mission-ok.webp)"></div>
+  <div class="stars">${[0,1,2,3,4].map(i=>`<svg viewBox="0 0 24 24" class="${i<nb?'':'off'}" style="animation-delay:${.3+i*.12}s">${star}</svg>`).join('')}</div>
+  <div class="msc">${ok}<i>/</i>${n}</div>
+  <div class="rib">✓ ${isEx?'Examen validé':'Billet réussi'} ✓<em class="ru">${isEx?'Экзамен сдан':'Билет решён'}</em></div>
+  <button class="mbtn" id="mgo"><span>Continuer</span></button><button class="mlink" id="mres">Voir mes résultats</button>`;
+  document.body.appendChild(d);
+  d.querySelector('#mgo').onclick=()=>mClose(d,perfect?()=>setTimeout(copWin,150):null);
+  d.querySelector('#mres').onclick=()=>mClose(d)}
+function missionFail(ok,n,isEx,bad,again,why){document.querySelectorAll('.cop,.mres').forEach(e=>e.remove());SND.play('sad');
+  const d=document.createElement('div');d.className='mres ko';
+  d.innerHTML=`<div class="mart" role="img" aria-label="Policière avec la feuille d'examen ratée" style="--ar:749/705;background-image:url(cop/mission-ko.webp)"></div>
+  <h2 class="wst">Wasted</h2><p class="mru">${isEx?'Examen échoué':'Billet échoué'}</p><p class="mru2">${isEx?'Экзамен не сдан':'Билет не решён'}</p>
+  <div class="msc">${ok}<i>/</i>${n}</div>${why?`<p class="sub" style="color:#FFB3B8;margin:10px 0 0">${esc(why)}</p>`:''}
+  ${again?'<button class="mbtn" id="mgo"><span>Réessayer</span></button>':''}${bad.length?'<button class="mlink" id="mrev">Revoir mes erreurs</button>':''}<button class="mlink" id="mres" style="border-color:transparent;background:none;font-size:15px">Voir mes résultats</button>`;
+  document.body.appendChild(d);
+  const g=d.querySelector('#mgo');if(g)g.onclick=()=>mClose(d,again);
+  const r=d.querySelector('#mrev');if(r)r.onclick=()=>mClose(d,()=>startList(bad,'Fautes · '+S.title,'free'));
+  d.querySelector('#mres').onclick=()=>mClose(d)}
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
