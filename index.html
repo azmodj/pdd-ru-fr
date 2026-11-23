@@ -378,7 +378,7 @@ body{background:var(--night) radial-gradient(120% 60% at 70% -10%,#3A1F4F 0,tran
 .top{background:rgba(20,14,32,.88);border-bottom:0}
 .aff{font-family:var(--fa);font-weight:400;text-transform:uppercase;font-style:normal;display:inline-block;transform:skewX(-9deg);letter-spacing:.005em;line-height:.95}
 /* panneau à coins coupés (haut-gauche, bas-droite) avec bordure sur les diagonales */
-.cut,.card0,.rows,.anbars,.anf,.rev,.corr,.qorig,.kw,.stk,.lvlc,.dq2,.rewd{--c:14px;border:2px solid transparent;border-radius:0;
+.cut,.card0,.rows,.anbars,.anf,.rev,.corr,.qorig,.kw,.stk,.lvlc,.dq2,.rewd,.tile,.menu .row,.pend button{--c:14px;border:2px solid transparent;border-radius:0;
  clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));
  background:linear-gradient(135deg,transparent 50%,var(--bd) 50%,var(--bd) calc(50% + 2.8px),transparent 0) 0 0/var(--c) var(--c) no-repeat border-box,
   linear-gradient(-45deg,transparent 50%,var(--bd) 50%,var(--bd) calc(50% + 2.8px),transparent 0) 100% 100%/var(--c) var(--c) no-repeat border-box,
@@ -396,18 +396,18 @@ h1{font-family:var(--fa);font-weight:400;text-transform:uppercase;transform:skew
 h2{font-family:var(--fa);font-weight:400;text-transform:uppercase;letter-spacing:.02em}
 .verdict b,.rev h3,.kw h3{font-family:var(--fa);font-weight:400;text-transform:uppercase;letter-spacing:.02em}
 /* accueil façon affiche */
-.hero2{position:relative;margin:-18px calc(-1*max(4vw,14px)) 16px;min-height:clamp(470px,128vw,640px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.hero2 .hbg{position:absolute;inset:0;background:url(cop/alina-ok.webp) right -110px top 0/auto 92% no-repeat,linear-gradient(180deg,#3A1F4F,#6A2E4E 45%,#2A1736 80%)}
-.hero2::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,14,32,.72),rgba(20,14,32,0) 58%),linear-gradient(180deg,rgba(20,14,32,0) 62%,var(--night) 96%)}
-.hero2 .htx{position:relative;z-index:1;padding:22px max(4vw,16px) 0;max-width:62%}
-.hero2 h1{font-size:clamp(58px,17vw,96px);line-height:.9;margin:0;color:#FFF4E2;text-shadow:3px 3px 0 #120A1C,0 0 24px rgba(0,0,0,.5);transform:skewX(-9deg)}
+.hero2{position:relative;container-type:inline-size;margin:-18px calc(-1*max(4vw,14px)) 16px;min-height:0;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.hero2 .hbg{position:absolute;inset:0;background:url(img/ui/hero-accueil.webp) 50% 0/100% auto no-repeat,url(cop/alina-ok.webp) right -110px top 0/auto 92% no-repeat,linear-gradient(180deg,#3A1F4F,#6A2E4E 45%,#2A1736 80%)}
+.hero2::after{content:"";position:absolute;inset:0 0 auto;height:70.3cqw;background:linear-gradient(90deg,rgba(20,14,32,.55),rgba(20,14,32,0) 55%),linear-gradient(180deg,rgba(20,14,32,0) 78%,var(--night))}
+.hero2 .htx{position:relative;z-index:1;padding:20px max(4vw,16px) 0;max-width:62%;min-height:66cqw}
+.hero2 h1{font-size:clamp(52px,15.5cqw,110px);line-height:.9;margin:0;color:#FFF4E2;text-shadow:3px 3px 0 #120A1C,0 0 24px rgba(0,0,0,.5);transform:skewX(-9deg)}
 .hero2 .hru{display:inline-block;margin:10px 0 0;font:800 italic clamp(20px,5.8vw,30px)/1.1 var(--fb);white-space:nowrap;color:var(--orange1);text-shadow:2px 2px 0 #120A1C;position:relative;padding-bottom:8px}
 .hero2 .hru::after{content:"";position:absolute;left:0;right:-6%;bottom:0;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--orange2),var(--orange1) 70%,transparent);transform:skewX(-20deg) rotate(-2deg)}
 .hero2 p{margin:12px 0 0;font-weight:700;font-size:17px;color:#FFF4E2;text-shadow:1px 1px 0 #120A1C}
 .hero2 .go{position:relative;z-index:1;margin:0 max(4vw,14px) 6px;min-height:72px;display:flex;align-items:center;gap:10px;padding:0 24px;font:400 clamp(21px,6.1vw,36px)/1 var(--fa);text-transform:none;white-space:nowrap;box-shadow:none;filter:drop-shadow(0 5px 0 #8A3F00)}
 .hero2 .go span:first-child{transform:skewX(-9deg);display:inline-block}
 .hero2 .go:active{transform:translateY(3px);filter:drop-shadow(0 2px 0 #8A3F00)}
-@media(min-width:720px){.hero2{margin:-18px 0 18px;min-height:440px}.hero2 .hbg{background-position:right -4% top 0,0 0;background-size:auto 100%,cover}.hero2 .htx{max-width:56%;padding:40px 32px 0}.hero2 .go{margin:0 32px 26px;align-self:flex-start;min-width:420px}}
+@media(min-width:720px){.hero2{margin:-18px 0 18px}.hero2 .htx{max-width:56%;padding:40px 32px 0}.hero2 .go{margin:0 32px 26px;align-self:flex-start;min-width:420px}}
 /* cartes série, niveau, défi, récompenses */
 .stk{padding:14px 16px 12px;margin:0 0 12px}
 .stkt{display:flex;align-items:center;gap:10px}.stkt .flame svg{width:34px;height:42px}.stkt .flame b{font:400 44px/1 var(--fa);color:#FFF4E2;transform:skewX(-9deg);display:inline-block}
@@ -430,6 +430,34 @@ h2{font-family:var(--fa);font-weight:400;text-transform:uppercase;letter-spacing
 .dq2 .dqm{color:var(--mut);font-size:14px;margin:10px 0 0}.dq2 .dqn{color:var(--teal);font-weight:700;margin:0 0 8px}
 .rewd{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;margin:0 0 16px;color:#FFF4E2;font-weight:800;font-size:17px;text-align:left}
 .rewd svg{width:36px;height:40px;flex:none}.rewd i{width:2px;align-self:stretch;background:var(--bd)}
+
+/* en-tête : silhouette de Moscou au crépuscule */
+.top{background:linear-gradient(180deg,rgba(20,14,32,.25),rgba(20,14,32,.9)),url(img/ui/skyline.webp) 50% 72%/cover;padding-top:12px;padding-bottom:12px}
+.plate{border-color:#FF4F7B;border-width:3px;font-size:24px;padding:4px 14px;background:#120A1C;box-shadow:none}
+.plate,.tbtn{transform:skewX(-6deg)}#langbtn,#lexbtn{background:#120A1C;border-color:rgba(244,238,230,.85);font-weight:800;font-style:italic}
+body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);background-position:50% 60%}
+/* billets en cours */
+.pend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 14px}
+.pend button{--c:9px;--bd:var(--orange1);--pbg:linear-gradient(#1E1426,#1E1426);color:#FFF4E2;min-height:46px;padding:0 4px;font:800 italic clamp(11px,3.3vw,16px) var(--fb);white-space:nowrap}
+/* tuiles illustrées */
+.tiles{gap:12px}
+.tile{--c:16px;--pbg:radial-gradient(circle at 1px 1px,rgba(255,255,255,.09) 1px,transparent 1.6px) 0 0/7px 7px padding-box,linear-gradient(170deg,color-mix(in srgb,var(--bd) 38%,#1A1228),#1A1228 70%);
+ aspect-ratio:.84;max-height:none;padding:0;display:flex;flex-direction:column;overflow:hidden}
+.tile .tt{display:flex;flex-direction:column;padding:12px 14px 6px;position:relative;z-index:1}
+.tile b{font-size:clamp(24px,7.2vw,40px);white-space:nowrap;line-height:.95;color:#FFF4E2;text-shadow:2px 2px 0 #120A1C}
+.tile .ru{font:800 italic 17px/1.15 var(--fb);color:#F0E4F7;opacity:1;margin-top:2px}
+.tile small{font-style:italic;font-size:13px;max-width:none;color:#E9DFF2;opacity:1}
+.tart{flex:1;margin:0 2px 2px;background:50% 0/cover no-repeat;position:relative;min-height:0}
+.tart svg{display:none}
+.tile:not(:has(.tart[style*="url"])) .tart svg{display:block}
+@media(prefers-reduced-motion:no-preference){.tile:active{transform:scale(.97)}}
+/* menu en panneaux séparés */
+.rows.menu{background:none;clip-path:none;border:0;overflow:visible;display:grid;gap:10px}
+.menu .row{--c:14px;--pbg:linear-gradient(90deg,#2A1A36,#1E1426 60%);min-height:86px;padding:8px 16px 8px 10px;gap:14px}
+.menu .row b{font:800 italic 21px/1.15 var(--fb);color:#FFF4E2}.menu .row .ru{font:700 italic 16px var(--fb);color:#CDBFDD}
+.menu .row small{display:none}.menu .row::after{color:#FFF4E2;font-size:30px}
+.rimg{flex:none;width:96px;height:64px;background:50% 50%/cover no-repeat;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.menu .row>svg{width:52px;height:52px;margin:0 30px}
 @media(prefers-reduced-motion:no-preference){.hero2 .htx>*{animation:rise2 .45s ease-out both}.hero2 .htx>*:nth-child(2){animation-delay:.07s}.hero2 .go{animation:rise2 .45s .14s ease-out both}}
 </style>
 </head>
@@ -558,8 +586,10 @@ let flashMsg='';
 const render={
 home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.keys(st.f||{}).length;
   const err=Object.values(st.r).filter(x=>x===0).length,pct=(a,b)=>Math.round(a/b*100);
-  const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c0:${c}"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small>${ILL[ill]}</button>`;
-  const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
+  const TART={exam:['tile-exam','#FF4F7B'],tickets:['tile-billets','#33D6E0'],topics:['tile-themes','#3FA9FF'],errors:['tile-erreurs','#FF9A2E']};
+  const tile=(go,c,t,ru,s,ill)=>`<button class="tile" data-go="${go}" style="--c0:${c};--bd:${TART[go][1]}"><span class="tt"><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span><span class="tart" style="background-image:url(img/ui/${TART[go][0]}.webp)">${ILL[ill]}</span></button>`;
+  const RIMG={ana:'ico-analyse',texam:'ico-themes-exam',fav:'ico-favoris'};
+  const row=(go,ill,t,ru,s)=>`<button class="row" data-go="${go}">${RIMG[go]?`<span class="rimg" style="background-image:url(img/ui/${RIMG[go]}.webp)"></span>`:ILL[ill]}<span><b>${t}</b><em class="ru">${ru}</em><small>${s}</small></span></button>`;
   const nw=!s.seen,pend=[...Object.entries(st.p).map(([t,x])=>({d:x.d||0,go:()=>startTicket(+t,'ticket')})),
     ...Object.entries(st.tp||{}).map(([key,x])=>{const i=key.lastIndexOf('|');return{d:x.d||0,go:()=>startThemeTicket(key.slice(0,i),+key.slice(i+1))}})].sort((a,b)=>b.d-a.d);
   const nextT=()=>{for(let t=1;t<=40;t++)if(!st.tk[t])return t;return Object.keys(st.tk).sort((a,b)=>st.tk[a].d-st.tk[b].d)[0]|0||1};
@@ -567,20 +597,17 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
    <h1 id="hh">${nw?'Bienvenue':'Bon retour'}</h1><br><em class="hru">${nw?'Добро пожаловать':'С возвращением'}</em>
    <p>${nw?'Entraînez-vous. Vous allez y arriver.':`${s.seen} questions vues sur 800`}</p></div>
    <button class="btn go" id="herogo"><span>${nw?'Commencer':'Reprendre l\'entraînement'}</span><span class="chev" aria-hidden="true">»</span></button></section>`;
-  app.innerHTML=hero+dailyCard()+`<div class="card0">
-   <div class="brow"><span>Questions vues<em class="ru">Пройдено вопросов</em></span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
-   <div class="bars2"><div><div class="brow"><span>Billets réussis<em class="ru">Билеты без ошибок</em></span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
-   <div><div class="brow"><span>Réussite<em class="ru">Верных ответов</em></span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
-   <p class="note" id="offst" style="margin:10px 0 0"></p></div>
-  ${Object.keys(st.p).length?`<h2>Billets à terminer</h2><div class="pend">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
+  app.innerHTML=hero+`
+  ${Object.keys(st.p).length?`<div class="pend" aria-label="Billets à terminer">${Object.keys(st.p).sort((a,b)=>a-b).map(t=>`<button data-rt="${t}">Billet ${t} · ${Object.keys(st.p[t].ans).length}/20</button>`).join('')}</div>`:''}
   ${flashMsg?`<p class="note" style="color:var(--red)">${esc(flashMsg)}</p>`:''}
+  `+dailyCard()+`
   <div class="tiles">
    ${tile('exam','#8C4558','Examen','Экзамен','Comme au ГИБДД','exam')}
    ${tile('tickets','#2E6B55','Billets','Билеты','40 billets de 20 questions','tickets')}
    ${tile('topics','#2D4F86','Thèmes','Темы','Entraînement en billets','topics')}
    ${tile('errors','#8A5A2B','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
-  <div class="rows">
+  <div class="rows menu">
    ${row('ana','ana','Mon analyse','Мой анализ','Points forts, points faibles et quiz ciblé')}
    ${row('texam','texam','Thèmes · examen','Экзамен по темам','Un examen comme au ГИБДД sur le thème choisi')}
    ${row('fav','fav','Questions favorites','Избранное',nf?nf+' question'+(nf>1?'s':'')+' à mémoriser':'Touche l\'étoile d\'une question pour l\'ajouter ici')}
@@ -589,7 +616,12 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
    ${row('lexique','lexique','Lexique RU → FR','Словарь','Tous les mots-clés')}
    ${TTS?row('voix','vocab','Voix de lecture','Голос','Choisir la voix russe et la vitesse'):''}
    ${row('reset','reset','Remettre à zéro','Сбросить прогресс','Efface la progression (garde la série et les XP)')}
-  </div>`;
+  </div>
+  <div class="card0">
+   <div class="brow"><span>Questions vues<em class="ru">Пройдено вопросов</em></span><span>${s.seen}/800</span></div><div class="bar"><i style="width:${pct(s.seen,800)}%"></i></div>
+   <div class="bars2"><div><div class="brow"><span>Billets réussis<em class="ru">Билеты без ошибок</em></span><span>${s.pass}/40</span></div><div class="bar"><i style="width:${pct(s.pass,40)}%;background:#1f8a3b"></i></div></div>
+   <div><div class="brow"><span>Réussite<em class="ru">Верных ответов</em></span><span>${s.seen?pct(s.ok,s.seen):0}%</span></div><div class="bar"><i style="width:${s.seen?pct(s.ok,s.seen):0}%;background:#f2b705"></i></div></div></div>
+   <p class="note" id="offst" style="margin:10px 0 0"></p></div>`;
   if(window.offStat)offStat();
   $('#herogo').onclick=()=>pend.length?pend[0].go():startTicket(nextT(),'ticket');
   $('#dqgo').onclick=startDaily;
