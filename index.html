@@ -701,7 +701,7 @@ function renderResult(){
   <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}<button class="btn ghost" id="back">Accueil</button></div>`;
   $('#back').onclick=render.home;const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
-  if((S.t||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWoman,300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);
+  if((S.t||E)&&!bad.length&&!skip&&!(E&&E.fail))setTimeout(copWin,300);else if(pass&&(S.t||E))setTimeout(()=>copTease(ok+'/'+S.list.length),300);else if(pass)setTimeout(celebrate,250);else if(pass===false)setTimeout(()=>copSad(bad),350);
 }
 
 
@@ -766,10 +766,15 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
 /* billet échoué : policier triste sous la pluie, puis il encourage et propose de corriger les fautes */
 /* sans faute (billet 20/20 ou examen sans faute) : la policière félicite, avec gyrophares bleu et rouge */
 const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!'};
-function copWoman(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
+const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`};
+/* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
+const POLWIN=['policiere'];
+function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
+function copTease(score){copWoman('policiere2',(TEASE[LANG]||TEASE.fr)(score),'Молодец! Ответь на всё правильно — и тебя ждёт сюрприз…')}
+function copWoman(img,msg,ru){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
   const d=document.createElement('div');d.className='cop pol';
-  d.innerHTML=`<div class="box"><div class="polf"><img src="cop/policiere.webp" alt="Policière qui te félicite"></div>
-  <div class="bub">${POLMSG[LANG]||POLMSG.fr}<i>Поздравляю! Сегодня я тебя не арестую.</i></div>
+  d.innerHTML=`<div class="box"><div class="polf"><img src="cop/${img||'policiere'}.webp" alt="Policière qui te félicite"></div>
+  <div class="bub">${msg||POLMSG[LANG]||POLMSG.fr}<i>${ru||'Поздравляю! Сегодня я тебя не арестую.'}</i></div>
   <button class="btn go">Merci !</button></div>`;
   document.body.appendChild(d);
   const close=()=>{if(!d.isConnected)return;d.classList.add('out');setTimeout(()=>d.remove(),350)};
@@ -788,7 +793,7 @@ function copSad(bad){document.querySelectorAll('.cop').forEach(e=>e.remove());SN
   d.onclick=e=>{if(!up){cheer();return}if(e.target===d)close()};
   const f=d.querySelector('#copfix');if(f)f.onclick=e=>{e.stopPropagation();close();startList(bad,'Fautes · '+S.title,'free')};
   d.querySelector('#copno').onclick=e=>{e.stopPropagation();close()}}
-['pouce','saut','stop','accueil','neutre','policiere'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
+['pouce','saut','stop','accueil','neutre','policiere','policiere2'].forEach(n=>{new Image().src='cop/'+n+'.webp'});
 function celebrate(){if(document.querySelector('.party'))return;SND.play('win');
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const t=document.createElement('div');t.className='bravo';t.innerHTML='<b>Bravo !</b><i>Поздравляем!</i>';document.body.appendChild(t);
