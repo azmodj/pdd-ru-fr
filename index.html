@@ -1024,7 +1024,7 @@ function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.
 function logAns(k,ok){st.h=st.h||[];st.h.push([k,ok?1:0,S.fr?1:0,Date.now()/1e3|0]);if(st.h.length>6000)st.h=st.h.slice(-5000)}
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;logAns(k,j===Q[k].c);if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};if(S.th)st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save();
   if(S.ex){SND.play('tap');S.ex.msg='';renderQuiz();if(S.i<S.list.length-1)setTimeout(()=>{if(S.view==='quiz'&&!S.done&&S.list[S.i]===k)go(S.i+1,1)},350);return}
-  SND.play(j===Q[k].c?'ok':'ko');markPop(j===Q[k].c);if(j!==Q[k].c)SND.fault();
+  SND.play(j===Q[k].c?'ok':'ko');markPop(j===Q[k].c);if(j!==Q[k].c)SND.fault();else SND.bravo();
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
   if(S.ex){examEval();st.xu=st.xu||{};S.list.forEach(x=>st.xu[x]=(st.xu[x]||0)+1);save()}
@@ -1230,13 +1230,14 @@ const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd'
     sad(){n(55,0,.24,.55);n(53,.38,.24,.55);n(50,.76,.26,1.1)},
     hope(){[48,52,55,60].forEach((m,i)=>n(m,i*.1,.24,.5));n(64,.45,.22,1.1)},
     badge(){n(60,0,.32,.5);n(67,.12,.32,.6);n(72,.24,.36,1)}};
-  /* phrases enregistrées dites à chaque faute (snd/faute-01 … 10, avec 0,35 s de silence au début) : tirées au hasard, toutes différentes avant de recommencer.
+  /* phrases enregistrées dites à chaque faute (snd/faute-01 … 10 pour les fautes, snd/bravo-01 … 10 pour les bonnes réponses, avec 0,35 s de silence au début) : tirées au hasard, toutes différentes avant de recommencer.
      Lecteur <audio> plutôt que Web Audio : sur iPhone il joue aussi quand le bouton silencieux est activé, et play() est appelé directement dans le toucher. */
-  const FN=10,el={};let bag=[],last=-1;
-  const get=i=>{if(!el[i]){const a=new Audio('snd/faute-'+String(i).padStart(2,'0')+'.mp3');a.preload='auto';el[i]=a}return el[i]};
-  function fault(){try{if(!on())return;if(!bag.length){bag=Array.from({length:FN},(_,i)=>i+1).sort(()=>Math.random()-.5);if(bag[0]===last)bag.push(bag.shift())}
-    const i=bag.shift();last=i;const a=get(i);a.currentTime=0;a.volume=1;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-  return{play(x){try{if(ctx())P[x]()}catch(e){}},fault,on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok')},unlock:()=>{try{ctx();for(let i=1;i<=FN;i++)get(i).load()}catch(e){}}}})();
+  const FN=10,el={},bags={faute:[],bravo:[]},last={};
+  const get=(k,i)=>{const id=k+i;if(!el[id]){const a=new Audio('snd/'+k+'-'+String(i).padStart(2,'0')+'.mp3');a.preload='auto';el[id]=a}return el[id]};
+  function voice(k){try{if(!on())return;let b=bags[k];if(!b.length){b=bags[k]=Array.from({length:FN},(_,i)=>i+1).sort(()=>Math.random()-.5);if(b[0]===last[k])b.push(b.shift())}
+    const i=b.shift();last[k]=i;const a=get(k,i);a.currentTime=0;a.volume=1;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
+  const fault=()=>voice('faute'),bravo=()=>voice('bravo');
+  return{play(x){try{if(ctx())P[x]()}catch(e){}},fault,bravo,on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok')},unlock:()=>{try{ctx();for(let i=1;i<=FN;i++){get('faute',i).load();get('bravo',i).load()}}catch(e){}}}})();
 document.addEventListener('touchend',SND.unlock,{once:true});document.addEventListener('click',SND.unlock,{once:true});
 
 /* ---------- Défi du jour : série, XP, niveaux, récompenses ---------- */
@@ -1322,7 +1323,7 @@ function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.
 function answerDaily(j){if(S.pick!==null)return;const k=S.list[S.i],good=j===Q[k].c;S.pick=j;st.r[k]=good?1:0;logAns(k,good);
   if(good){S.combo++;S.maxc=Math.max(S.maxc,S.combo);S.last=(S.again[S.i]?5:10)+(S.combo>=3?5:0);S.xp+=S.last}
   else{S.combo=0;S.wrong[k]=1;if(!S.again[S.i]){S.list.push(k);S.again[S.list.length-1]=1}}
-  save();fx(good);markPop(good);if(!good)SND.fault();if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
+  save();fx(good);markPop(good);if(!good)SND.fault();else SND.bravo();if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
   renderDaily();if(good)floatXp('+'+S.last+' XP')}
 function floatXp(t){const e=document.createElement('div');e.className='fxp';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
 function finishDaily(){const d=D(),t=dkey(),first=!(d.days[t]&&d.days[t].done),perfect=!Object.keys(S.wrong).length,hr=new Date().getHours();
