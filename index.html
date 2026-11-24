@@ -568,6 +568,9 @@ body:has(.hero2) .top{padding-top:clamp(118px,34vw,190px)}
 .dq2 .sub2,.dq2 .sub2 span,.dq2 p.dqm{font-family:var(--fn);font-weight:800;font-style:normal;font-size:clamp(16px,4.6vw,20px);text-transform:uppercase;color:#FFF4E2}
 .stk .week span i{font-family:var(--fn);font-weight:800;font-style:normal;font-size:clamp(18px,5.4vw,22px)}
 .tiles .tile b{white-space:normal;overflow-wrap:anywhere}
+#sndbtn{background:#120A1C;border-color:rgba(244,238,230,.85);padding:0 10px;min-width:44px;display:grid;place-items:center}
+#sndbtn svg{width:24px;height:24px;color:#FFF4E2}#sndbtn.off svg{color:#FF4F7B}
+.top .plate{white-space:nowrap;font-size:clamp(14px,4.2vw,19px);padding-left:12px;padding-right:12px}.top .tbtn{padding-left:9px;padding-right:9px}.top{gap:6px}
 </style>
 </head>
 <body>
@@ -577,6 +580,7 @@ body:has(.hero2) .top{padding-top:clamp(118px,34vw,190px)}
   <span class="sp"></span>
   <button class="tbtn" id="langbtn" aria-label="Langue / Language"></button>
   <button class="tbtn" id="lexbtn">Lexique</button>
+  <button class="tbtn" id="sndbtn"></button>
 </header>
 <main id="app"><p class="note">Chargement des 800 questions…</p></main>
 <script>
@@ -945,19 +949,21 @@ function vmPair(v,a,b){/* a,b = {s,g} de colonnes opposées */
   if(r===f){v.ok[r]=1;st.v[r]=v.err[r]?0:1;save();
     if(vmDone(v))fx(!v.gis.some(g=>v.err[g]));else SND.play('ok');return}
   v.err[r]=1;st.v[r]=0;save();v.bad=['r'+r,'f'+f];SND.play('ko')}
+/* lire un mot russe du quiz, seulement si le son de l'appli est activé (bouton de l'en-tête) */
+const sayW=g=>{if(SND.on()&&TTS)say(G[g][0])};
 function vmMount(wrap,v,onDone){
   const draw=()=>{wrap.innerHTML=vmHtml(v);bind()};
-  const act=(sd,g)=>{if(sd==='r')say(G[g][0]);if(v.ok[g])return;const was=vmDone(v);
+  const act=(sd,g,tap)=>{if(tap&&sd==='r')sayW(g);if(v.ok[g])return;const was=vmDone(v);
     if(!v.sel||v.sel.s===sd)v.sel=v.sel&&v.sel.s===sd&&v.sel.g===g?null:{s:sd,g};
     else{vmPair(v,v.sel,{s:sd,g});if(v.bad)setTimeout(()=>{v.bad=null;if(wrap.isConnected)draw()},600)}
     draw();if(!was&&vmDone(v)&&onDone)onDone()};
   function bind(){wrap.querySelectorAll('.vmg button').forEach(btn=>{
     const sd=btn.dataset.s,g=+btn.dataset.g;let st0=null,gh=null,moved=false;
-    btn.onclick=()=>{if(moved){moved=false;return}act(sd,g)};
+    btn.onclick=()=>{if(moved){moved=false;return}act(sd,g,1)};
     btn.onpointerdown=ev=>{if(v.ok[g])return;st0={x:ev.clientX,y:ev.clientY};moved=false;try{btn.setPointerCapture(ev.pointerId)}catch(_){}};
     btn.onpointermove=ev=>{if(!st0)return;
       if(!gh){if(Math.hypot(ev.clientX-st0.x,ev.clientY-st0.y)<8)return;
-        moved=true;gh=document.createElement('div');gh.className='vmghost';gh.textContent=btn.textContent;document.body.appendChild(gh);btn.classList.add('drag')}
+        moved=true;if(sd==='r')sayW(g);gh=document.createElement('div');gh.className='vmghost';gh.textContent=btn.textContent;document.body.appendChild(gh);btn.classList.add('drag')}
       gh.style.left=ev.clientX+'px';gh.style.top=ev.clientY+'px';ev.preventDefault()};
     const end=ev=>{if(!st0)return;st0=null;if(!gh)return;gh.remove();gh=null;btn.classList.remove('drag');
       const el=document.elementFromPoint(ev.clientX,ev.clientY),t=el&&el.closest('.vmg button');
@@ -1153,7 +1159,7 @@ function missionWin(ok,n,isEx,perfect){document.querySelectorAll('.cop,.mres').f
   <div class="mart" role="img" aria-label="Policière qui lève le pouce" style="--ar:764/635;background-image:url(cop/mission-ok.webp)"></div>
   <div class="stars">${[0,1,2,3,4].map(i=>`<svg viewBox="0 0 24 24" class="${i<nb?'':'off'}" style="animation-delay:${.3+i*.12}s">${star}</svg>`).join('')}</div>
   <div class="msc">${ok}<i>/</i>${n}</div>
-  <div class="rib">✓ ${isEx?'Examen validé':'Billet réussi'} ✓<em class="ru">${isEx?'Экзамен сдан':'Билет решён'}</em></div>
+  <div class="rib">✓ ${isEx==='vocab'?'Vocabulaire validé':isEx?'Examen validé':'Billet réussi'} ✓<em class="ru">${isEx==='vocab'?'Словарный тест сдан':isEx?'Экзамен сдан':'Билет решён'}</em></div>
   <button class="mbtn" id="mgo"><span>Continuer</span></button><button class="mlink" id="mres">Voir mes résultats</button>`;
   document.body.appendChild(d);
   d.querySelector('#mgo').onclick=()=>mClose(d,perfect?()=>setTimeout(copWin,150):null);
@@ -1161,7 +1167,7 @@ function missionWin(ok,n,isEx,perfect){document.querySelectorAll('.cop,.mres').f
 function missionFail(ok,n,isEx,bad,again,why){document.querySelectorAll('.cop,.mres').forEach(e=>e.remove());SND.play('sad');
   const d=document.createElement('div');d.className='mres ko';
   d.innerHTML=`<div class="mart" role="img" aria-label="Policière avec la feuille d'examen ratée" style="--ar:749/705;background-image:url(cop/mission-ko.webp)"></div>
-  <h2 class="wst">Wasted</h2><p class="mru">${isEx?'Examen échoué':'Billet échoué'}</p><p class="mru2">${isEx?'Экзамен не сдан':'Билет не решён'}</p>
+  <h2 class="wst">Wasted</h2><p class="mru">${isEx==='vocab'?'Vocabulaire échoué':isEx?'Examen échoué':'Billet échoué'}</p><p class="mru2">${isEx==='vocab'?'Словарный тест не сдан':isEx?'Экзамен не сдан':'Билет не решён'}</p>
   <div class="msc">${ok}<i>/</i>${n}</div>${why?`<p class="sub" style="color:#FFB3B8;margin:10px 0 0">${esc(why)}</p>`:''}
   ${again?'<button class="mbtn" id="mgo"><span>Réessayer</span></button>':''}${bad.length?'<button class="mlink" id="mrev">Revoir mes erreurs</button>':''}<button class="mlink" id="mres" style="border-color:transparent;background:none;font-size:15px">Voir mes résultats</button>`;
   document.body.appendChild(d);
@@ -1194,7 +1200,7 @@ function startVocab(){
 function renderVocab(){const N=S.list.length,all=S.list.flatMap(v=>v.gis);
   if(S.i>=N){const ok=all.filter(g=>!S.list.some(v=>v.err[g])).length,pass=ok>=all.length-2;
     app.innerHTML=`<div class="res"><p class="sub">Quiz de vocabulaire · trouvés du premier coup</p><b class="${pass?'pass':'fail'}">${ok}/${all.length}</b></div>${pass?'<i hidden id="cel"></i>':''}<div class="kw"><ul>${all.map(g=>`<li><b>${S.list.some(v=>v.err[g])?'<span style="color:var(--red)">✕</span> ':''}${esc(G[g][0])}</b><span>${esc(G[g][1])}</span></li>`).join('')}</ul></div><div class="nav"><button class="btn" id="again">Encore une série</button><button class="btn ghost" id="back">Accueil</button></div>`;
-    $('#again').onclick=startVocab;$('#back').onclick=render.home;if($('#cel'))setTimeout(celebrate,250);return}
+    $('#again').onclick=startVocab;$('#back').onclick=render.home;setTimeout(()=>pass?missionWin(ok,all.length,'vocab',ok===all.length):missionFail(ok,all.length,'vocab',[],startVocab,''),300);return}
   const v=S.list[S.i];
   app.innerHTML=`<div class="qhead"><span class="t">Quiz de vocabulaire · ${S.i+1}/${N}</span></div><div class="kw" style="margin-top:0" id="vmw"></div><div class="nav"><button class="btn" id="next" ${vmDone(v)?'':'disabled'}>${S.i===N-1?'Voir le résultat':'Série suivante'}</button></div>`;
   vmMount($('#vmw'),v,()=>{$('#next').disabled=false});
@@ -1242,7 +1248,7 @@ const SND=(()=>{let ac=null,out=null;const on=()=>localStorage.getItem('pdd-snd'
   function voice(k){try{if(!on())return;let b=bags[k];if(!b.length){b=bags[k]=Array.from({length:FN},(_,i)=>i+1).sort(()=>Math.random()-.5);if(b[0]===last[k])b.push(b.shift())}
     const i=b.shift();last[k]=i;const a=get(k,i);a.currentTime=0;a.volume=1;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
   const fault=()=>voice('faute'),bravo=()=>voice('bravo');
-  return{play(x){try{if(ctx())P[x]()}catch(e){}},fault,bravo,on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok')},unlock:()=>{try{ctx();for(let i=1;i<=FN;i++){get('faute',i).load();get('bravo',i).load()}}catch(e){}}}})();
+  return{play(x){try{if(ctx())P[x]()}catch(e){}},fault,bravo,on,set(v){localStorage.setItem('pdd-snd',v?'1':'0');if(v)this.play('ok');else{Object.values(el).forEach(a=>{try{a.pause()}catch(e){}});try{speechSynthesis.cancel()}catch(e){}}sndBtn()},unlock:()=>{try{ctx();for(let i=1;i<=FN;i++){get('faute',i).load();get('bravo',i).load()}}catch(e){}}}})();
 document.addEventListener('touchend',SND.unlock,{once:true});document.addEventListener('click',SND.unlock,{once:true});
 
 /* ---------- Défi du jour : série, XP, niveaux, récompenses ---------- */
@@ -1369,6 +1375,11 @@ render.recomp=function(){S={view:'recomp'};const d=D(),lv=level(d.xp);
 
 $('#home').onclick=()=>{clearInterval(tick);if(TTS)speechSynthesis.cancel();render.home()};
 $('#lexbtn').onclick=()=>{clearInterval(tick);render.lexique()};
+/* bouton son de l'en-tête : coupe ou remet tous les sons (effets, phrases, mots lus dans le quiz de vocabulaire), à tout moment */
+function sndBtn(){const b=document.getElementById('sndbtn');if(!b)return;const on=SND.on();b.classList.toggle('off',!on);b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Son activé, toucher pour couper':'Son coupé, toucher pour activer');
+  b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/>${on?'<path d="M15.5 8.5a4.5 4.5 0 0 1 0 7M18 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>':'<path d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'}</svg>`}
+document.getElementById('sndbtn').onclick=()=>{SND.set(!SND.on());if(S&&S.view==='recomp')render.recomp()};sndBtn();
+
 
 /* ---------- démarrage ---------- */
 Promise.all([fetch('q.json').then(r=>r.json()),fetch('g.json').then(r=>r.json()),LFILE[LANG]?fetch(LFILE[LANG]).then(r=>r.json()).catch(()=>null):null]).then(([d,g,e])=>{Q=d;G=g;if(e)useEnglish(e);checkStreak();render.home()}).catch(()=>{app.innerHTML='<p class="note">Impossible de charger les questions.</p>'});
