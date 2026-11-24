@@ -11,6 +11,14 @@ self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil((async()=>{
 })())});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>OLD.test(x)).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==location.origin)return;
+  /* sons (mp3) : Safari les demande par morceaux (en-tête Range) ; on sert le fichier complet depuis le cache et on renvoie le morceau demandé en 206 */
+  if(/\.mp3$/.test(u.pathname)){e.respondWith(caches.open(C).then(async c=>{
+    let r=await c.match(u.pathname.replace(/^.*\/snd\//,'snd/'))||await c.match(e.request.url,{ignoreSearch:true});
+    if(!r){const n=await fetch(e.request.url,{cache:'no-cache'});if(!n.ok)return n;await c.put(e.request.url,n.clone());r=n}
+    const rg=e.request.headers.get('range');if(!rg)return r;
+    const buf=await r.arrayBuffer(),m=/bytes=(\d*)-(\d*)/.exec(rg),L=buf.byteLength;
+    let a0=m&&m[1]!==''?+m[1]:0,b0=m&&m[2]!==''?+m[2]:L-1;if(m&&m[1]===''&&m[2]!==''){a0=Math.max(0,L-+m[2]);b0=L-1}b0=Math.min(b0,L-1);
+    return new Response(buf.slice(a0,b0+1),{status:206,headers:{'Content-Type':'audio/mpeg','Content-Range':`bytes ${a0}-${b0}/${L}`,'Content-Length':String(b0-a0+1),'Accept-Ranges':'bytes'}})}).catch(()=>fetch(e.request)));return}
   const nav=e.request.mode==='navigate';
   const key=nav?'./':e.request;
   const refresh=c=>fetch(e.request,{cache:'no-cache'}).then(n=>{if(n.ok)return c.put(key,n.clone()).then(()=>n);return n});
