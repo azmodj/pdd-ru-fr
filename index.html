@@ -530,6 +530,40 @@ body:has(.hero2) .top .logo{display:block;position:absolute;left:0;right:0;top:m
 .top .logo b{display:block;font-size:clamp(30px,9.5vw,56px);font-weight:900}
 .top .logo small{display:block;font-size:clamp(13px,3.8vw,20px);margin-top:4px;text-shadow:-1px -1px 0 #120A1C,1px -1px 0 #120A1C,-1px 1px 0 #120A1C,1px 1px 0 #120A1C}
 body:has(.hero2) .top{padding-top:clamp(118px,34vw,190px)}
+/* police condensée (Roboto Condensed ExtraBold) pour les sous-titres et textes de l'accueil, avec contour noir */
+@font-face{font-family:"Cond";src:url(fonts/cond.woff) format("woff");font-weight:400 900;font-display:swap}
+:root{--fn:"Cond","Titre","Arial Narrow",sans-serif;--ol1:-1px -1px 0 #120A1C,1px -1px 0 #120A1C,-1px 1px 0 #120A1C,1px 1px 0 #120A1C,0 2px 0 #120A1C}
+.hero2 .hru{font-family:var(--fn);font-weight:800;font-size:clamp(24px,7vw,36px);letter-spacing:0;color:#FFD23A}
+.hero2 p{font-family:var(--fn);font-weight:800;font-size:clamp(19px,5.4vw,24px);line-height:1.15;text-shadow:var(--ol1)}
+.tile .ru,.tile small{font-family:var(--fn);font-weight:800;color:#FFF4E2;text-shadow:var(--ol1)}
+.tile .ru{font-size:clamp(16px,4.6vw,20px);line-height:1.05}.tile small{font-size:clamp(14px,3.9vw,17px);line-height:1.1}
+.tiles.sq .tile .ru{font-size:clamp(14px,4vw,18px)}.tiles.sq .tile small{font-size:clamp(12px,3.5vw,15px)}
+.stk .ru,.week span,.lvlc,.lvlc .ru,.sub2,.dqm,.dqn,.rewd,.mres .mru,.mres .mru2,.mres .mlink{font-family:var(--fn);font-weight:800;font-style:normal}
+.stk .ru,.sub2,.dqm,.week span{text-transform:uppercase;letter-spacing:.02em}
+.stk .ru{font-size:15px;color:#D9CCE6}.week span{font-size:15px}.week span i{font-family:var(--fn);font-style:normal;font-weight:800;font-size:18px}
+.lvlc .brow>span:first-child{font-size:clamp(20px,5.8vw,26px);color:#FFF4E2}.lvlc .brow>span:last-child{font-family:var(--fa);font-weight:900;font-size:clamp(18px,5vw,24px)}.lvlc .ru{font-size:17px;color:#BDB0D0;text-transform:none}
+.sub2{font-size:clamp(14px,4vw,17px);color:#FFF4E2}.dqm{font-size:clamp(14px,4vw,17px);color:#FFF4E2;line-height:1.25}
+.rewd{font-size:clamp(18px,5.4vw,24px);color:#FFF4E2}
+.mres .mru{font-family:var(--fa);font-weight:900;font-size:clamp(20px,6vw,28px);text-shadow:var(--ol1)}.mres .mru2{font-family:var(--fa);font-weight:900;font-size:clamp(16px,4.6vw,21px);color:#FF2A33;text-shadow:var(--ol1)}
+.mres .mlink{font-size:clamp(18px,5.2vw,22px);font-style:normal}
+.mres .wst{color:#FF1E28;text-shadow:-3px -3px 0 #120A1C,3px -3px 0 #120A1C,-3px 3px 0 #120A1C,3px 3px 0 #120A1C,0 6px 0 #120A1C,0 0 30px rgba(255,30,40,.45)}
+.mres .msc{color:#FFF4E2;text-shadow:var(--ol)}.mres .mbtn span{text-shadow:var(--ol)}.mres.ko .mbtn{color:#FFF4E2}
+#dqgo{color:#120A1C}
+/* tailles agrandies comme sur la maquette */
+.tile b{font-size:clamp(24px,7.4vw,40px)}.tiles.sq .tile b{font-size:clamp(19px,5.6vw,30px)}
+.tile .ru{font-size:clamp(19px,5.6vw,24px)}.tile small{font-size:clamp(16px,4.5vw,20px)}
+.tiles.sq .tile .ru{font-size:clamp(16px,4.6vw,21px)}.tiles.sq .tile small{font-size:clamp(14px,4vw,18px)}
+.hero2 p{font-size:clamp(21px,6.2vw,28px)}.hero2 .hru{font-size:clamp(26px,7.6vw,38px)}
+.hero2 .go{font-size:clamp(24px,7.4vw,40px)}
+.stk .ru{font-size:clamp(16px,4.6vw,20px)}.week span{font-size:clamp(16px,4.6vw,19px)}.week span i{font-size:clamp(18px,5.4vw,22px)}
+.lvlc .brow>span:first-child{font-size:clamp(23px,6.6vw,30px)}.lvlc .ru{font-size:clamp(18px,5vw,22px)}
+.sub2{font-size:clamp(16px,4.6vw,20px)}.dqm{font-size:clamp(16px,4.6vw,20px)}.rewd{font-size:clamp(21px,6vw,28px)}
+.dq2 #dqgo,.dq2 #dqgo span{font-family:var(--fa);font-style:normal;font-weight:900;transform:none}
+.mres .mlink{font-size:clamp(20px,5.8vw,26px)}.mres #mres{font-size:clamp(20px,5.8vw,26px)!important;text-shadow:var(--ol1)}
+.tile b{font-size:clamp(22px,6.6vw,38px)}.rewd{font-size:clamp(18px,5.2vw,24px)}
+.dq2 .sub2,.dq2 .sub2 span,.dq2 p.dqm{font-family:var(--fn);font-weight:800;font-style:normal;font-size:clamp(16px,4.6vw,20px);text-transform:uppercase;color:#FFF4E2}
+.stk .week span i{font-family:var(--fn);font-weight:800;font-style:normal;font-size:clamp(18px,5.4vw,22px)}
+.tiles .tile b{white-space:normal;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
