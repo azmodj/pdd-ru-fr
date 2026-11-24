@@ -506,10 +506,35 @@ body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);backg
 .menu .row>svg,.menu .row>.tico{width:52px;height:52px;margin:0 30px}
 .menu .row>.tico{width:64px;height:64px;margin:0 24px}
 @media(prefers-reduced-motion:no-preference){.hero2 .htx>*{animation:rise2 .45s ease-out both}.hero2 .htx>*:nth-child(2){animation-delay:.07s}.hero2 .go{animation:rise2 .45s .14s ease-out both}}
+/* police « bloc » (Montserrat Black, latin + cyrillique) : lettres droites et épaisses, contour noir */
+@font-face{font-family:"Bloc";src:url(fonts/bloc.woff) format("woff");font-weight:400 900;font-display:swap}
+:root{--fa:"Bloc","Titre",Impact,sans-serif;--fc:"Bloc","Titre",sans-serif;--ol:-2px -2px 0 #120A1C,2px -2px 0 #120A1C,-2px 2px 0 #120A1C,2px 2px 0 #120A1C,0 4px 0 #120A1C}
+.aff,.tile b,h1,h2,.plate,.hero2 h1,.hero2 .go,.verdict b,.rev h3,.kw h3,.mres .mt,.mres .wst,.mres .msc,.mres .mbtn{font-weight:900;letter-spacing:0}
+.aff,.tile b,h1,.hero2 h1,.hero2 .go span:first-child,.mres .mt,.mres .msc,.mres .mbtn span{transform:none}
+.mres .wst{transform:none;animation-name:mSlam2}@keyframes mSlam2{from{transform:scale(2.4);opacity:0}}
+.hero2 h1{font-size:clamp(40px,12.5cqw,84px);line-height:.95;text-shadow:var(--ol),0 0 24px rgba(0,0,0,.5)}
+.tile b{font-size:clamp(20px,6vw,34px);line-height:1;text-shadow:var(--ol)}
+.tiles.sq .tile b{font-size:clamp(16px,4.6vw,26px)}
+.hero2 .hru,.hero2 p,.tile .ru,.tile small,.mres .mru,.mres .mru2,.mres .rib{font-family:var(--fa);font-style:normal;font-weight:900}
+.hero2 .hru{text-shadow:var(--ol)}.hero2 p{text-shadow:-1px -1px 0 #120A1C,1px -1px 0 #120A1C,-1px 1px 0 #120A1C,1px 1px 0 #120A1C}
+.tile .ru{font-size:15px;text-shadow:1px 1px 0 #120A1C}.tile small{font-size:12px;text-shadow:1px 1px 0 #120A1C}
+.hero2 .go{font-size:clamp(17px,5vw,30px);color:#FFF4E2;text-shadow:var(--ol)}
+.plate{font-size:19px;text-shadow:1px 1px 0 #120A1C}
+.mres .mt{font-size:clamp(30px,9vw,52px)}.mres .wst{font-size:clamp(56px,18vw,104px)}.mres .mbtn{font-size:clamp(22px,6.5vw,32px)}
+.mres.ok .mbtn{color:#1A1024}
+#langbtn,#lexbtn,.pend button,.btn,#dqgo,.mres .mlink,.mol,.row b{font-family:var(--fa);font-style:normal;font-weight:900}
+.plate,.tbtn{transform:none}
+/* logo de l'accueil « ПДД MOSCOW · 2026 by Azmo » */
+.top .logo{display:none}
+body:has(.hero2) .top .logo{display:block;position:absolute;left:0;right:0;top:max(env(safe-area-inset-top),8px);text-align:center;font-family:var(--fa);font-weight:900;color:#fff;line-height:.86;pointer-events:none;text-shadow:var(--ol)}
+.top .logo b{display:block;font-size:clamp(30px,9.5vw,56px);font-weight:900}
+.top .logo small{display:block;font-size:clamp(13px,3.8vw,20px);margin-top:4px;text-shadow:-1px -1px 0 #120A1C,1px -1px 0 #120A1C,-1px 1px 0 #120A1C,1px 1px 0 #120A1C}
+body:has(.hero2) .top{padding-top:clamp(118px,34vw,190px)}
 </style>
 </head>
 <body>
 <header class="top">
+  <div class="logo" aria-hidden="true"><b>ПДД</b><b>MOSCOW</b><small>2026 by Azmo</small></div>
   <button class="plate" id="home">ПДД 2026</button>
   <span class="sp"></span>
   <button class="tbtn" id="langbtn" aria-label="Langue / Language"></button>
