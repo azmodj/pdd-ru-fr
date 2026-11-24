@@ -452,6 +452,15 @@ body:has(.hero2) .top{position:relative;padding-top:clamp(60px,18vw,120px);backg
 .tart svg{display:none}
 .tile:not(:has(.tart[style*="url"])) .tart svg{display:block}
 @media(prefers-reduced-motion:no-preference){.tile:active{transform:scale(.97)}}
+/* coche / croix des réponses */
+.ans button .n.mk{background:none!important;width:34px;height:34px;margin:-3px 0 0 -3px;display:grid;place-items:center}
+.ans button .n.mk img{width:34px;height:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.mpop{position:fixed;inset:0;z-index:70;display:grid;place-items:center;pointer-events:none}
+.mpop img{width:min(56vw,240px);height:auto;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5));animation:mpop .95s cubic-bezier(.2,1.5,.4,1) both}
+.mpop.ko img{animation-name:mpopk}
+@keyframes mpop{0%{transform:scale(.2) rotate(-25deg);opacity:0}25%{transform:scale(1.1) rotate(4deg);opacity:1}40%{transform:scale(1)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.9) translateY(-20px)}}
+@keyframes mpopk{0%{transform:scale(.2);opacity:0}25%{transform:scale(1.1);opacity:1}32%{transform:translateX(-10px)}40%{transform:translateX(10px)}48%{transform:translateX(-6px)}56%{transform:none}75%{opacity:1}100%{opacity:0;transform:scale(.9)}}
+@media(prefers-reduced-motion:reduce){.mpop img{animation:none;opacity:.9}}
 /* écrans plein écran de fin : « Mission réussie » / « Wasted » */
 .mres{position:fixed;inset:0;z-index:60;overflow-y:auto;display:flex;flex-direction:column;align-items:center;text-align:center;padding:max(env(safe-area-inset-top),14px) 18px max(env(safe-area-inset-bottom),18px);color:#FFF4E2;animation:mIn .35s ease-out both}
 .mres.ok{background:radial-gradient(120% 60% at 50% 70%,#6B3A1E 0,transparent 60%),linear-gradient(180deg,#2A1638,#1A1024 60%,#120A1C)}
@@ -913,7 +922,7 @@ function renderQuiz(){
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   ${S.nofr&&a===undefined?`<p class="note" style="margin:6px 0 10px">Mode examen réel : pas de traduction avant ta réponse.</p>`:`<button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>`}
   ${q.i?`<div class="pic">${IMG[q.t]?`<img src="${IMG[q.t][q.i]}" alt="Situation de la question ${q.n}">`:''}</div>`:''}
-  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':exam?(j===a?'sel':''):j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
+  <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':exam?(j===a?'sel':''):j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}>${numMk(j+1,cls)}<span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`${corrHead(q,a)}<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div></div>${corrPort(k,q,a)}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><div id="vmw"></div>${vmDone(S.vq)?`<ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>`:''}</div>`:''}
   ${qOrig(q)}
@@ -956,7 +965,7 @@ function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.
 function logAns(k,ok){st.h=st.h||[];st.h.push([k,ok?1:0,S.fr?1:0,Date.now()/1e3|0]);if(st.h.length>6000)st.h=st.h.slice(-5000)}
 function answer(k,j){if(S.ans[k]!==undefined)return;S.ans[k]=j;st.r[k]=j===Q[k].c?1:0;logAns(k,j===Q[k].c);if(S.mode==='ticket'&&S.t)st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};if(S.th)st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save();
   if(S.ex){SND.play('tap');S.ex.msg='';renderQuiz();if(S.i<S.list.length-1)setTimeout(()=>{if(S.view==='quiz'&&!S.done&&S.list[S.i]===k)go(S.i+1,1)},350);return}
-  SND.play(j===Q[k].c?'ok':'ko');
+  SND.play(j===Q[k].c?'ok':'ko');markPop(j===Q[k].c);
   renderQuiz()}
 function finish(){if(S.done)return;S.done=true;clearInterval(tick);
   if(S.ex){examEval();st.xu=st.xu||{};S.list.forEach(x=>st.xu[x]=(st.xu[x]||0)+1);save()}
@@ -1023,6 +1032,10 @@ let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remo
 /* ---------- animations : coche, croix, feu d'artifice ---------- */
 let fxT;
 function fx(ok){SND.play(ok?'ok':'ko')}
+/* coche verte / croix rouge illustrées (img/ui/rep-ok, rep-ko) : pastille de la réponse et grand signe qui apparaît à chaque réponse */
+const numMk=(n,c)=>c==='ok'||c==='ko'?`<span class="n mk"><img src="img/ui/rep-${c}.webp" alt="${c==='ok'?'Juste':'Faux'}"></span>`:`<span class="n">${n}</span>`;
+function markPop(ok){document.querySelectorAll('.mpop').forEach(e=>e.remove());const d=document.createElement('div');d.className='mpop '+(ok?'ok':'ko');d.setAttribute('aria-hidden','true');d.innerHTML=`<img src="img/ui/rep-${ok?'ok':'ko'}.webp" alt="">`;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+['ok','ko'].forEach(c=>{const i=new Image();i.src='img/ui/rep-'+c+'.webp'});
 /* billet sans faute : policier qui lève le pouce */
 function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND.play('cop');
   const d=document.createElement('div');d.className='cop';
@@ -1229,7 +1242,7 @@ function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.
   <p class="q">${hlq(q.q)}${TTS?`<button class="say" id="dsay" aria-label="Lire la question"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>
   ${fr?`<p class="fr qfr">${esc(q.fq)}</p>`:''}
   <button class="frbtn" id="frb" aria-pressed="${fr}">${fr?'Masquer le français':'Voir en français'}</button>
-  <div class="ans">${q.a.map((x,j)=>`<button data-j="${j}" class="${p===null?'':j===q.c?'ok':j===p?'ko':''}" ${p!==null?'disabled':''}><span class="n">${j+1}</span><span>${hlq(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`).join('')}</div>
+  <div class="ans">${q.a.map((x,j)=>`<button data-j="${j}" class="${p===null?'':j===q.c?'ok':j===p?'ko':''}" ${p!==null?'disabled':''}>${numMk(j+1,p===null?'':j===q.c?'ok':j===p?'ko':'')}<span>${hlq(x)}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`).join('')}</div>
   ${p!==null?`<div class="sheet ${good?'g':'b'}"><b class="sh">${good?`${cheer[0]} <span>+${S.last} XP</span>`:'Pas tout à fait'}</b><small>${good?cheer[1]:`Bonne réponse : ${q.c+1}. ${S.again[S.i]?'':'Tu reverras cette question à la fin.'}`}</small>
     ${!good?`<p class="shh">${S.tipfr&&q.fh?esc(q.fh):hlq(q.h)}</p>${q.fh?`<button class="tbtn shfr" id="shfr">${S.tipfr?'Русский':'Explication en français'}</button>`:''}`:''}
     <button class="btn shbtn" id="dqnext">${S.i===n-1?'Terminer':'Continuer'}</button></div>`:''}`;
@@ -1244,7 +1257,7 @@ function renderDaily(){const k=S.list[S.i],q=Q[k],p=S.pick,good=p!==null&&p===q.
 function answerDaily(j){if(S.pick!==null)return;const k=S.list[S.i],good=j===Q[k].c;S.pick=j;st.r[k]=good?1:0;logAns(k,good);
   if(good){S.combo++;S.maxc=Math.max(S.maxc,S.combo);S.last=(S.again[S.i]?5:10)+(S.combo>=3?5:0);S.xp+=S.last}
   else{S.combo=0;S.wrong[k]=1;if(!S.again[S.i]){S.list.push(k);S.again[S.list.length-1]=1}}
-  save();fx(good);if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
+  save();fx(good);markPop(good);if(good&&[3,5,10,15].includes(S.combo))setTimeout(()=>SND.play('combo'),380);
   renderDaily();if(good)floatXp('+'+S.last+' XP')}
 function floatXp(t){const e=document.createElement('div');e.className='fxp';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)}
 function finishDaily(){const d=D(),t=dkey(),first=!(d.days[t]&&d.days[t].done),perfect=!Object.keys(S.wrong).length,hr=new Date().getHours();
