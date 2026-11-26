@@ -766,10 +766,11 @@ tickets(){S={view:'tickets'};
   app.querySelectorAll('.tk').forEach(b=>b.onclick=()=>startTicket(+b.dataset.t,'ticket'))},
 topics(){S={view:'topics'};const L=THEMES();
   const row=T=>{const bt=themeTickets(T.list),ok=bt.filter((_,b)=>{const r=st.tt[T.id+'|'+b];return r&&r.last===0}).length,go=bt.filter((_,b)=>st.tp[T.id+'|'+b]).length;
-    return`<button class="row" data-th="${esc(T.id)}">${T.id==='REG'?REGI:tIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
+    return`<button class="row" data-th="${esc(T.id)}">${thIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
   app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>
   <div class="rows">${row(L[0])}</div>
-  <h2>Thèmes officiels</h2><div class="rows">${L.slice(1).map(row).join('')}</div>
+  <h2>Par type de question</h2><p class="sub" style="margin-top:0">Toutes les questions sans image (idéal pour le vocabulaire), puis toutes celles avec image, en billets de 20 dans l'ordre officiel. Un billet pas terminé reprend là où tu t'es arrêté.</p><div class="rows">${L.filter(T=>T.id==='NOIMG'||T.id==='IMG').map(row).join('')}</div>
+  <h2>Thèmes officiels</h2><div class="rows">${L.filter(T=>!['REG','NOIMG','IMG'].includes(T.id)).map(row).join('')}</div>
   <p class="note">Pour te tester sans correction, va dans <button class="tbtn" id="gotex" style="color:var(--fr);border-color:var(--fr);min-height:32px">Thèmes · examen</button></p>`;
   app.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{render.theme(b.dataset.th);scrollTo(0,0)});
   $('#gotex').onclick=()=>{render.texam();scrollTo(0,0)}},
@@ -851,8 +852,11 @@ function startTicket(t,mode){startList(Q.map((q,k)=>q.t===t?k:-1).filter(k=>k>=0
 /* thèmes en billets d'entraînement : chaque thème est coupé en billets d'environ 20 questions, dans l'ordre officiel (billet puis numéro) */
 function themeTickets(list){const s=[...list].sort((a,b)=>Q[a].t-Q[b].t||Q[a].n-Q[b].n),nb=Math.max(1,Math.ceil(s.length/20)),out=[];
   for(let b=0;b<nb;b++)out.push(s.slice(Math.round(b*s.length/nb),Math.round((b+1)*s.length/nb)));return out}
+/* icône d'un thème d'entraînement (régulateur, sans image, avec image, ou thème officiel) */
+const thIco=id=>id==='REG'?REGI:id==='NOIMG'?icoImg('livre'):id==='IMG'?icoImg('panneaux'):tIco(id);
 function THEMES(){const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
-  return[{id:'REG',name:'Régulateur',ru:'Регулировщик',list:REG_IDX()},...Object.keys(TOP).filter(p=>c[p]).map(p=>({id:p,name:TOP[p],ru:p,list:c[p]}))]}
+  const all=Q.map((q,k)=>k);
+  return[{id:'REG',name:'Régulateur',ru:'Регулировщик',list:REG_IDX()},{id:'NOIMG',name:'Questions sans image',ru:'Вопросы без картинки',list:all.filter(k=>!Q[k].i)},{id:'IMG',name:'Questions avec image',ru:'Вопросы с картинкой',list:all.filter(k=>Q[k].i)},...Object.keys(TOP).filter(p=>c[p]).map(p=>({id:p,name:TOP[p],ru:p,list:c[p]}))]}
 function startThemeTicket(id,b){const T=THEMES().find(x=>x.id===id),bt=themeTickets(T.list),key=id+'|'+b;
   startList(bt[b],T.name+' · billet '+(b+1),'theme');S.th=key;S.thId=id;S.thB=b;S.thN=bt.length;
   const p=st.tp[key];if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=Number.isInteger(p.i)&&p.i>=0&&p.i<S.list.length?p.i:n<0?S.list.length-1:n;S.resumed=true}
