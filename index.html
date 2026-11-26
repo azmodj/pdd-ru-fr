@@ -116,6 +116,10 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .vm .vmg button.ok{border-color:var(--grn);background:var(--grnbg);color:var(--grn);opacity:.75}
 .vm .vmg button.ko{border-color:var(--red);background:var(--redbg);animation:vmshake .35s}
 .vm .vmg button.drag{opacity:.35}
+.vm .vmg{grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);gap:8px 4px;align-items:stretch}
+.vm .vmg .arw{display:grid;place-items:center;color:var(--grn)}.vm .vmg .arw svg{width:22px;height:22px}
+.vm .vmg .arw.on svg{animation:arwIn .35s ease-out both}@keyframes arwIn{from{transform:translateX(-8px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.vm .vmg .arw.on svg{animation:none}}
 .vm .vmg button{overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto;line-height:1.2}
 .vm .vmg button.lng{font-size:15px}
 .vm .vmg button .spk{width:15px;height:15px;vertical-align:-2px;margin-right:5px;opacity:.7}
@@ -943,7 +947,9 @@ function vmHtml(v){const n=v.gis.filter(g=>v.ok[g]).length,e=v.gis.filter(g=>v.e
   /* mots russes : petite icône haut-parleur, le mot est lu à chaque toucher (même une fois relié) ; mots longs coupés proprement */
   const b=(sd,g,t)=>`<button data-s="${sd}" data-g="${g}" ${sd==='r'?'lang="ru"':'lang="fr"'} class="${v.ok[g]?'ok':v.bad&&v.bad.includes(sd+g)?'ko':v.sel&&v.sel.s===sd&&v.sel.g===g?'sel':''}${t.length>15?' lng':''}" ${v.ok[g]&&sd!=='r'?'disabled':''}>${sd==='r'&&TTS?'<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7M18.5 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>':''}${esc(t)}</button>`;
   return`<div class="vq vm"><p>Relie chaque mot russe à sa traduction<span class="cnt">${n}/${v.gis.length}</span></p>
-  <div class="vmg"><div class="col r">${v.gis.map(g=>b('r',g,G[g][0])).join('')}</div><div class="col f">${v.fr.map(g=>b('f',g,G[g][1])).join('')}</div></div>
+  <div class="vmg">${(()=>{/* une ligne par mot russe ; dès qu'un mot est relié, sa traduction vient sur la même ligne avec une flèche entre les deux */
+    const free=v.fr.filter(g=>!v.ok[g]);return v.gis.map(g=>{const f=v.ok[g]?g:free.shift();
+      return b('r',g,G[g][0])+`<span class="arw${v.ok[g]?' on':''}" aria-hidden="true">${v.ok[g]?'<svg viewBox="0 0 24 24"><path d="M2 12h17M13 6l7 6-7 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</span>`+b('f',f,G[f][1])}).join('')})()}</div>
   ${vmDone(v)?`<p class="vmd" style="color:${e?'var(--red)':'var(--grn)'}">${e?e+(e>1?' erreurs':' erreur')+' — les mots ratés reviendront dans le quiz de vocabulaire.':'Les trois du premier coup !'}</p>`:'<p class="note" style="margin:8px 0 0">Touche un mot puis sa traduction, ou fais-le glisser dessus.</p>'}</div>`}
 function vmPair(v,a,b){/* a,b = {s,g} de colonnes opposées */
   const r=a.s==='r'?a.g:b.g,f=a.s==='r'?b.g:a.g;v.sel=null;
