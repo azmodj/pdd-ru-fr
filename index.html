@@ -1097,8 +1097,10 @@ function hlText(t,m){const T=[...t.matchAll(/[А-Яа-яЁё]+/g)].map(x=>({w:x[
       out+=`<span class="kph" data-p="${hit.i}">${inner}</span>`;pos=T[i+L-1].e;i+=L-1}
     else{out+=word(T[i]);pos=T[i].e}}
   return out+esc(t.slice(pos))}
+/* la bulle de traduction disparaît dès que l'écran change (question suivante, précédente, autre page) */
+new MutationObserver(()=>document.querySelectorAll('.wtip').forEach(t=>{if(!t._m||!t._m.isConnected)t.remove()})).observe(document.getElementById('app'),{childList:true,subtree:true});
 let twT;function tipWord(m){document.querySelectorAll('.wtip').forEach(e=>e.remove());clearTimeout(twT);
-  const ph=m.closest('.kph'),t=document.createElement('div');t.className='wtip';let h='';
+  const ph=m.closest('.kph'),t=document.createElement('div');t.className='wtip';t._m=m;let h='';
   if(m.matches('mark.kwm')){const g=G[+m.dataset.g];h=`<b>${esc(m.textContent)}</b> = ${esc(g[1])}${nrm(m.textContent)!==nrm(g[0])?` <span style="opacity:.75">(${esc(g[0])})</span>`:''}`}
   if(ph){const g=G[+ph.dataset.p],parts=[...ph.querySelectorAll('mark.kwm')].map(x=>`${esc(x.textContent)} (${esc(G[+x.dataset.g][1])})`);
     h+=`<span class="${h?'ph':''}" style="${h?'':'display:block'}"><small>Expression — les mots vont ensemble</small><b>${esc(g[0])}</b> = ${esc(g[1])}</span>`+
