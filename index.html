@@ -144,6 +144,9 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .trap{border:3px solid var(--amber);border-radius:18px;background:var(--card);padding:14px;margin:14px 0}
 .trap h3{margin:0;font-size:20px;color:#FFE2B8}.trap h3 .ru{color:var(--amber);font-size:15px;margin-top:2px}.trsub{margin:6px 0 12px;color:var(--mut);font-size:14px}
 .tw2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.timg{width:100%;height:auto;min-height:40px;border-radius:8px;background:#000}
+.tzoom{position:fixed;inset:0;z-index:999;background:rgba(5,8,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}.tzoom img{width:100%;max-width:900px;height:auto;border-radius:10px}.tzoom span{color:var(--mut);font-size:14px}.timg{cursor:zoom-in}
+.trlist{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}.trlist a{font-size:13px;color:var(--fr);border:1px solid var(--line);border-radius:999px;padding:5px 10px;text-decoration:none}
 .tcol{display:flex;flex-direction:column;gap:8px;background:var(--night);border:1px solid var(--line);border-radius:12px;padding:10px}
 .tlab{font-size:12px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
 .tq{margin:0;font-size:15px;line-height:1.35;font-weight:600}.tfr{margin:0;font-size:13px;line-height:1.3;color:var(--fr);font-style:italic}
@@ -851,9 +854,17 @@ texam(){S={view:'texam'};const reg=REG_IDX(),route=ROUTE_IDX(),noImg=Q.map((q,k)
 traps(){S={view:'traps'};
   app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="trback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Accueil</button></p>
   <div class="guide">${PORT('alina-main','Alina, policière')}<div class="gt"><h1>Pièges</h1><em class="ru">Вопросы-ловушки</em></div></div>
-  <p class="sub">Des questions qui se ressemblent presque mot pour mot. Lis-les côte à côte : le mot surligné est le seul qui change.</p>
+  <p class="sub">${TRAPS.length} paires de questions qui se ressemblent presque mot pour mot. Le mot surligné en rouge, la couleur ou le détail de l'image est la seule différence, et la bonne réponse change.</p>
+  <button class="btn" id="trall" style="width:100%;margin:4px 0 10px">Tous les pièges · ${TRAP_IDX().length} questions</button>
+  <p class="note" style="margin-top:0">Les paires arrivent dans un ordre au hasard, les deux jumelles l'une après l'autre.</p>
+  <p class="note" style="margin:0">Touche une image pour l'agrandir.</p>
+  <div class="trlist">${TRAPS.map((p,i)=>`<a href="#tr-${p.id}">${i+1}. ${esc(p.name)}</a>`).join('')}</div>
   ${TRAPS.map(trapCard).join('')}`;
   $('#trback').onclick=()=>{render.home();scrollTo(0,0)};
+  $('#trall').onclick=()=>startList(trapAll(),'Pièges','free');
+  app.querySelectorAll('.trlist a').forEach(a=>a.onclick=ev=>{ev.preventDefault();const el=document.querySelector(a.getAttribute('href'));if(el)el.scrollIntoView({behavior:'smooth'})});
+  app.querySelectorAll('img.timg').forEach(im=>{const t=+im.dataset.t;loadImg(t).then(()=>{if(IMG[t])im.src=IMG[t][im.dataset.i]})});
+  app.querySelectorAll('img.timg').forEach(im=>im.onclick=()=>{if(!im.src)return;const z=document.createElement('div');z.className='tzoom';z.innerHTML=`<img src="${im.src}" alt=""><span>Touche pour fermer</span>`;z.onclick=()=>z.remove();document.body.appendChild(z)});
   app.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{const p=TRAPS.find(x=>x.id===b.dataset.tp);startList(shuffle(p.q.map(trapK)),'Piège · '+p.name,'free')})},
 voix(){S={view:'voix'};const v=TTS?ruVoices().sort((a,b)=>vScore(b)-vScore(a)):[],r=+(localStorage.getItem('pdd-rate')||.95);
   app.innerHTML=`<h1>Voix russe</h1><p class="sub">Голос для чтения вопросов. Choisis la voix qui te plaît : touche-la pour l'écouter.</p>
@@ -931,25 +942,92 @@ const ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de c
 <li><b>Пересечения проезжих частей</b> : on multiplie. Route à 2 chaussées × route à 1 chaussée = <b>2 croisements</b> ; 2 × 2 = <b>4</b>.</li>
 <li><b>Перекрёсток</b> : croisement de deux routes au même niveau. La sortie d'une cour, d'un parking ou d'une station (прилегающая территория) <b>n'est pas</b> un carrefour.</li>
 <li>Les trottoirs et les accotements (обочины) <b>font partie</b> de la route.</li></ul></div>`;
-/* pièges : paires de questions presque identiques (un mot change, la réponse aussi) */
-const TRAPS=[{id:'portiere',name:'Monter ou descendre de voiture',ru:'Посадка / высадка',
- q:[[40,19],[5,19]],w:['посадке','высадке'],fw:['monter','descendant'],ans:['Par l\'AVANT','Par l\'ARRIÈRE'],
- tip:`<p><b>Règle :</b> à pied le long de ta voiture, tu marches toujours <b>face aux voitures qui arrivent</b> derrière elle. Tu ne leur tournes jamais le dos.</p>
-<ul><li><b>Посадка</b> (monter) : tu fais le tour <b>par l'avant</b>, puis tu reviens vers la portière en regardant les voitures arriver.</li>
-<li><b>Высадка</b> (descendre) : tu sors et tu repars <b>par l'arrière</b>, toujours face aux voitures qui arrivent.</li></ul>
-<p class="trmemo"><b>Pour retenir :</b> <b>A</b>rriver à la voiture → <b>A</b>vant. <b>D</b>épart de la voiture → <b>D</b>errière.<br><b>вы-</b> = vers l'extérieur, comme <b>выход</b> (sortie) : <b>вы</b>садка = on sort de la voiture.</p>`}];
+/* pièges : questions presque identiques où un mot, une couleur ou un détail de l'image change la réponse */
+const T_=(id,name,ru,q,w,fw,ans,diff,tip,memo)=>({id,name,ru,q,w,fw,ans,diff,tip,memo});
+const TRAPS=[
+T_('portiere','Monter ou descendre de voiture','Посадка / высадка',[[40,19],[5,19]],['посадке','высадке'],['monter','descendant'],['Par l\'AVANT','Par l\'ARRIÈRE'],
+ 'Un seul mot change dans la question.',
+ `À pied le long de ta voiture, tu marches toujours <b>face aux voitures qui arrivent</b> derrière elle.<ul><li><b>Посадка</b> (monter) : tu fais le tour <b>par l'avant</b>, puis tu reviens vers la portière en regardant les voitures arriver.</li><li><b>Высадка</b> (descendre) : tu sors et tu repars <b>par l'arrière</b>, toujours face aux voitures qui arrivent.</li></ul>`,
+ `<b>A</b>rriver à la voiture → <b>A</b>vant. <b>D</b>épart de la voiture → <b>D</b>errière. <b>вы-</b> = vers l'extérieur, comme <b>выход</b> (sortie).`),
+T_('voies','Voies ou chaussées','Полосы / проезжие части',[[2,1],[19,1]],['полос','проезжих частей'],['voies','chaussées'],['Quatre','Deux'],
+ 'Même photo. Seule la question change.',
+ `<b>Полоса движения</b> = une file de voitures. On compte les files des deux sens : <b>4</b>.<br><b>Проезжая часть</b> = la bande roulante. Le terre-plein central coupe la route en <b>2</b> chaussées.`,
+ `полоса = une file ; проезжая часть = un morceau d'asphalte entre deux bords.`),
+T_('panneau','Route prioritaire ou « Cédez le passage »','Главная дорога / Уступите дорогу',[[15,15],[16,15]],['',''],['',''],['Seulement au bus','Aux deux véhicules'],
+ 'Même carrefour, même question. Seul le panneau change : losange jaune sur la première photo, triangle rouge et blanc sur la seconde.',
+ `<b>Losange jaune</b> (2.1 Главная дорога) : tu es sur la route prioritaire, qui tourne (plaque 8.13). Entre véhicules de la route prioritaire, règle de la main droite : tu cèdes au bus. La voiture est sur la route secondaire, elle passe en dernier.<br><b>Triangle</b> (2.4 Уступите дорогу) : tu es sur la route secondaire. Tu cèdes aux deux.`,
+ `Regarde d'abord la couleur du panneau : jaune = tu es prioritaire ; triangle rouge = tu cèdes.`),
+T_('sensunique','Tourner à gauche : avec ou sans panneau sens unique','Поворот налево',[[14,8],[22,8]],['',''],['',''],['N\'importe laquelle','Seulement Б'],
+ 'Même carrefour, même question. Sur la première photo, un panneau bleu avec une flèche blanche vers la gauche. Sur la seconde, pas de panneau.',
+ `<b>Avec le panneau</b> 5.7.2 (sortie sur une route à sens unique) : personne ne vient en face, tu peux arriver sur n'importe quelle voie, А ou Б.<br><b>Sans panneau</b> : la route est à double sens. En tournant, tu ne dois pas arriver du côté de la circulation venant en face : seulement Б.`,
+ `Pas de panneau sens unique = tu finis ton virage à droite de la route.`),
+T_('marquage','Ligne mixte : de quel côté es-tu ?','Разметка 1.11',[[9,5],[17,5]],['',''],['',''],['Oui','Non'],
+ 'Même tracteur, même question. Regarde la double ligne au milieu : sur la première photo, la ligne discontinue est de ton côté ; sur la seconde, c\'est la ligne continue.',
+ `Le marquage 1.11 est une ligne double, une continue et une discontinue. Tu peux la franchir seulement si la <b>discontinue est de ton côté</b>. La vitesse du tracteur ne change rien.`,
+ `Discontinue de mon côté = je passe. Continue de mon côté = je reste.`),
+T_('niveau','Stationner ou s\'arrêter près d\'un passage à niveau','Стоянка / остановка',[[11,12],[29,12]],['стоянки','остановки'],['stationnement','arrêt'],['Les deux','Aucun'],
+ 'Même endroit, même distance (40 m). Un seul mot change dans la question.',
+ `<b>Стоянка</b> (stationnement) : interdite sur le passage à niveau et à moins de 50 m. Les deux véhicules sont à moins de 50 m : les deux sont en faute.<br><b>Остановка</b> (arrêt) : interdite seulement sur le passage à niveau lui-même. Les deux sont avant : personne n'est en faute.`,
+ `Passage à niveau : arrêt interdit dessus ; stationnement interdit dessus et à moins de 50 m.`),
+T_('busligne','Arrêt de bus ou ligne jaune','Остановка / стоянка',[[4,12],[23,5]],['остановка для посадки пассажира','поставить автомобиль на стоянку'],['vous arrêter ici pour faire monter un passager','stationner'],['Oui, sans gêner les bus','Non'],
+ 'Même rue. Sur la première photo, un panneau d\'arrêt de bus ; sur la seconde, une ligne jaune discontinue le long du trottoir. La question passe de l\'arrêt au stationnement.',
+ `<b>Остановка</b> (arrêt court pour faire monter quelqu'un) à un arrêt de bus : permis si tu ne gênes pas les bus.<br><b>Стоянка</b> (stationnement) le long d'une ligne jaune discontinue 1.10 : interdit.`,
+ `Ligne jaune discontinue = stationnement interdit. Ligne jaune continue = arrêt interdit.`),
+T_('jours','Jours pairs ou impairs','Чётные / нечётные числа',[[18,3],[30,3]],['четным','нечетным'],['pairs','impairs'],['Oui','Seulement après 21 h'],
+ 'Un mot change dans la question, et la flèche n\'est pas au même endroit : avant les panneaux sur la première photo, après eux sur la seconde.',
+ `Les panneaux 3.29 (une barre, jours impairs) et 3.30 (deux barres, jours pairs) s'appliquent à partir de l'endroit où ils sont placés.<br>Première photo : tu stationnes avant les panneaux, ils ne s'appliquent pas : permis.<br>Seconde photo : tu es dans la zone du panneau des jours impairs. Ces panneaux ne s'appliquent pas de 21 h à minuit, pour laisser le temps de changer de côté : permis seulement après 21 h.`,
+ `Une barre = jours impairs. Deux barres = jours pairs.`),
+T_('chargement','Chargement : respecte ou enfreint','Не нарушает / нарушает',[[7,17],[26,17]],['не нарушает','нарушает'],['respecte','enfreint'],['Sur les deux','Seulement sur А'],
+ 'La question est retournée (« не нарушает », puis « нарушает »). Les dessins changent aussi : de profil (longueur), puis de face (largeur).',
+ `<b>Longueur</b> : le chargement peut dépasser de 1 m à l'avant ou à l'arrière sans signal ; au-delà, il faut le panneau rayé rouge et blanc. А dépasse de 0,6 m, Б de 1,2 m avec le panneau : les deux sont en règle.<br><b>Largeur</b> : 0,4 m au plus de chaque côté, mesuré depuis le bord des feux. А dépasse de 0,5 m : en faute. Б de 0,3 m : en règle.`,
+ `Repère « не » avant de répondre : « не нарушает » = qui est en règle.`),
+T_('demitour','Demi-tour par un terrain à gauche ou à droite','Разворот: слева / справа',[[9,19],[12,19]],['слева','справа'],['à gauche','à droite'],['Dessin de droite','Dessin de gauche'],
+ 'Un mot change et les dessins sont inversés. La réponse s\'inverse aussi.',
+ `<b>Terrain à gauche</b> : tu y entres en marche avant, puis tu ressors en marche arrière (dessin de droite).<br><b>Terrain à droite</b> : tu le dépasses, tu y recules, puis tu ressors en marche avant (dessin de gauche). Tu ne traverses jamais tout le carrefour en marche arrière.`,
+ `Gauche : j'entre en avant. Droite : j'entre en arrière.`),
+T_('vitessevoie','Vitesse sur la voie de droite ou de gauche','Правая / левая полоса',[[12,10],[19,10]],['правой','левой'],['voie de droite','voie de gauche'],['60 km/h maximum','Entre 40 et 60 km/h'],
+ 'Le même panneau bleu « 40 » avec une flèche vers le bas, au-dessus de la voie de gauche. Seul le nom de la voie change dans la question.',
+ `Le panneau bleu rond 4.6 donne une vitesse <b>minimale</b>. La flèche (8.14) dit sur quelle voie il s'applique : la voie de gauche.<br>Voie de gauche : entre 40 et 60 km/h. Voie de droite : la limite normale en ville, 60 km/h maximum.`,
+ `Rond bleu = minimum. Rond rouge = maximum.`),
+T_('klaxon','Avertir qu\'on dépasse : en ville ou hors ville','Вне населённого пункта / в населённом пункте',[[15,17],[25,17]],['вне населенного пункта','в населенном пункте'],['Hors agglomération','En agglomération'],['Klaxon ou phares','Appel de phares seulement'],
+ 'Un seul mot change : « вне » (hors de).',
+ `Hors agglomération : klaxon, appel de phares, ou les deux.<br>En agglomération, le klaxon est interdit sauf pour éviter un accident : seulement l'appel de phares (croisement → route, brièvement).`,
+ `En ville, pas de klaxon. <b>вне</b> = en dehors.`),
+T_('clignotant','Feu vert ou feu jaune qui clignote','Зелёный / жёлтый мигающий',[[1,6],[24,6]],['зелёного','жёлтого'],['vert','jaune'],['Le rouge va s\'allumer','Carrefour sans feux'],
+ 'Seule la couleur change.',
+ `<b>Vert clignotant</b> : tu peux passer, mais le feu va bientôt passer au jaune puis au rouge.<br><b>Jaune clignotant</b> : tu peux passer ; il signale un carrefour ou un passage piéton non réglé. Tu suis les panneaux et les règles de priorité.`,
+ `Vert qui clignote = le rouge arrive. Jaune qui clignote = pas de feu, regarde les panneaux.`),
+T_('roues','Roues à l\'arrêt en pente : accotement ou trottoir','Обочина / тротуар',[[6,19],[11,19]],['обочины','тротуара'],['accotement','trottoir'],['А et Г','А et В'],
+ 'Mêmes positions А, Б, В, Г. Seul le bord de la route change : accotement (terre) ou trottoir (bordure).',
+ `<b>Accotement</b> : roues tournées vers le fossé (А et Г). Si la voiture part toute seule, elle va dans le fossé, pas sur la chaussée.<br><b>Trottoir</b> : roues tournées pour s'appuyer contre la bordure (А et В). La bordure bloque la voiture.`,
+ `Accotement → vers le fossé. Trottoir → contre la bordure.`),
+T_('pneus','Usure des pneus : moto ou voiture','Мотоцикл / легковой автомобиль',[[2,18],[29,18]],['мототранспортных средств','легкового автомобиля'],['deux-roues motorisés','voiture'],['0,8 mm','1,6 mm'],
+ 'Même question, même liste de réponses. Seul le véhicule change.',
+ `Profondeur minimale des sculptures, sans témoin d'usure : 0,8 mm pour les motos (catégorie L), 1,6 mm pour les voitures (M1).`,
+ `Moto 0,8 · camion 1 · voiture 1,6 · bus 2.`),
+T_('voiedroite','Changement de voie : conducteur de gauche ou de droite','Перестроение',[[2,8],[37,8]],['левой','правой'],['voie de gauche','voie de droite'],['Sur les deux dessins','Seulement à gauche'],
+ 'Mêmes dessins. La question parle du conducteur de la voie de gauche, puis de celui de la voie de droite.',
+ `Dessin de gauche : une seule voiture change de voie. Elle cède à celle qui roule tout droit dans sa voie.<br>Dessin de droite : les deux changent de voie en même temps. Règle de la main droite : celui de la voie de gauche a l'autre à sa droite, il cède.`,
+ `Conducteur de gauche : cède sur les deux dessins. Conducteur de droite : cède seulement quand il change de voie seul.`),
+T_('arretne','Arrêt : qui est en faute, qui est en règle','Нарушили / не нарушили',[[35,12],[38,12]],['не нарушили','нарушили'],['n\'ont pas enfreint','ont enfreint'],['А et Б (en règle)','А et В (en faute)'],
+ 'La question est retournée (« не нарушили », puis « нарушили »). Les deux photos montrent une rue à sens unique.',
+ `Sur une route à sens unique en agglomération, on peut s'arrêter des deux côtés.<br>Première photo : А et Б sont en règle ; В est dans la zone d'un panneau « Arrêt interdit ».<br>Seconde photo : А et В sont juste avant le passage piéton (arrêt interdit à moins de 5 m avant) ; Б est après, en règle.`,
+ `Repère « не » avant de répondre.`)];
 const trapK=([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n);
 const TRAP_IDX=()=>TRAPS.flatMap(p=>p.q.map(trapK)).filter(k=>k>=0);
 const trapOf=k=>TRAPS.find(p=>p.q.some(x=>trapK(x)===k));
-const markW=(t,w)=>esc(t).replace(w,`<mark class="trw">${w}</mark>`);
+const markW=(t,w)=>w?esc(t).replace(esc(w),`<mark class="trw">${esc(w)}</mark>`):esc(t);
 function trapCard(p){const ks=p.q.map(trapK);
- return`<div class="trap"><h3>${esc(p.name)}<em class="ru">${esc(p.ru)}</em></h3><p class="trsub">Un seul mot change. La bonne réponse change aussi.</p>
+ return`<div class="trap" id="tr-${p.id}"><h3>${esc(p.name)}<em class="ru">${esc(p.ru)}</em></h3><p class="trsub">${esc(p.diff)}</p>
  <div class="tw2">${ks.map((k,j)=>{const q=Q[k];return`<div class="tcol"><span class="tlab">Billet ${q.t} · Q${q.n}</span>
+  ${q.i?`<img class="timg" data-t="${q.t}" data-i="${esc(q.i)}" alt="Image de la question">`:''}
   <p class="tq">${markW(q.q,p.w[j])}</p><p class="fr tfr">${markW(q.fq,p.fw[j])}</p>
   <div class="tans"><b>${esc(p.ans[j])}</b><span>${esc(q.a[q.c])}</span></div></div>`}).join('')}</div>
- <div class="trtip">${p.tip}</div>
+ <div class="trtip"><p>${p.tip}</p><p class="trmemo"><b>Pour retenir :</b> ${p.memo}</p></div>
  <button class="btn" data-tp="${esc(p.id)}" style="width:100%;margin-top:12px">S'entraîner sur ces ${ks.length} questions</button></div>`}
-const TRAPBN=()=>`<button class="trapbn" data-go="traps"><span class="trx">!</span><span><b>Pièges · questions jumelles</b><em class="ru">Вопросы-ловушки</em><small>${TRAPS.length} paire${TRAPS.length>1?'s':''} · un seul mot change, la réponse aussi</small></span></button>`;
+/* tous les pièges : paires dans un ordre au hasard, les deux jumelles l'une après l'autre */
+const trapAll=()=>shuffle(TRAPS.slice()).flatMap(p=>shuffle(p.q.map(trapK)));
+const TRAPBN=()=>`<button class="trapbn" data-go="traps"><span class="trx">!</span><span><b>Pièges · questions jumelles</b><em class="ru">Вопросы-ловушки</em><small>${TRAPS.length} paires · un mot, une couleur ou un détail change la réponse</small></span></button>`;
 const REG_IDX=()=>REG.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
 const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожная разметка']],
  ['Santé : premiers secours',['Оказание доврачебной медицинской помощи']],
@@ -1068,7 +1146,7 @@ function renderQuiz(){
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
   app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   const frb=$('#frb');if(frb)frb.onclick=()=>{S.fr=!S.fr;renderQuiz()};
-  {const g=$('#gotrap');if(g)g.onclick=()=>{render.traps();scrollTo(0,0)}}
+  {const g=$('#gotrap');if(g)g.onclick=()=>{const id=g.dataset.id;render.traps();const el=document.getElementById('tr-'+id);el?el.scrollIntoView():scrollTo(0,0)}}
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
   {const w=$('#vmw');if(w){const y=scrollY;vmMount(w,S.vq,()=>{renderQuiz();scrollTo(0,y)})}}
@@ -1088,7 +1166,8 @@ function corrHead(q,a){const ok=a===q.c;
     :'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11.5" fill="#FF7772"/><path d="M8 8l8 8M16 8l-8 8" stroke="#10162E" stroke-width="2.6" stroke-linecap="round"/></svg>'}
     <span><b>${ok?'Bonne réponse':'Réponse incorrecte'}</b><em class="ru">${ok?'Правильно':'Неправильно'}</em>${ok?'':`<span class="note" style="display:block;margin:4px 0 0">La bonne réponse est la n° ${q.c+1}.</span>`}</span></div>`}
 function trapNote(k){const p=trapOf(k);if(!p)return'';const j=p.q.findIndex(x=>trapK(x)===k),o=trapK(p.q[1-j]);if(o<0)return'';const q=Q[o];
- return`<div class="trapq"><b><span class="trx">!</span> Question piège</b><p>Sa jumelle (billet ${q.t}, question ${q.n}) dit <mark class="trw">${esc(p.w[1-j])}</mark> au lieu de <mark class="trw">${esc(p.w[j])}</mark>, et la réponse est <b>${esc(p.ans[1-j])}</b> : « ${esc(q.a[q.c])} ».</p><button class="tbtn" id="gotrap" style="color:var(--amber);border-color:var(--amber);min-height:36px">Voir les deux côte à côte</button></div>`}
+ const what=p.w[j]&&p.w[1-j]?`dit <mark class="trw">${esc(p.w[1-j])}</mark> au lieu de <mark class="trw">${esc(p.w[j])}</mark>`:`a la même question, mais l'image change`;
+ return`<div class="trapq"><b><span class="trx">!</span> Question piège</b><p>Sa jumelle (billet ${q.t}, question ${q.n}) ${what}, et la réponse est <b>${esc(p.ans[1-j])}</b> : « ${esc(q.a[q.c])} ».</p><p class="trmemo" style="margin:0 0 8px">${p.memo}</p><button class="tbtn" id="gotrap" data-id="${esc(p.id)}" style="color:var(--amber);border-color:var(--amber);min-height:36px">Voir les deux côte à côte</button></div>`}
 function corrPort(k,q,a){REGSET=REGSET||new Set(REG_IDX());return PORT(REGSET.has(k)?'alina-buste':a===q.c?'alina-ok':'alina-erreur','Alina, policière')}
 function keepPos(){if(S.mode==='ticket'&&S.t&&!S.done){st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};save()}if(S.th&&!S.done){st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save()}}
 function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0);
