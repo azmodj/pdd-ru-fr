@@ -768,16 +768,16 @@ topics(){S={view:'topics'};const L=THEMES();
   const row=T=>{const bt=themeTickets(T.list),ok=bt.filter((_,b)=>{const r=st.tt[T.id+'|'+b];return r&&r.last===0}).length,go=bt.filter((_,b)=>st.tp[T.id+'|'+b]).length;
     return`<button class="row" data-th="${esc(T.id)}">${thIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
   app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>
-  <div class="rows">${row(L[0])}</div>
+  <div class="rows">${L.filter(T=>T.id==='REG'||T.id==='ROUTE').map(row).join('')}</div>
   <h2>Par type de question</h2><p class="sub" style="margin-top:0">Toutes les questions sans image (idéal pour le vocabulaire), puis toutes celles avec image, en billets de 20 dans l'ordre officiel. Un billet pas terminé reprend là où tu t'es arrêté.</p><div class="rows">${L.filter(T=>T.id==='NOIMG'||T.id==='IMG').map(row).join('')}</div>
-  <h2>Thèmes officiels</h2><div class="rows">${L.filter(T=>!['REG','NOIMG','IMG'].includes(T.id)).map(row).join('')}</div>
+  <h2>Thèmes officiels</h2><div class="rows">${L.filter(T=>!['REG','ROUTE','NOIMG','IMG'].includes(T.id)).map(row).join('')}</div>
   <p class="note">Pour te tester sans correction, va dans <button class="tbtn" id="gotex" style="color:var(--fr);border-color:var(--fr);min-height:32px">Thèmes · examen</button></p>`;
   app.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{render.theme(b.dataset.th);scrollTo(0,0)});
   $('#gotex').onclick=()=>{render.texam();scrollTo(0,0)}},
 theme(id){const T=THEMES().find(x=>x.id===id);if(!T)return render.topics();S={view:'theme',id};const bt=themeTickets(T.list);
   app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="tback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Thèmes</button></p>
   <div class="guide">${PORT(id==='REG'?'alina-buste':id==='Проезд перекрестков'?'vera-schema':'vera-panneau',id==='REG'?'Alina, policière':'Vera, policière')}<div class="gt"><h1>${esc(T.name)}</h1></div></div><p class="sub"><em class="ru">${esc(T.ru)}</em> ${T.list.length} questions en ${bt.length} billet${bt.length>1?'s':''}, dans l'ordre des billets officiels.</p>
-  <p class="legend"><span style="--c:var(--amber)">Commencé, à terminer</span><span style="--c:var(--grn)">Dernier passage sans faute</span><span style="--c:var(--red)">Dernier passage avec fautes</span></p>
+  ${id==='ROUTE'?ROUTE_TIP:''}  <p class="legend"><span style="--c:var(--amber)">Commencé, à terminer</span><span style="--c:var(--grn)">Dernier passage sans faute</span><span style="--c:var(--red)">Dernier passage avec fautes</span></p>
   <div class="grid">${bt.map((l,b)=>{const key=T.id+'|'+b,r=st.tt[key],p=st.tp[key];const cls=p?'go':r?(r.last===0?'ok':'ko'):'';const low=p?`${Object.keys(p.ans).length}/${l.length}`:r?`${l.length-r.last}/${l.length}`:`${l.length} q.`;return`<button class="tk ${cls}" data-b="${b}" aria-label="Billet ${b+1}">${r?`<i>×${r.n}</i>`:''}${b+1}<small>${low}</small></button>`}).join('')}</div>`;
   $('#tback').onclick=()=>{render.topics();scrollTo(0,0)};
   app.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startThemeTicket(id,+b.dataset.b))},
@@ -819,17 +819,18 @@ ana(){S={view:'ana'};const P=profile(),A=P.all,F=[];
   $('#tq1').onclick=()=>startList(targeted(P,20),'Quiz ciblé','free');
   $('#tq2').onclick=()=>{startList(targeted(P,20),'Quiz ciblé · sans français','free');S.nofr=true;renderQuiz()};
   const t3=$('#tq3');if(t3)t3.onclick=()=>startList(shuffle(P.traps),'Mes pièges','free')},
-texam(){S={view:'texam'};const reg=REG_IDX(),noImg=Q.map((q,k)=>k).filter(k=>!Q[k].i),withImg=Q.map((q,k)=>k).filter(k=>Q[k].i);const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
+texam(){S={view:'texam'};const reg=REG_IDX(),route=ROUTE_IDX(),noImg=Q.map((q,k)=>k).filter(k=>!Q[k].i),withImg=Q.map((q,k)=>k).filter(k=>Q[k].i);const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   const pool=ps=>[...new Set(ps.flatMap(p=>c[p]||[]))];
-  const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${ic==='REG'?REGI:ic==='REGX'?REGX:ic==='TXT'?icoImg('livre'):ic==='IMG'?icoImg('panneaux'):tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
+  const item=(i,ic,name,ru,sub,n)=>`<button class="row" data-x="${i}">${ic==='REG'?REGI:ic==='REGX'?REGX:ic==='TXT'?icoImg('livre'):ic==='ROUTE'?icoImg('voies'):ic==='IMG'?icoImg('panneaux'):tIco(ic)}<span><b>${esc(name)}</b>${ru?`<em class="ru">${esc(ru)}</em>`:''}<small>${sub?esc(sub)+' · ':''}${n} questions</small></span></button>`;
   const th=Object.keys(TOP).filter(p=>c[p]);
   app.innerHTML=`<div class="guide">${PORT('mikhail-intro','Mikhaïl, examinateur')}<div class="gt"><h1>Examen par thème</h1></div></div><p class="sub">Jusqu'à 20 questions tirées du thème choisi, en blocs de 5. Pour un petit thème, l'examen est plus court, afin de garder des questions en réserve pour les fautes. Mêmes règles que l'examen blanc : aucune correction pendant l'examen, tout s'affiche à la fin. Une faute ajoute 5 questions du même thème et 5 minutes ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires, c'est l'échec. Les questions jamais tombées en examen passent en premier.</p>
   <h2>Spécial régulateur</h2><p class="sub" style="margin-top:0">Les ${reg.length} questions où un régulateur (регулировщик) dirige la circulation, dans le texte ou sur l'image.</p><div class="rows">${item('r0','REG','Régulateur · révision','Регулировщик','Correction et explication tout de suite',reg.length)}${item('r1','REGX','Régulateur · examen','Регулировщик','Tirage au hasard, résultat à la fin',reg.length)}</div>
+  <h2>Voies, chaussées, carrefours</h2><p class="sub" style="margin-top:0">Les ${route.length} questions « combien de voies, de chaussées, de croisements » et « est-ce un carrefour ».</p>${ROUTE_TIP}<div class="rows">${item('ro0','ROUTE','Voies et carrefours · révision','Полосы, проезжие части, перекрёстки','Correction et explication tout de suite',route.length)}${item('ro1','ROUTE','Voies et carrefours · examen','Полосы, проезжие части, перекрёстки','Tirage au hasard, résultat à la fin',route.length)}</div>
   <h2>Par type de question</h2><p class="sub" style="margin-top:0">Questions sans image : tout est dans le texte, idéal pour travailler le vocabulaire russe. Questions avec image : panneaux, carrefours, situations à lire sur la photo.</p><div class="rows">${item('n0','TXT','Sans image · révision','Вопросы без картинки','Correction et explication tout de suite',noImg.length)}${item('n1','TXT','Sans image · examen','Вопросы без картинки','Tirage au hasard, résultat à la fin',noImg.length)}${item('i1','IMG','Avec image · examen','Вопросы с картинкой','Tirage au hasard, résultat à la fin',withImg.length)}</div>
   <h2>Regroupements</h2><div class="rows">${TEX.map((x,i)=>item('g'+i,x[1][0],x[0],'',x[1].map(p=>TOP[p]).join(', '),pool(x[1]).length)).join('')}</div>
   <h2>Thèmes officiels</h2><div class="rows">${th.map((p,i)=>item('t'+i,p,TOP[p],p,'',c[p].length)).join('')}</div>`;
   app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
-    if(x==='n0')startList(shuffle(noImg).slice(0,20),'Sans image','free');else if(x==='n1')startThemeExam(noImg,'Sans image');else if(x==='i1')startThemeExam(withImg,'Avec image');else if(x==='r0')startList(shuffle(reg),'Régulateur','free');else if(x==='r1')startThemeExam(reg,'Régulateur');else if(x[0]==='g')startThemeExam(pool(TEX[i][1]),TEX[i][0]);else startThemeExam(c[th[i]],TOP[th[i]])})},
+    if(x==='ro0')startList(shuffle(route),'Voies, chaussées, carrefours','free');else if(x==='ro1')startThemeExam(route,'Voies, chaussées, carrefours');else if(x==='n0')startList(shuffle(noImg).slice(0,20),'Sans image','free');else if(x==='n1')startThemeExam(noImg,'Sans image');else if(x==='i1')startThemeExam(withImg,'Avec image');else if(x==='r0')startList(shuffle(reg),'Régulateur','free');else if(x==='r1')startThemeExam(reg,'Régulateur');else if(x[0]==='g')startThemeExam(pool(TEX[i][1]),TEX[i][0]);else startThemeExam(c[th[i]],TOP[th[i]])})},
 voix(){S={view:'voix'};const v=TTS?ruVoices().sort((a,b)=>vScore(b)-vScore(a)):[],r=+(localStorage.getItem('pdd-rate')||.95);
   app.innerHTML=`<h1>Voix russe</h1><p class="sub">Голос для чтения вопросов. Choisis la voix qui te plaît : touche-la pour l'écouter.</p>
   ${v.length?`<div class="list">${v.map((x,i)=>`<button data-v="${i}"><span>${esc(x.name)}${ruVoice&&x.voiceURI===ruVoice.voiceURI?' <b style="color:var(--grn)">✓ choisie</b>':''}<br><span class="fr" style="font-size:14px">${/yuri|юрий|male/i.test(x.name)?'Voix masculine':'Voix'}${/premium|enhanced|улучш|améliorée/i.test(x.name+x.voiceURI)?' · haute qualité':''}</span></span></button>`).join('')}</div>`:'<p class="note">Aucune voix russe trouvée sur ce téléphone.</p>'}
@@ -853,10 +854,10 @@ function startTicket(t,mode){startList(Q.map((q,k)=>q.t===t?k:-1).filter(k=>k>=0
 function themeTickets(list){const s=[...list].sort((a,b)=>Q[a].t-Q[b].t||Q[a].n-Q[b].n),nb=Math.max(1,Math.ceil(s.length/20)),out=[];
   for(let b=0;b<nb;b++)out.push(s.slice(Math.round(b*s.length/nb),Math.round((b+1)*s.length/nb)));return out}
 /* icône d'un thème d'entraînement (régulateur, sans image, avec image, ou thème officiel) */
-const thIco=id=>id==='REG'?REGI:id==='NOIMG'?icoImg('livre'):id==='IMG'?icoImg('panneaux'):tIco(id);
+const thIco=id=>id==='REG'?REGI:id==='ROUTE'?icoImg('voies'):id==='NOIMG'?icoImg('livre'):id==='IMG'?icoImg('panneaux'):tIco(id);
 function THEMES(){const c={};Q.forEach((q,k)=>q.p.forEach(p=>(c[p]=c[p]||[]).push(k)));
   const all=Q.map((q,k)=>k);
-  return[{id:'REG',name:'Régulateur',ru:'Регулировщик',list:REG_IDX()},{id:'NOIMG',name:'Questions sans image',ru:'Вопросы без картинки',list:all.filter(k=>!Q[k].i)},{id:'IMG',name:'Questions avec image',ru:'Вопросы с картинкой',list:all.filter(k=>Q[k].i)},...Object.keys(TOP).filter(p=>c[p]).map(p=>({id:p,name:TOP[p],ru:p,list:c[p]}))]}
+  return[{id:'REG',name:'Régulateur',ru:'Регулировщик',list:REG_IDX()},{id:'ROUTE',name:'Voies, chaussées, carrefours',ru:'Полосы, проезжие части, перекрёстки',list:ROUTE_IDX()},{id:'NOIMG',name:'Questions sans image',ru:'Вопросы без картинки',list:all.filter(k=>!Q[k].i)},{id:'IMG',name:'Questions avec image',ru:'Вопросы с картинкой',list:all.filter(k=>Q[k].i)},...Object.keys(TOP).filter(p=>c[p]).map(p=>({id:p,name:TOP[p],ru:p,list:c[p]}))]}
 function startThemeTicket(id,b){const T=THEMES().find(x=>x.id===id),bt=themeTickets(T.list),key=id+'|'+b;
   startList(bt[b],T.name+' · billet '+(b+1),'theme');S.th=key;S.thId=id;S.thB=b;S.thN=bt.length;
   const p=st.tp[key];if(p){S.ans={...p.ans};const n=S.list.findIndex(x=>S.ans[x]===undefined);S.i=Number.isInteger(p.i)&&p.i>=0&&p.i<S.list.length?p.i:n<0?S.list.length-1:n;S.resumed=true}
@@ -897,6 +898,15 @@ const GRP=['Panneaux, marquage, dispositions générales','Manœuvres, feux et a
 const REG=[[5,13],[6,6],[7,6],[8,6],[9,6],[10,6],[12,6],[12,13],[14,6],[15,6],[18,6],[23,13],[27,6],[27,13],[28,6],[30,6],[31,13],[33,13],[34,13],[36,13],[37,6],[39,6],[40,6]];
 /* petit régulateur : casquette, uniforme, bras tendu avec le bâton rayé */
 const REGI=icoImg('reg'),REGX=icoImg('reg-exam');
+/* bloc « voies, chaussées, carrefours » : compter les полосы, проезжие части, пересечения, et ce qui est (ou n'est pas) un перекрёсток */
+const ROUTE=[[2,1],[4,1],[5,1],[19,1],[22,1],[23,1],[38,1],[25,1],[30,1],[26,1],[17,1],[13,1]];
+const ROUTE_IDX=()=>ROUTE.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
+const ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de commencer</b><ul style="margin:8px 0 0;padding-left:1.2em;line-height:1.45">
+<li><b>Полоса движения</b> (voie) : une file de voitures. On compte les voies des <b>deux sens</b>, d'après les lignes de marquage ou la largeur.</li>
+<li><b>Проезжая часть</b> (chaussée) : la partie roulante. Une <b>разделительная полоса</b> coupe la route en <b>deux chaussées</b> : un terre-plein, ou un espace délimité par deux lignes de bord continues 1.2. Attention : une ligne continue ou une double ligne continue au milieu (1.1, 1.3) ne sépare pas, la route garde une seule chaussée.</li>
+<li><b>Пересечения проезжих частей</b> : on multiplie. Route à 2 chaussées × route à 1 chaussée = <b>2 croisements</b> ; 2 × 2 = <b>4</b>.</li>
+<li><b>Перекрёсток</b> : croisement de deux routes au même niveau. La sortie d'une cour, d'un parking ou d'une station (прилегающая территория) <b>n'est pas</b> un carrefour.</li>
+<li>Les trottoirs et les accotements (обочины) <b>font partie</b> de la route.</li></ul></div>`;
 const REG_IDX=()=>REG.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
 const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожная разметка']],
  ['Santé : premiers secours',['Оказание доврачебной медицинской помощи']],
