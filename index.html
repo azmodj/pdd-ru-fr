@@ -137,6 +137,21 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .lex li{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
 .lex li small{color:var(--mut)}
 
+.trapbn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:14px 0;padding:12px 14px;border:3px solid var(--amber);border-radius:16px;background:linear-gradient(90deg,#4A2A12,#2A1A36);color:var(--cream);box-shadow:0 0 0 3px rgba(255,179,102,.18),0 6px 18px rgba(0,0,0,.35)}
+.trapbn b{display:block;font-size:19px;color:#FFE2B8}.trapbn .ru{color:var(--amber);font-weight:700}.trapbn small{display:block;color:#E8D6C0;font-size:13px;margin-top:2px}.trapbn>span:last-child{flex:1}
+.trx{display:inline-grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--amber);color:var(--night);font:900 28px/1 var(--fa,sans-serif)}
+.trapq .trx{width:24px;height:24px;font-size:16px;vertical-align:-5px;margin-right:4px}
+.trap{border:3px solid var(--amber);border-radius:18px;background:var(--card);padding:14px;margin:14px 0}
+.trap h3{margin:0;font-size:20px;color:#FFE2B8}.trap h3 .ru{color:var(--amber);font-size:15px;margin-top:2px}.trsub{margin:6px 0 12px;color:var(--mut);font-size:14px}
+.tw2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tcol{display:flex;flex-direction:column;gap:8px;background:var(--night);border:1px solid var(--line);border-radius:12px;padding:10px}
+.tlab{font-size:12px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.tq{margin:0;font-size:15px;line-height:1.35;font-weight:600}.tfr{margin:0;font-size:13px;line-height:1.3;color:var(--fr);font-style:italic}
+.tans{margin-top:auto;border:2px solid var(--grn);background:var(--grnbg);border-radius:10px;padding:8px}.tans b{display:block;color:var(--grn);font-size:17px}.tans span{font-size:13px}
+mark.trw{background:var(--coral);color:#1A0E14;font-weight:900;border-radius:4px;padding:0 3px;font-style:normal}
+.trtip{margin-top:12px;font-size:15px;line-height:1.45}.trtip p{margin:0 0 8px}.trtip ul{margin:0 0 8px;padding-left:1.2em}
+.trmemo{background:rgba(255,179,102,.12);border-left:4px solid var(--amber);padding:8px 10px;border-radius:0 8px 8px 0}
+.trapq{border:2px solid var(--amber);border-radius:14px;background:rgba(255,179,102,.1);padding:10px 12px;margin:12px 0}.trapq b{color:#FFE2B8}.trapq p{margin:6px 0 8px;font-size:15px;line-height:1.4}
 .card0{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:12px 0 16px}
 .bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:4px 0 2px}.bar i{display:block;height:100%;border-radius:6px;background:#3b82f6}
 .brow{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:17px}.brow span:last-child{font-variant-numeric:tabular-nums}
@@ -728,7 +743,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
    ${tile('topics','#2D4F86','Thèmes','Темы','Entraînement en billets','topics')}
    ${tile('errors','#8A5A2B','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
-  `+dailyCard()+`
+  `+TRAPBN()+dailyCard()+`
   <div class="tiles sq">
    ${sq('ana','img/ui/carre-ana','#FF4F7B','Mon analyse','Мой анализ','Points forts et faibles')}
    ${sq('texam','img/ui/carre-texam','#3FA9FF','Examen par thème','Экзамен по темам','Comme au ГИБДД')}
@@ -755,6 +770,7 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
     else if(g==='marathon')startList(shuffle(Q.map((_,k)=>k)),'Marathon','free');
     else if(g==='errors'){const l=Object.keys(st.r).filter(k=>st.r[k]===0).map(Number);if(l.length)startList(l,'Mes erreurs','free');else{flashMsg='Aucune erreur enregistrée pour l\'instant.';render.home()}}
     else if(g==='vocab')startVocab();
+    else if(g==='traps'){render.traps();scrollTo(0,0)}
     else if(g==='fav'){const l=Object.keys(st.f||{}).map(Number).sort((a,b)=>Q[a].t-Q[b].t||Q[a].n-Q[b].n);if(l.length)startList(l,'Favorites','free');else{flashMsg='Aucune question favorite pour l\'instant. Pendant un billet, touche l\'étoile ☆ en haut d\'une question pour la garder ici.';render.home()}}
     else if(g==='reset'){if(b.dataset.c){st={r:{},tk:{},v:{},p:{},f:st.f||{},d:st.d,tt:{},tp:{}};save();render.home()}else{b.dataset.c=1;b.querySelector('small').textContent='Touche encore pour confirmer'}}
     else render[g]()})},
@@ -767,12 +783,13 @@ tickets(){S={view:'tickets'};
 topics(){S={view:'topics'};const L=THEMES();
   const row=T=>{const bt=themeTickets(T.list),ok=bt.filter((_,b)=>{const r=st.tt[T.id+'|'+b];return r&&r.last===0}).length,go=bt.filter((_,b)=>st.tp[T.id+'|'+b]).length;
     return`<button class="row" data-th="${esc(T.id)}">${thIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
-  app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>
+  app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>${TRAPBN()}
   <div class="rows">${L.filter(T=>T.id==='REG'||T.id==='ROUTE').map(row).join('')}</div>
   <h2>Par type de question</h2><p class="sub" style="margin-top:0">Toutes les questions sans image (idéal pour le vocabulaire), puis toutes celles avec image, en billets de 20 dans l'ordre officiel. Un billet pas terminé reprend là où tu t'es arrêté.</p><div class="rows">${L.filter(T=>T.id==='NOIMG'||T.id==='IMG').map(row).join('')}</div>
   <h2>Thèmes officiels</h2><div class="rows">${L.filter(T=>!['REG','ROUTE','NOIMG','IMG'].includes(T.id)).map(row).join('')}</div>
   <p class="note">Pour te tester sans correction, va dans <button class="tbtn" id="gotex" style="color:var(--fr);border-color:var(--fr);min-height:32px">Thèmes · examen</button></p>`;
   app.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{render.theme(b.dataset.th);scrollTo(0,0)});
+  {const tb=app.querySelector('.trapbn');if(tb)tb.onclick=()=>{render.traps();scrollTo(0,0)}}
   $('#gotex').onclick=()=>{render.texam();scrollTo(0,0)}},
 theme(id){const T=THEMES().find(x=>x.id===id);if(!T)return render.topics();S={view:'theme',id};const bt=themeTickets(T.list);
   app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="tback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Thèmes</button></p>
@@ -831,6 +848,13 @@ texam(){S={view:'texam'};const reg=REG_IDX(),route=ROUTE_IDX(),noImg=Q.map((q,k)
   <h2>Thèmes officiels</h2><div class="rows">${th.map((p,i)=>item('t'+i,p,TOP[p],p,'',c[p].length)).join('')}</div>`;
   app.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const x=b.dataset.x,i=+x.slice(1);
     if(x==='ro0')startList(shuffle(route),'Voies, chaussées, carrefours','free');else if(x==='ro1')startThemeExam(route,'Voies, chaussées, carrefours');else if(x==='n0')startList(shuffle(noImg).slice(0,20),'Sans image','free');else if(x==='n1')startThemeExam(noImg,'Sans image');else if(x==='i1')startThemeExam(withImg,'Avec image');else if(x==='r0')startList(shuffle(reg),'Régulateur','free');else if(x==='r1')startThemeExam(reg,'Régulateur');else if(x[0]==='g')startThemeExam(pool(TEX[i][1]),TEX[i][0]);else startThemeExam(c[th[i]],TOP[th[i]])})},
+traps(){S={view:'traps'};
+  app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="trback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Accueil</button></p>
+  <div class="guide">${PORT('alina-main','Alina, policière')}<div class="gt"><h1>Pièges</h1><em class="ru">Вопросы-ловушки</em></div></div>
+  <p class="sub">Des questions qui se ressemblent presque mot pour mot. Lis-les côte à côte : le mot surligné est le seul qui change.</p>
+  ${TRAPS.map(trapCard).join('')}`;
+  $('#trback').onclick=()=>{render.home();scrollTo(0,0)};
+  app.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{const p=TRAPS.find(x=>x.id===b.dataset.tp);startList(shuffle(p.q.map(trapK)),'Piège · '+p.name,'free')})},
 voix(){S={view:'voix'};const v=TTS?ruVoices().sort((a,b)=>vScore(b)-vScore(a)):[],r=+(localStorage.getItem('pdd-rate')||.95);
   app.innerHTML=`<h1>Voix russe</h1><p class="sub">Голос для чтения вопросов. Choisis la voix qui te plaît : touche-la pour l'écouter.</p>
   ${v.length?`<div class="list">${v.map((x,i)=>`<button data-v="${i}"><span>${esc(x.name)}${ruVoice&&x.voiceURI===ruVoice.voiceURI?' <b style="color:var(--grn)">✓ choisie</b>':''}<br><span class="fr" style="font-size:14px">${/yuri|юрий|male/i.test(x.name)?'Voix masculine':'Voix'}${/premium|enhanced|улучш|améliorée/i.test(x.name+x.voiceURI)?' · haute qualité':''}</span></span></button>`).join('')}</div>`:'<p class="note">Aucune voix russe trouvée sur ce téléphone.</p>'}
@@ -907,6 +931,25 @@ const ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de c
 <li><b>Пересечения проезжих частей</b> : on multiplie. Route à 2 chaussées × route à 1 chaussée = <b>2 croisements</b> ; 2 × 2 = <b>4</b>.</li>
 <li><b>Перекрёсток</b> : croisement de deux routes au même niveau. La sortie d'une cour, d'un parking ou d'une station (прилегающая территория) <b>n'est pas</b> un carrefour.</li>
 <li>Les trottoirs et les accotements (обочины) <b>font partie</b> de la route.</li></ul></div>`;
+/* pièges : paires de questions presque identiques (un mot change, la réponse aussi) */
+const TRAPS=[{id:'portiere',name:'Monter ou descendre de voiture',ru:'Посадка / высадка',
+ q:[[40,19],[5,19]],w:['посадке','высадке'],fw:['monter','descendant'],ans:['Par l\'AVANT','Par l\'ARRIÈRE'],
+ tip:`<p><b>Règle :</b> à pied le long de ta voiture, tu marches toujours <b>face aux voitures qui arrivent</b> derrière elle. Tu ne leur tournes jamais le dos.</p>
+<ul><li><b>Посадка</b> (monter) : tu fais le tour <b>par l'avant</b>, puis tu reviens vers la portière en regardant les voitures arriver.</li>
+<li><b>Высадка</b> (descendre) : tu sors et tu repars <b>par l'arrière</b>, toujours face aux voitures qui arrivent.</li></ul>
+<p class="trmemo"><b>Pour retenir :</b> <b>A</b>rriver à la voiture → <b>A</b>vant. <b>D</b>épart de la voiture → <b>D</b>errière.<br><b>вы-</b> = vers l'extérieur, comme <b>выход</b> (sortie) : <b>вы</b>садка = on sort de la voiture.</p>`}];
+const trapK=([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n);
+const TRAP_IDX=()=>TRAPS.flatMap(p=>p.q.map(trapK)).filter(k=>k>=0);
+const trapOf=k=>TRAPS.find(p=>p.q.some(x=>trapK(x)===k));
+const markW=(t,w)=>esc(t).replace(w,`<mark class="trw">${w}</mark>`);
+function trapCard(p){const ks=p.q.map(trapK);
+ return`<div class="trap"><h3>${esc(p.name)}<em class="ru">${esc(p.ru)}</em></h3><p class="trsub">Un seul mot change. La bonne réponse change aussi.</p>
+ <div class="tw2">${ks.map((k,j)=>{const q=Q[k];return`<div class="tcol"><span class="tlab">Billet ${q.t} · Q${q.n}</span>
+  <p class="tq">${markW(q.q,p.w[j])}</p><p class="fr tfr">${markW(q.fq,p.fw[j])}</p>
+  <div class="tans"><b>${esc(p.ans[j])}</b><span>${esc(q.a[q.c])}</span></div></div>`}).join('')}</div>
+ <div class="trtip">${p.tip}</div>
+ <button class="btn" data-tp="${esc(p.id)}" style="width:100%;margin-top:12px">S'entraîner sur ces ${ks.length} questions</button></div>`}
+const TRAPBN=()=>`<button class="trapbn" data-go="traps"><span class="trx">!</span><span><b>Pièges · questions jumelles</b><em class="ru">Вопросы-ловушки</em><small>${TRAPS.length} paire${TRAPS.length>1?'s':''} · un seul mot change, la réponse aussi</small></span></button>`;
 const REG_IDX=()=>REG.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
 const TEX=[['Panneaux et marquage',['Дорожные знаки','Дорожная разметка']],
  ['Santé : premiers secours',['Оказание доврачебной медицинской помощи']],
@@ -1016,6 +1059,7 @@ function renderQuiz(){
   <div class="ans">${q.a.map((x,j)=>{const cls=a===undefined?'':exam?(j===a?'sel':''):j===q.c?'ok':j===a?'ko':'';return`<button data-j="${j}" class="${cls}" ${a!==undefined?'disabled':''}>${numMk(j+1,cls)}<span>${hlq(x)}${TTS?`<span class="say" role="button" tabindex="0" data-say="a${j}" aria-label="Lire la réponse ${j+1}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>`:''}${fr?`<span class="fr">${esc(q.fa[j])}</span>`:''}</span></button>`}).join('')}</div>
   ${a!==undefined&&!exam?`${corrHead(q,a)}<div class="tip"><p>${hlq(q.h)}${TTS?`<button class="say" data-say="h" aria-label="Lire l'explication"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:''}</p>${hf?(fr?`<p class="fr">${esc(hf)}</p>`:`<p><button class="tbtn" id="tipfr" style="color:var(--fr);border-color:var(--fr);min-height:36px">Voir l'explication en français</button></p>`):S.tipBusy?'<p class="fr">Traduction en cours…</p>':sample?`<p><button id="tipb">Traduire l'explication</button>${S.tipErr?` <span style="color:var(--red);font-size:14px">${esc(S.tipErr)}</span>`:''}</p>`:''}</div></div>${corrPort(k,q,a)}</div>`:''}
   ${a!==undefined&&!exam&&q.k.length?`<div class="kw"><h3>Mots-clés de la question</h3><div id="vmw"></div>${vmDone(S.vq)?`<ul>${q.k.map(i=>`<li><b>${esc(G[i][0])}</b><span>${esc(G[i][1])}</span></li>`).join('')}</ul>`:''}</div>`:''}
+  ${a!==undefined&&!exam?trapNote(k):''}
   ${qOrig(q)}
   <div class="nav"><button class="btn ghost" id="prev" ${S.i?'':'disabled'}>Précédente</button><button class="btn" id="next">${S.i===S.list.length-1?'Terminer':'Suivante'}</button></div>
   ${exam&&S.ex?`<p class="note">Bloc : ${esc(S.ex.names[S.ex.bk[k]])}${k in S.ex.extra?' · question supplémentaire':''}. Aucune correction pendant l'examen : le résultat s'affiche à la fin. Une faute dans un bloc ajoute 5 questions de ce bloc après la question ${S.ex.main} ; 2 fautes dans un bloc, 3 fautes au total ou une faute dans les questions supplémentaires = échec.</p>`:''}`;
@@ -1024,6 +1068,7 @@ function renderQuiz(){
   app.querySelectorAll('[data-say]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();ev.preventDefault();const s=b.dataset.say;say(s==='q'?q.q:s==='h'?q.h:q.a[+s.slice(1)],b)});
   app.querySelectorAll('mark.kwm,.kph').forEach(m=>m.onclick=ev=>{ev.stopPropagation();ev.preventDefault();tipWord(m)});
   const frb=$('#frb');if(frb)frb.onclick=()=>{S.fr=!S.fr;renderQuiz()};
+  {const g=$('#gotrap');if(g)g.onclick=()=>{render.traps();scrollTo(0,0)}}
   const tf=$('#tipfr');if(tf)tf.onclick=()=>{S.fr=true;renderQuiz()};
   app.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>answer(k,+b.dataset.j));
   {const w=$('#vmw');if(w){const y=scrollY;vmMount(w,S.vq,()=>{renderQuiz();scrollTo(0,y)})}}
@@ -1042,6 +1087,8 @@ function corrHead(q,a){const ok=a===q.c;
     ?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11.5" fill="#58D89B"/><path d="M6.5 12.5l3.6 3.6 7.4-8" fill="none" stroke="#10162E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     :'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11.5" fill="#FF7772"/><path d="M8 8l8 8M16 8l-8 8" stroke="#10162E" stroke-width="2.6" stroke-linecap="round"/></svg>'}
     <span><b>${ok?'Bonne réponse':'Réponse incorrecte'}</b><em class="ru">${ok?'Правильно':'Неправильно'}</em>${ok?'':`<span class="note" style="display:block;margin:4px 0 0">La bonne réponse est la n° ${q.c+1}.</span>`}</span></div>`}
+function trapNote(k){const p=trapOf(k);if(!p)return'';const j=p.q.findIndex(x=>trapK(x)===k),o=trapK(p.q[1-j]);if(o<0)return'';const q=Q[o];
+ return`<div class="trapq"><b><span class="trx">!</span> Question piège</b><p>Sa jumelle (billet ${q.t}, question ${q.n}) dit <mark class="trw">${esc(p.w[1-j])}</mark> au lieu de <mark class="trw">${esc(p.w[j])}</mark>, et la réponse est <b>${esc(p.ans[1-j])}</b> : « ${esc(q.a[q.c])} ».</p><button class="tbtn" id="gotrap" style="color:var(--amber);border-color:var(--amber);min-height:36px">Voir les deux côte à côte</button></div>`}
 function corrPort(k,q,a){REGSET=REGSET||new Set(REG_IDX());return PORT(REGSET.has(k)?'alina-buste':a===q.c?'alina-ok':'alina-erreur','Alina, policière')}
 function keepPos(){if(S.mode==='ticket'&&S.t&&!S.done){st.p[S.t]={ans:{...S.ans},d:Date.now(),i:S.i};save()}if(S.th&&!S.done){st.tp[S.th]={ans:{...S.ans},d:Date.now(),i:S.i};save()}}
 function go(i,dir){if(TTS)speechSynthesis.cancel();S.i=i;keepPos();S.fr=false;S.vq=null;S.tipErr='';renderQuiz();scrollTo(0,0);
