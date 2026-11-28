@@ -863,13 +863,16 @@ traps(){S={view:'traps'};
   <button class="btn" id="trall" style="width:100%;margin:4px 0 10px">Tous les pièges · ${TRAP_IDX().length} questions</button>
   <p class="note" style="margin-top:0">Les paires arrivent dans un ordre au hasard, les deux jumelles l'une après l'autre.</p>
   <p class="note" style="margin:0">Touche une image pour l'agrandir.</p>
-  <div class="trlist">${TRAPS.filter(p=>p.cat!=='tram').map((p,i)=>`<a href="#tr-${p.id}">${i+1}. ${esc(p.name)}</a>`).join('')}<a href="#tr-tram" class="trtl">Tramways · ${TRAPS.filter(p=>p.cat==='tram').length} paires</a></div>
-  <h2 class="trh">Mots, couleurs et détails</h2>${TRAPS.filter(p=>p.cat!=='tram').map(trapCard).join('')}
+  <div class="trlist">${TRAPS.filter(p=>p.cat==='gen').map((p,i)=>`<a href="#tr-${p.id}">${i+1}. ${esc(p.name)}</a>`).join('')}<a href="#tr-tram" class="trtl">Tramways · ${TRAPS.filter(p=>p.cat==='tram').length} paires</a><a href="#tr-tow" class="trtl">Remorquage · ${TRAPS.filter(p=>p.cat==='tow').length} paires</a></div>
+  <h2 class="trh">Mots, couleurs et détails</h2>${TRAPS.filter(p=>p.cat==='gen').map(trapCard).join('')}
   <h2 class="trh" id="tr-tram">Tramways</h2><button class="btn" id="trtram" style="width:100%;margin:0 0 4px">Tous les pièges tram · ${TRAPS.filter(p=>p.cat==='tram').length*2} questions</button>
-  ${TRAPS.filter(p=>p.cat==='tram').map(trapCard).join('')}`;
+  ${TRAPS.filter(p=>p.cat==='tram').map(trapCard).join('')}
+  <h2 class="trh" id="tr-tow">Remorquage</h2><button class="btn" id="trtow" style="width:100%;margin:0 0 4px">Tous les pièges remorquage · ${TRAPS.filter(p=>p.cat==='tow').length*2} questions</button>
+  ${TRAPS.filter(p=>p.cat==='tow').map(trapCard).join('')}`;
   $('#trback').onclick=()=>{render.home();scrollTo(0,0)};
   $('#trall').onclick=()=>startList(trapAll(),'Pièges','free');
   $('#trtram').onclick=()=>startList(shuffle(TRAPS.filter(p=>p.cat==='tram')).flatMap(p=>shuffle(p.q.map(trapK))),'Pièges · tramways','free');
+  $('#trtow').onclick=()=>startList(shuffle(TRAPS.filter(p=>p.cat==='tow')).flatMap(p=>shuffle(p.q.map(trapK))),'Pièges · remorquage','free');
   app.querySelectorAll('.trlist a').forEach(a=>a.onclick=ev=>{ev.preventDefault();const el=document.querySelector(a.getAttribute('href'));if(el)el.scrollIntoView({behavior:'smooth'})});
   app.querySelectorAll('img.timg').forEach(im=>{const t=+im.dataset.t;loadImg(t).then(()=>{if(IMG[t])im.src=IMG[t][im.dataset.i]})});
   app.querySelectorAll('img.timg').forEach(im=>im.onclick=()=>{if(!im.src)return;const z=document.createElement('div');z.className='tzoom';z.innerHTML=`<img src="${im.src}" alt=""><span>Touche pour fermer</span>`;z.onclick=()=>z.remove();document.body.appendChild(z)});
@@ -1040,7 +1043,19 @@ T_('tramdroite','Tout droit à égalité : le tram plus un véhicule à droite o
 T_('tramplaque','Tourner à gauche avec deux trams : qui est sur la route prioritaire','Трамваи А и Б',[[3,15],[8,15]],['',''],['',''],['Seulement au tram А','Au tram Б et à la voiture'],
  'Deux trams А et Б, une voiture, un losange jaune avec une plaque. Le dessin de la plaque change : c\'est lui qui dit qui est sur la route prioritaire.',
  `Première photo : toi et le tram А êtes sur la route prioritaire. Tu cèdes seulement au tram А. La voiture et le tram Б sont sur la route secondaire : ils passent après.<br>Seconde photo : toi, le tram Б et la voiture êtes sur la route prioritaire. Tu cèdes au tram Б, puis à la voiture qui va tout droit. Le tram А est sur la route secondaire : il passe en dernier.`,
- `Suis avec le doigt le trait épais de la plaque : ceux qui sont dessus passent avant les autres.`,'tram')];
+ `Suis avec le doigt le trait épais de la plaque : ceux qui sont dessus passent avant les autres.`,'tram'),
+T_('remdist','Remorquage : barre rigide ou câble souple','Жёсткая / гибкая сцепка',[[4,17],[27,17]],['жёсткой','гибкой'],['barre de remorquage (liaison rigide)','liaison souple (câble)'],['4 m maximum','De 4 à 6 m'],
+ 'Un seul mot change : « жёсткой » (rigide) ou « гибкой » (souple). Les réponses proposées sont les mêmes.',
+ `<b>Жёсткая сцепка</b> (barre rigide) : 4 m au plus entre les deux véhicules.<br><b>Гибкая сцепка</b> (câble souple) : entre 4 et 6 m, et le câble est signalé par des drapeaux ou des plaques tous les mètres.`,
+ `Rigide = court, 4 m maximum. Souple = de 4 à 6 m. <b>жёсткий</b> = dur, <b>гибкий</b> = souple.`,'tow'),
+T_('rempers','Passagers : voiture remorquée ou voiture qui remorque','Буксируемый / буксирующий',[[18,17],[40,17]],['буксируемом','буксирующего'],['remorquée','qui remorque'],['Seulement avec câble ou barre','Oui'],
+ 'La première question parle de la voiture remorquée, la seconde de celle qui remorque. Les deux mots russes se ressemblent : « буксируемый » et « буксирующий ».',
+ `<b>Буксируемый</b> (remorqué) : passagers permis dans une voiture remorquée par câble ou par barre. Interdits dans un bus, un trolleybus ou la benne d'un camion remorqués, et dans tout véhicule remorqué en chargement partiel.<br><b>Буксирующий</b> (qui remorque) : passagers permis dans la voiture.`,
+ `<b>-емый</b> = celui qui subit (remorqué). <b>-ющий</b> = celui qui agit (qui remorque).`,'tow'),
+T_('remglace','Verglas : câble interdit, barre permise','Гололедица',[[2,17],[39,17]],['гибкой','гололедицу'],['liaison souple','par verglas'],['Seulement par verglas','Avec une barre ou en chargement partiel'],
+ 'Même règle vue des deux côtés : la première question part du câble souple, la seconde du verglas.',
+ `Par verglas (<b>гололедица</b>), le remorquage au <b>câble souple</b> est interdit. Il reste permis avec une <b>barre rigide</b> ou en <b>chargement partiel</b> (roues avant posées sur le véhicule qui remorque).<br>Routes de montagne, nuit, mauvaise visibilité : le câble reste permis.`,
+ `Verglas → pas de câble. Barre ou chargement partiel → oui.`,'tow')];
 const trapK=([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n);
 const TRAP_IDX=()=>TRAPS.flatMap(p=>p.q.map(trapK)).filter(k=>k>=0);
 const trapOf=k=>TRAPS.find(p=>p.q.some(x=>trapK(x)===k));
