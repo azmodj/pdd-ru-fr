@@ -618,8 +618,8 @@ window.pddView=()=>S&&S.view;
 /* langue de traduction : français (par défaut) ou anglais. En anglais, les traductions des questions et du lexique sont remplacées,
    et les textes de l'interface sont traduits à l'affichage. */
 /* langues de traduction : [code court, drapeau, nom dans la langue] — le russe reste toujours affiché */
-const LDEF={fr:['FR','🇫🇷','Français'],en:['EN','🇬🇧','English'],es:['ES','🇪🇸','Español'],it:['IT','🇮🇹','Italiano'],tr:['TR','🇹🇷','Türkçe'],hi:['HI','🇮🇳','हिन्दी'],zh:['中文','🇨🇳','中文'],ar:['عربي','🇸🇦','العربية']};
-const LFILE={en:'e.json',zh:'zh.json',ar:'ar.json'}; /* es.json, it.json, tr.json, hi.json : à ajouter ici quand ils sont prêts */
+const LDEF={fr:['FR','🇫🇷','Français'],en:['EN','🇬🇧','English'],es:['ES','🇪🇸','Español'],it:['IT','🇮🇹','Italiano'],tr:['TR','🇹🇷','Türkçe'],hi:['HI','🇮🇳','हिन्दी'],zh:['中文','🇨🇳','中文'],ar:['عربي','🇸🇦','العربية'],kk:['KZ','🇰🇿','Қазақша'],tg:['TJ','🇹🇯','Тоҷикӣ'],ky:['KG','🇰🇬','Кыргызча']};
+const LFILE={en:'e.json',zh:'zh.json',ar:'ar.json',kk:'kk.json',tg:'tg.json',ky:'ky.json'}; /* es.json, it.json, tr.json, hi.json : à ajouter ici quand ils sont prêts */
 const LANGS=Object.fromEntries(Object.entries(LDEF).filter(([k])=>k==='fr'||LFILE[k]).map(([k,v])=>[k,v[0]]));
 const GLOBE='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.9 6 3.9 9.5s-1.3 6.7-3.9 9.5c-2.6-2.8-3.9-6-3.9-9.5s1.3-6.7 3.9-9.5z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 const LANG=LANGS[localStorage.getItem('pdd-lang')]?localStorage.getItem('pdd-lang'):'fr';
@@ -632,6 +632,8 @@ const LANG=LANGS[localStorage.getItem('pdd-lang')]?localStorage.getItem('pdd-lan
 function useEnglish(E){
   Q.forEach((q,i)=>{const x=E.q&&E.q[i];if(x){q.fq=x[0];q.fa=x[1];if(x[2])q.fh=x[2]}});
   G.forEach((g,i)=>{const x=E.g&&E.g[i];if(x)g[1]=x});
+  if(E.tp)TRAPS.forEach(p=>{const x=E.tp[p.id];if(x){p.name=x[0];p.diff=x[1];p.tip=x[2];p.memo=x[3];p.fw=x[4];p.ans=x[5]}});
+  if(E.rt)ROUTE_TIP=E.rt;
   document.documentElement.lang=LANG;if(LANG==='ar')document.body.classList.add('rtl');
   const ex=E.ex,sub=E.sub,rx=E.rx.map(([a,b])=>[new RegExp(a),b]);
   const tr=(t,at)=>{const core=t.trim();if(!core||!/[A-Za-zÀ-ÿ]/.test(core))return t;
@@ -942,7 +944,7 @@ const REGI=icoImg('reg'),REGX=icoImg('reg-exam');
 /* bloc « voies, chaussées, carrefours » : compter les полосы, проезжие части, пересечения, et ce qui est (ou n'est pas) un перекрёсток */
 const ROUTE=[[2,1],[4,1],[5,1],[19,1],[22,1],[23,1],[38,1],[25,1],[30,1],[26,1],[17,1],[13,1]];
 const ROUTE_IDX=()=>ROUTE.map(([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n)).filter(k=>k>=0);
-const ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de commencer</b><ul style="margin:8px 0 0;padding-left:1.2em;line-height:1.45">
+let ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de commencer</b><ul style="margin:8px 0 0;padding-left:1.2em;line-height:1.45">
 <li><b>Полоса движения</b> (voie) : une file de voitures. On compte les voies des <b>deux sens</b>, d'après les lignes de marquage ou la largeur.</li>
 <li><b>Проезжая часть</b> (chaussée) : la partie roulante. Une <b>разделительная полоса</b> coupe la route en <b>deux chaussées</b> : un terre-plein, ou un espace délimité par deux lignes de bord continues 1.2. Attention : une ligne continue ou une double ligne continue au milieu (1.1, 1.3) ne sépare pas, la route garde une seule chaussée.</li>
 <li><b>Пересечения проезжих частей</b> : on multiplie. Route à 2 chaussées × route à 1 chaussée = <b>2 croisements</b> ; 2 × 2 = <b>4</b>.</li>
@@ -1224,7 +1226,7 @@ function renderResult(){
   const E=S.ex;if(E)bad.push(...S.list.filter(x=>S.ans[x]===undefined));
   const pass=E?!E.fail:(S.t||S.th)?bad.length+skip<=2:null;
   app.innerHTML=`<div class="res"><p class="sub">${esc(S.title)}</p><div class="rhead">${E?PORT('mikhail-bilan','Mikhaïl, examinateur'):''}<b class="score ${pass===null?'':pass?'pass':'fail'}">${ok}/${S.list.length}</b></div>
-  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${S.th&&st.tt[S.th]?`<p class="sub">Billet terminé ${st.tt[S.th].n} fois · meilleur résultat : ${S.list.length-st.tt[S.th].best}/${S.list.length}</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${esc(E.fail)}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}${revThemes(bad)}</div>
+  <p style="font-size:20px;font-weight:700">${pass===null?'Série terminée':ok===S.list.length?'Sans faute':pass?(E?'Réussi':'Réussi, avec '+(S.list.length-ok)+' faute(s)'):'Échoué'}</p>${S.t&&st.tk[S.t]?`<p class="sub">Billet ${S.t} terminé ${st.tk[S.t].n} fois · meilleur résultat : ${20-st.tk[S.t].best}/20</p>`:''}${S.th&&st.tt[S.th]?`<p class="sub">Billet terminé ${st.tt[S.th].n} fois · meilleur résultat : ${S.list.length-st.tt[S.th].best}/${S.list.length}</p>`:''}${E?`<p class="sub">${ok} bonne(s) réponse(s) · ${S.list.length-ok-skip} faute(s) · ${skip} sans réponse</p>`:skip?`<p class="sub">${skip} question(s) sans réponse</p>`:''}${E&&E.fail?`<p class="sub" style="color:var(--red)">${E.fail.split(' · ').map(esc).join('<br>')}</p>`:''}${E?`<div class="kw" style="text-align:left"><ul>${E.names.slice(0,E.nb).map((nm,b)=>{const qs=S.list.filter(x=>E.bk[x]===b&&!(x in E.extra)),xs=S.list.filter(x=>E.extra[x]===b);const f=a=>a.filter(x=>S.ans[x]===Q[x].c).length;return`<li><b>${esc(nm)}</b><span>${f(qs)}/${qs.length}${xs.length?` · supplémentaires ${f(xs)}/${xs.length}`:''}</span></li>`}).join('')}</ul></div>`:''}${revThemes(bad)}</div>
   <div class="nav">${bad.length?'<button class="btn" id="rev">Revoir mes fautes</button>':''}${S.th&&S.thB<S.thN-1?'<button class="btn" id="nxt">Billet suivant</button>':''}<button class="btn ghost" id="back">${S.th?'Retour au thème':'Accueil'}</button></div>`;
   {const th=S.th&&S.thId,b=S.thB,nx=$('#nxt');if(nx)nx.onclick=()=>startThemeTicket(th,b+1);$('#back').onclick=th?()=>{render.theme(th);scrollTo(0,0)}:render.home}const r=$('#rev');if(r)r.onclick=()=>startList(bad,'Fautes · '+S.title,'free');
   const isEx=!!E,n=S.list.length,perfect=!bad.length&&!skip&&!(E&&E.fail),th=S.thId,tb=S.thB,tk=S.t,tm=S.mode,lx=LASTX;
@@ -1296,9 +1298,9 @@ function copCheer(){document.querySelectorAll('.cop').forEach(e=>e.remove());SND
   d.onclick=close;setTimeout(close,9000);setTimeout(()=>{if(d.isConnected)SND.play('combo')},2330)}
 /* billet échoué : policière déçue sous la pluie, puis elle encourage et propose de corriger les fautes */
 /* sans faute (billet 20/20 ou examen sans faute) : la policière félicite, avec gyrophares bleu et rouge */
-const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!'};
-const FIXMSG={fr:'Bravo, tu as corrigé toutes tes erreurs ! Je ne vais pas t\'arrêter aujourd\'hui.',en:'Well done, you fixed all your mistakes! I won\'t arrest you today.',zh:'做得好，你改正了所有错误！今天我不逮捕你。',ar:'أحسنت، لقد صححت كل أخطائك! لن أعتقلك اليوم.'};
-const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`};
+const POLMSG={fr:'Félicitations, je ne vais pas t\'arrêter aujourd\'hui !',en:'Congratulations, I won\'t arrest you today!',zh:'恭喜你，今天我不逮捕你！',ar:'تهانينا، لن أعتقلك اليوم!',kk:'Құттықтаймын, бүгін сені ұстамаймын!',tg:'Табрик, имрӯз туро ҳабс намекунам!',ky:'Куттуктайм, бүгүн сени кармабайм!'};
+const FIXMSG={fr:'Bravo, tu as corrigé toutes tes erreurs ! Je ne vais pas t\'arrêter aujourd\'hui.',en:'Well done, you fixed all your mistakes! I won\'t arrest you today.',zh:'做得好，你改正了所有错误！今天我不逮捕你。',ar:'أحسنت، لقد صححت كل أخطائك! لن أعتقلك اليوم.',kk:'Жарайсың, барлық қателеріңді түзеттің! Бүгін сені ұстамаймын.',tg:'Офарин, ҳамаи хатоҳоятро ислоҳ кардӣ! Имрӯз туро ҳабс намекунам.',ky:'Азаматсың, бардык каталарыңды оңдодуң! Бүгүн сени кармабайм.'};
+const TEASE={fr:s=>`Bravo, ${s} ! Fais tout juste et tu auras une belle surprise…`,en:s=>`Well done, ${s}! Get everything right and you'll get a nice surprise…`,zh:s=>`做得好，${s}！全部答对，你会有一个惊喜…`,ar:s=>`أحسنت، ${s}! أجب عن كل شيء بشكل صحيح وستحصل على مفاجأة جميلة…`,kk:s=>`Жарайсың, ${s}! Бәріне дұрыс жауап берсең, сені тамаша сыйлық күтеді…`,tg:s=>`Офарин, ${s}! Ба ҳама дуруст ҷавоб деҳ, туро тӯҳфаи зебо интизор аст…`,ky:s=>`Азаматсың, ${s}! Баарына туура жооп берсең, сени сонун белек күтөт…`};
 /* sans-faute : une photo tirée au hasard dans cette liste (ajouter un nom de fichier de cop/ pour en ajouter une) */
 const POLWIN=['policiere-illu'];
 function copWin(){copWoman(POLWIN[Math.random()*POLWIN.length|0])}
@@ -1344,7 +1346,7 @@ function missionFail(ok,n,isEx,bad,again,why){document.querySelectorAll('.cop,.m
   const d=document.createElement('div');d.className='mres ko';
   d.innerHTML=`<div class="mart" role="img" aria-label="Policière avec la feuille d'examen ratée" style="--ar:749/705;background-image:url(cop/mission-ko.webp)"></div>
   <h2 class="wst">Wasted</h2><p class="mru">${isEx==='vocab'?'Vocabulaire échoué':isEx?'Examen échoué':'Billet échoué'}</p><p class="mru2">${isEx==='vocab'?'Словарный тест не сдан':isEx?'Экзамен не сдан':'Билет не решён'}</p>
-  <div class="msc">${ok}<i>/</i>${n}</div>${why?`<p class="sub" style="color:#FFB3B8;margin:10px 0 0">${esc(why)}</p>`:''}
+  <div class="msc">${ok}<i>/</i>${n}</div>${why?`<p class="sub" style="color:#FFB3B8;margin:10px 0 0">${why.split(' · ').map(esc).join('<br>')}</p>`:''}
   ${again?'<button class="mbtn" id="mgo"><span>Réessayer</span></button>':''}${bad.length?'<button class="mlink" id="mrev">Revoir mes erreurs</button>':''}<button class="mlink" id="mres" style="border-color:transparent;background:none;font-size:15px">Voir mes résultats</button>`;
   document.body.appendChild(d);
   const g=d.querySelector('#mgo');if(g)g.onclick=()=>mClose(d,again);
@@ -1455,7 +1457,7 @@ function checkStreak(){const d=D(),t=dkey();d.froze=0;if(!d.last||!d.streak)retu
 
 /* petit policier de l'accueil : coucou au lancement, puis content (défi fait) ou fâché (défi pas fait) */
 let copHi=true;
-const COPS={hi:['alina-main','Coucou ! Content de te revoir.','Привет!'],ok:['alina-pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:[['alina-baton','alina-menottes'],{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.'},'Ты не прошёл задание дня — сейчас арестую!']};
+const COPS={hi:['alina-main','Coucou ! Content de te revoir.','Привет!'],ok:['alina-pouce','Défi du jour fait, bravo ! Reviens demain.','Молодец!'],ko:[['alina-baton','alina-menottes'],{fr:'Tu dois faire ton quiz du jour ! Tu ne l\'as pas fait, tu vas te faire arrêter.',en:'You must do your daily quiz! You haven\'t done it, you\'re going to get arrested.',zh:'你必须完成今日测验！你还没做，你要被逮捕了。',ar:'يجب أن تكمل اختبار اليوم! لم تفعله بعد، سيتم اعتقالك.',kk:'Бүгінгі тестіңді орындауың керек! Әлі орындаған жоқсың, сені ұстаймын.',tg:'Ту бояд тести имрӯзаатро иҷро кунӣ! Ҳанӯз иҷро накардаӣ, туро ҳабс мекунам.',ky:'Бүгүнкү тестиңди аткарышың керек! Али аткара элексиң, сени кармайм.'},'Ты не прошёл задание дня — сейчас арестую!']};
 const copInner=m=>{const c=COPS[m],t=typeof c[1]==='object'?c[1][LANG]||c[1].fr:c[1],img=Array.isArray(c[0])?c[0][Math.random()*c[0].length|0]:c[0];return`<img class="${/^(policiere|agent|alina-(main|baton|menottes|pouce))/.test(img)?'ph':''}" src="cop/${img}.webp" alt="${/^(policiere|agent|alina-(main|baton|menottes|pouce))/.test(img)?'Policière':'Policier'}"><p class="cb">${t}<em>${c[2]}</em></p>`};
 function copRow(done){const m=copHi?'hi':done?'ok':'ko';
   if(copHi){copHi=false;setTimeout(()=>{const r=document.querySelector('.dqcop');if(r){const m2=r.dataset.m;r.className='dqcop '+m2;r.innerHTML=copInner(m2);bindCop()}},2400)}
