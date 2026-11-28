@@ -146,6 +146,7 @@ body.rtl .fr,body.rtl .kw li span,body.rtl .vm .col.f button,body.rtl .wtip,body
 .tw2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .timg{width:100%;height:auto;min-height:40px;border-radius:8px;background:#000}
 .tzoom{position:fixed;inset:0;z-index:999;background:rgba(5,8,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}.tzoom img{width:100%;max-width:900px;height:auto;border-radius:10px}.tzoom span{color:var(--mut);font-size:14px}.timg{cursor:zoom-in}
+.trh{margin:22px 0 4px;font-size:22px;color:#FFE2B8}.trlist a.trtl{border-color:var(--amber);color:var(--amber);font-weight:700}
 .trlist{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}.trlist a{font-size:13px;color:var(--fr);border:1px solid var(--line);border-radius:999px;padding:5px 10px;text-decoration:none}
 .tcol{display:flex;flex-direction:column;gap:8px;background:var(--night);border:1px solid var(--line);border-radius:12px;padding:10px}
 .tlab{font-size:12px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
@@ -858,10 +859,13 @@ traps(){S={view:'traps'};
   <button class="btn" id="trall" style="width:100%;margin:4px 0 10px">Tous les pièges · ${TRAP_IDX().length} questions</button>
   <p class="note" style="margin-top:0">Les paires arrivent dans un ordre au hasard, les deux jumelles l'une après l'autre.</p>
   <p class="note" style="margin:0">Touche une image pour l'agrandir.</p>
-  <div class="trlist">${TRAPS.map((p,i)=>`<a href="#tr-${p.id}">${i+1}. ${esc(p.name)}</a>`).join('')}</div>
-  ${TRAPS.map(trapCard).join('')}`;
+  <div class="trlist">${TRAPS.filter(p=>p.cat!=='tram').map((p,i)=>`<a href="#tr-${p.id}">${i+1}. ${esc(p.name)}</a>`).join('')}<a href="#tr-tram" class="trtl">Tramways · ${TRAPS.filter(p=>p.cat==='tram').length} paires</a></div>
+  <h2 class="trh">Mots, couleurs et détails</h2>${TRAPS.filter(p=>p.cat!=='tram').map(trapCard).join('')}
+  <h2 class="trh" id="tr-tram">Tramways</h2><button class="btn" id="trtram" style="width:100%;margin:0 0 4px">Tous les pièges tram · ${TRAPS.filter(p=>p.cat==='tram').length*2} questions</button>
+  ${TRAPS.filter(p=>p.cat==='tram').map(trapCard).join('')}`;
   $('#trback').onclick=()=>{render.home();scrollTo(0,0)};
   $('#trall').onclick=()=>startList(trapAll(),'Pièges','free');
+  $('#trtram').onclick=()=>startList(shuffle(TRAPS.filter(p=>p.cat==='tram')).flatMap(p=>shuffle(p.q.map(trapK))),'Pièges · tramways','free');
   app.querySelectorAll('.trlist a').forEach(a=>a.onclick=ev=>{ev.preventDefault();const el=document.querySelector(a.getAttribute('href'));if(el)el.scrollIntoView({behavior:'smooth'})});
   app.querySelectorAll('img.timg').forEach(im=>{const t=+im.dataset.t;loadImg(t).then(()=>{if(IMG[t])im.src=IMG[t][im.dataset.i]})});
   app.querySelectorAll('img.timg').forEach(im=>im.onclick=()=>{if(!im.src)return;const z=document.createElement('div');z.className='tzoom';z.innerHTML=`<img src="${im.src}" alt=""><span>Touche pour fermer</span>`;z.onclick=()=>z.remove();document.body.appendChild(z)});
@@ -943,7 +947,7 @@ const ROUTE_TIP=`<div class="card0" style="margin:0 0 14px"><b>Rappel avant de c
 <li><b>Перекрёсток</b> : croisement de deux routes au même niveau. La sortie d'une cour, d'un parking ou d'une station (прилегающая территория) <b>n'est pas</b> un carrefour.</li>
 <li>Les trottoirs et les accotements (обочины) <b>font partie</b> de la route.</li></ul></div>`;
 /* pièges : questions presque identiques où un mot, une couleur ou un détail de l'image change la réponse */
-const T_=(id,name,ru,q,w,fw,ans,diff,tip,memo)=>({id,name,ru,q,w,fw,ans,diff,tip,memo});
+const T_=(id,name,ru,q,w,fw,ans,diff,tip,memo,cat='gen')=>({id,name,ru,q,w,fw,ans,diff,tip,memo,cat});
 const TRAPS=[
 T_('portiere','Monter ou descendre de voiture','Посадка / высадка',[[40,19],[5,19]],['посадке','высадке'],['monter','descendant'],['Par l\'AVANT','Par l\'ARRIÈRE'],
  'Un seul mot change dans la question.',
@@ -1012,7 +1016,27 @@ T_('voiedroite','Changement de voie : conducteur de gauche ou de droite','Пер
 T_('arretne','Arrêt : qui est en faute, qui est en règle','Нарушили / не нарушили',[[35,12],[38,12]],['не нарушили','нарушили'],['n\'ont pas enfreint','ont enfreint'],['А et Б (en règle)','А et В (en faute)'],
  'La question est retournée (« не нарушили », puis « нарушили »). Les deux photos montrent une rue à sens unique.',
  `Sur une route à sens unique en agglomération, on peut s'arrêter des deux côtés.<br>Première photo : А et Б sont en règle ; В est dans la zone d'un panneau « Arrêt interdit ».<br>Seconde photo : А et В sont juste avant le passage piéton (arrêt interdit à moins de 5 m avant) ; Б est après, en règle.`,
- `Repère « не » avant de répondre.`)];
+ `Repère « не » avant de répondre.`),
+T_('tramfeu','Feu spécial pour le tram','Сигнал для трамвая',[[13,13],[15,13]],['не обязаны','обязаны'],['n\'êtes pas obligé','devez'],['Je passe (tout droit ou à droite)','Je cède (tout droit ou à gauche)'],
+ 'Même carrefour, même tram à gauche, même feu vert. Sur la première photo, au-dessus du feu ordinaire, un feu blanc spécial pour les trams. Sur la seconde, pas de feu pour les trams. La question est aussi retournée (« не обязаны », puis « обязаны »).',
+ `<b>Avec le feu blanc pour trams</b> : il commande le tram. Ici, il lui permet seulement d'aller tout droit. Le tram veut tourner à droite : il attend. Avec ton feu vert, tu passes tout droit ou à droite sans lui céder.<br><b>Sans feu pour trams</b> : le tram et toi avez le même feu vert. À égalité, le tram est prioritaire : tu lui cèdes, tout droit comme pour tourner à gauche depuis les rails.`,
+ `Même feu vert pour les deux → le tram passe d'abord. Feu blanc qui interdit au tram d'aller où il veut → c'est toi qui passes.`,'tram'),
+T_('tramvoies','Tourner à gauche : depuis les rails ou depuis la voie de gauche','Поворот налево с трамвайных путей',[[6,13],[29,14]],['',''],['',''],['Depuis les rails, après le tram','Depuis la voie de gauche, après le tram'],
+ 'Même question, le tram à gauche dans les deux cas. Sur la seconde photo, un panneau bleu au-dessus de la route montre les voies : on tourne à gauche depuis la voie de gauche.',
+ `<b>Sans panneau de voies</b> : quand les rails de même sens sont au niveau de la chaussée, tu tournes à gauche <b>depuis les rails</b>. Tu laisses d'abord passer le tram, puis tu te places sur les rails.<br><b>Avec un panneau de voies</b> (5.15.1) ou un marquage qui indique autre chose, tu suis les flèches : ici, tu tournes depuis la voie de gauche. Le tram reste prioritaire : tu le laisses passer.`,
+ `Pas de panneau de voies → je tourne depuis les rails. Panneau de voies → je suis ses flèches.`,'tram'),
+T_('tramjaune','Feu jaune clignotant : route prioritaire tout droit ou qui tourne','Жёлтый мигающий и главная дорога',[[11,15],[12,15]],['',''],['',''],['Je passe en premier','Je cède seulement à la voiture'],
+ 'Même carrefour, tram à gauche, feu jaune clignotant, losange jaune. Sur la seconde photo, une plaque sous le losange montre que la route prioritaire tourne à droite.',
+ `Feu jaune clignotant = le feu ne règle rien, tu suis les panneaux.<br>Première photo : la route prioritaire va tout droit. Le tram et le camion sont sur la route secondaire : tu passes en premier.<br>Seconde photo : la route prioritaire tourne à droite (plaque 8.13). La voiture, à ta droite, est aussi sur la route prioritaire : règle de la main droite, tu lui cèdes. Le tram est sur la route secondaire : il attend.`,
+ `Regarde toujours s'il y a une plaque sous le losange : le trait épais dessine le trajet de la route prioritaire.`,'tram'),
+T_('tramdroite','Tout droit à égalité : le tram plus un véhicule à droite ou à gauche','Трамвай и правило правой руки',[[5,14],[10,14]],['',''],['',''],['Seulement au tram','Au tram et au camion'],
+ 'Même carrefour sans panneau. Sur la première photo, le tram vient de droite et la voiture de gauche. Sur la seconde, le tram vient de gauche et le camion de droite.',
+ `À routes équivalentes, le tram passe d'abord, d'où qu'il vienne. Entre véhicules sans rails, règle de la main droite.<br>Voiture à ta gauche : c'est elle qui te cède. Tu cèdes seulement au tram.<br>Camion à ta droite : tu lui cèdes aussi. Tu cèdes aux deux ; ils passent en même temps.`,
+ `Le tram, toujours. Les autres, seulement s'ils viennent de ma droite.`,'tram'),
+T_('tramplaque','Tourner à gauche avec deux trams : qui est sur la route prioritaire','Трамваи А и Б',[[3,15],[8,15]],['',''],['',''],['Seulement au tram А','Au tram Б et à la voiture'],
+ 'Deux trams А et Б, une voiture, un losange jaune avec une plaque. Le dessin de la plaque change : c\'est lui qui dit qui est sur la route prioritaire.',
+ `Première photo : toi et le tram А êtes sur la route prioritaire. Tu cèdes seulement au tram А. La voiture et le tram Б sont sur la route secondaire : ils passent après.<br>Seconde photo : toi, le tram Б et la voiture êtes sur la route prioritaire. Tu cèdes au tram Б, puis à la voiture qui va tout droit. Le tram А est sur la route secondaire : il passe en dernier.`,
+ `Suis avec le doigt le trait épais de la plaque : ceux qui sont dessus passent avant les autres.`,'tram')];
 const trapK=([t,n])=>Q.findIndex(q=>q.t===t&&q.n===n);
 const TRAP_IDX=()=>TRAPS.flatMap(p=>p.q.map(trapK)).filter(k=>k>=0);
 const trapOf=k=>TRAPS.find(p=>p.q.some(x=>trapK(x)===k));
