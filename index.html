@@ -748,8 +748,9 @@ home(){S={view:'home'};const s=stats(),vk=Object.keys(st.v).length,nf=Object.key
    ${tile('topics','#2D4F86','Thèmes','Темы','Entraînement en billets','topics')}
    ${tile('errors','#8A5A2B','Erreurs ('+err+')','Ошибки',err?'À revoir':'Aucune pour l\'instant','errors')}
   </div>
-  `+TRAPBN()+dailyCard()+`
+  `+dailyCard()+`
   <div class="tiles sq">
+   ${sq('traps','img/ui/carre-pieges','#FF9A2E','Pièges','Вопросы-ловушки',TRAPS.length+' paires · '+TRAP_IDX().length+' questions')}
    ${sq('ana','img/ui/carre-ana','#FF4F7B','Mon analyse','Мой анализ','Points forts et faibles')}
    ${sq('texam','img/ui/carre-texam','#3FA9FF','Examen par thème','Экзамен по темам','Comme au ГИБДД')}
    ${sq('fav','img/ui/carre-fav','#F2B705','Favoris','Избранное',nf?nf+' question'+(nf>1?'s':''):'Touche l\'étoile ☆')}
@@ -788,13 +789,13 @@ tickets(){S={view:'tickets'};
 topics(){S={view:'topics'};const L=THEMES();
   const row=T=>{const bt=themeTickets(T.list),ok=bt.filter((_,b)=>{const r=st.tt[T.id+'|'+b];return r&&r.last===0}).length,go=bt.filter((_,b)=>st.tp[T.id+'|'+b]).length;
     return`<button class="row" data-th="${esc(T.id)}">${thIco(T.id)}<span><b>${esc(T.name)}</b><em class="ru">${esc(T.ru)}</em><small>${T.list.length} questions · ${bt.length} billet${bt.length>1?'s':''}${ok?` · <span style="color:var(--grn)">${ok} sans faute</span>`:''}${go?` · <span style="color:#e07b00">${go} à terminer</span>`:''}</small></span></button>`};
-  app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>${TRAPBN()}
-  <div class="rows">${L.filter(T=>T.id==='REG'||T.id==='ROUTE').map(row).join('')}</div>
+  app.innerHTML=`<div class="guide">${PORT('vera-voiture','Vera, policière')}<div class="gt"><h1>Thèmes · entraînement</h1></div></div><p class="sub">Темы. Chaque thème est découpé en billets de 20 questions environ. Correction et explication après chaque réponse, sans chrono.</p>
+  <div class="rows"><button class="row trrow">${icoImg('pieges')}<span><b>Pièges</b><em class="ru">Вопросы-ловушки</em><small>${TRAPS.length} paires · ${TRAP_IDX().length} questions</small></span></button>${L.filter(T=>T.id==='REG'||T.id==='ROUTE').map(row).join('')}</div>
   <h2>Par type de question</h2><p class="sub" style="margin-top:0">Toutes les questions sans image (idéal pour le vocabulaire), puis toutes celles avec image, en billets de 20 dans l'ordre officiel. Un billet pas terminé reprend là où tu t'es arrêté.</p><div class="rows">${L.filter(T=>T.id==='NOIMG'||T.id==='IMG').map(row).join('')}</div>
   <h2>Thèmes officiels</h2><div class="rows">${L.filter(T=>!['REG','ROUTE','NOIMG','IMG'].includes(T.id)).map(row).join('')}</div>
   <p class="note">Pour te tester sans correction, va dans <button class="tbtn" id="gotex" style="color:var(--fr);border-color:var(--fr);min-height:32px">Thèmes · examen</button></p>`;
   app.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{render.theme(b.dataset.th);scrollTo(0,0)});
-  {const tb=app.querySelector('.trapbn');if(tb)tb.onclick=()=>{render.traps();scrollTo(0,0)}}
+  {const tb=app.querySelector(".trrow");if(tb)tb.onclick=()=>{render.traps();scrollTo(0,0)}}
   $('#gotex').onclick=()=>{render.texam();scrollTo(0,0)}},
 theme(id){const T=THEMES().find(x=>x.id===id);if(!T)return render.topics();S={view:'theme',id};const bt=themeTickets(T.list);
   app.innerHTML=`<p style="margin:0 0 6px"><button class="tbtn" id="tback" style="color:var(--fr);border-color:var(--fr);min-height:32px">‹ Thèmes</button></p>
